@@ -64,9 +64,8 @@ int main()
                 fread(&level[i][j], sizeof(char), 1, levelFile);
             }
 
-            // Descartar caractere de nova linha
-            char charDisposal;
-            fread(&charDisposal, sizeof(char), 1, levelFile);
+            // Pular caractere de nova linha
+            fseek(levelFile, 2, SEEK_CUR);
         }
 
         // Fechar arquivo texto do nível
