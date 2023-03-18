@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <stdbool.h>
 #include <stdio.h>
 #define MAX_NAME 3
 #define LVL_WIDTH 30
@@ -20,6 +21,7 @@ typedef struct player
     int energy;
     int ladders;
     char lastMined;
+    bool miningMode;
 } player_t;
 
 void loadLevel(char (*level)[LVL_WIDTH], int currentLevel);
@@ -45,10 +47,11 @@ int main()
     Texture2D dirtTexture = LoadTexture("sprites/dirt.png");
     Texture2D HUDTexture = LoadTexture("sprites/hud.png");
     Texture2D oreTexture = LoadTexture("sprites/ore.png");
+    Texture2D playerPickaxeTexture = LoadTexture("sprites/player_pickaxe.png");
     Texture2D playerTexture = LoadTexture("sprites/player.png");
 
     // Inicalizar jogador
-    player_t player = {{11, 2}, {0}, 0, 3, 100, 20, 0};
+    player_t player = {{11, 2}, {0}, 0, 3, 100, 20, 0, false};
 
     // Carregar nível inicial
     int currentLevel = 1;
@@ -66,6 +69,10 @@ int main()
             moveHorizontal(level, &player, 1);
         if (IsKeyPressed(KEY_LEFT))
             moveHorizontal(level, &player, -1);
+
+        // Verificar modo mineração
+        if (IsKeyPressed(KEY_ONE) || IsKeyPressed(KEY_KP_1))
+            player.miningMode = !player.miningMode;
 
         // ------------------------------------------------------------------------------------ //
         // Draw                                                                                 //
@@ -98,7 +105,10 @@ int main()
                     currentTexture = borderTexture;
                     break;
                 case 'J':
-                    currentTexture = playerTexture;
+                    if (player.miningMode)
+                        currentTexture = playerPickaxeTexture;
+                    else
+                        currentTexture = playerTexture;
                     break;
                 }
 
