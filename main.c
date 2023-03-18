@@ -3,6 +3,7 @@
 #define MAX_NAME 3
 #define LVL_WIDTH 30
 #define LVL_HEIGHT 20
+#define HUD_FONT_SIZE 26
 
 typedef struct position
 {
@@ -24,6 +25,7 @@ typedef struct player
 void loadLevel(char (*level)[LVL_WIDTH], int currentLevel);
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
+void drawHUD(player_t *player, int currentLevel);
 
 int main()
 {
@@ -33,7 +35,6 @@ int main()
     const int screenWidth = 1200;
     const int screenHeight = 800;
     const int elementSize = 40;
-    const int HUDFontSize = 26;
 
     // Incializar janela do jogo
     InitWindow(screenWidth, screenHeight, "TerraINF");
@@ -108,13 +109,7 @@ int main()
 
         // Desenhar HUD
         DrawTexture(HUDTexture, 0, 0, WHITE);
-        DrawText(TextFormat("%i", player.lives), 66, 8, HUDFontSize, RAYWHITE);
-        DrawText(TextFormat("%i", player.energy), 177, 8, HUDFontSize, RAYWHITE);
-        DrawText(TextFormat("%i", player.ladders), 311, 8, HUDFontSize, RAYWHITE);
-        DrawText(TextFormat("%i", player.score),
-                 (956 - MeasureText(TextFormat("%i", player.score), 28)), 8, 28, RAYWHITE);
-        DrawText("/1000", 962, 14, 20, DARKGRAY);
-        DrawText(TextFormat("Nível %i", currentLevel), 1080, 8, HUDFontSize, RAYWHITE);
+        drawHUD(&player, currentLevel);
 
         EndDrawing();
     }
@@ -164,6 +159,8 @@ void loadLevel(char (*level)[LVL_WIDTH], int currentLevel)
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y)
 {
     int fallSize = 0;
+
+    // Aumentar tamanho da queda a cada bloco vazio abaixo do destino
     while (level[y + 1][x] == ' ')
     {
         y++;
@@ -192,4 +189,15 @@ void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
         if (fallSize > 3)
             player->lives -= 1;
     }
+}
+
+void drawHUD(player_t *player, int currentLevel)
+{
+    DrawText(TextFormat("%i", player->lives), 66, 8, HUD_FONT_SIZE, RAYWHITE);
+    DrawText(TextFormat("%i", player->energy), 177, 8, HUD_FONT_SIZE, RAYWHITE);
+    DrawText(TextFormat("%i", player->ladders), 311, 8, HUD_FONT_SIZE, RAYWHITE);
+    DrawText(TextFormat("%i", player->score),
+             (956 - MeasureText(TextFormat("%i", player->score), 28)), 8, 28, RAYWHITE);
+    DrawText("/1000", 962, 14, 20, DARKGRAY);
+    DrawText(TextFormat("Nível %i", currentLevel), 1080, 8, HUD_FONT_SIZE, RAYWHITE);
 }
