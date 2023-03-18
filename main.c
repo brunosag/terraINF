@@ -27,6 +27,7 @@ typedef struct player
 void loadLevel(char (*level)[LVL_WIDTH], int currentLevel);
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
+void mine(char (*level)[LVL_WIDTH], player_t *player, int direction);
 void drawHUD(player_t *player, int currentLevel);
 
 int main()
@@ -64,15 +65,34 @@ int main()
         // Update                                                                               //
         // ------------------------------------------------------------------------------------ //
 
-        // Verificar movimentação horizontal
+        // Verificar movimentação
+        int direction;
         if (IsKeyPressed(KEY_D))
+        {
             moveHorizontal(level, &player, 1);
+            direction = KEY_D;
+        }
         if (IsKeyPressed(KEY_A))
+        {
             moveHorizontal(level, &player, -1);
+            direction = KEY_A;
+        }
+        if (IsKeyPressed(KEY_W))
+        {
+            direction = KEY_W;
+        }
+        if (IsKeyPressed(KEY_S))
+        {
+            direction = KEY_S;
+        }
 
         // Verificar modo mineração
         if (IsKeyPressed(KEY_ONE))
             player.miningMode = !player.miningMode;
+
+        // Verificar mineração
+        if (IsKeyPressed(KEY_SPACE) && player.miningMode)
+            mine(level, &player, direction);
 
         // ------------------------------------------------------------------------------------ //
         // Draw                                                                                 //
@@ -181,15 +201,16 @@ int getFallSize(char (*level)[LVL_WIDTH], int x, int y)
 
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
 {
-    // Verificar se bloco destino é vazio
-    if (level[player->position.y][player->position.x + offset] == ' ')
+    // Verificar se bloco destino é vazio ou jogador
+    if (level[player->position.y][player->position.x + offset] == ' ' ||
+        level[player->position.y][player->position.x + offset] == 'J')
     {
         // Verificar tamanho da queda causada pelo movimento
         int fallSize = getFallSize(level, (player->position.x + offset), player->position.y);
 
         // Alterar matriz
-        level[player->position.y + fallSize][player->position.x + offset] = 'J';
         level[player->position.y][player->position.x] = ' ';
+        level[player->position.y + fallSize][player->position.x + offset] = 'J';
 
         // Alterar valores posição do jogador
         player->position.x += offset;
@@ -198,6 +219,64 @@ void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
         // Retirar vida se queda maior que 3 blocos
         if (fallSize > 3)
             player->lives -= 1;
+    }
+}
+
+void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
+{
+    // Verificar bloco alvo
+    char *block = NULL;
+    switch (direction)
+    {
+    case (KEY_W):
+        block = &level[player->position.y - 1][player->position.x];
+        break;
+    case (KEY_S):
+        block = &level[player->position.y + 1][player->position.x];
+        break;
+    case (KEY_D):
+        block = &level[player->position.y][player->position.x + 1];
+        break;
+    case (KEY_A):
+        block = &level[player->position.y][player->position.x - 1];
+        break;
+    }
+
+    // Verificar se bloco alvo é minerável
+    if (*block == 'X' || *block == 'T' || *block == 'G' || *block == 'S' || *block == 'C' ||
+        *block == 'U')
+    {
+        // Atualizar energia e score do jogador
+        switch (*block)
+        {
+        case 'X':
+            player->energy -= 3;
+            break;
+        case 'T':
+            player->energy += 30;
+            player->score += 150;
+            break;
+        case 'G':
+            player->energy += 20;
+            player->score += 100;
+            break;
+        case 'S':
+            player->energy += 10;
+            player->score += 50;
+            break;
+        case 'C':
+            player->energy -= 20;
+            break;
+        case 'U':
+            player->energy -= 30;
+            break;
+        }
+
+        // Remover bloco
+        *block = ' ';
+
+        // Lidar com queda se houver
+        moveHorizontal(level, player, 0);
     }
 }
 
