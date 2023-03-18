@@ -30,7 +30,9 @@ void updateEnergy(player_t *player, int offset);
 void updateScore(player_t *player, int offset);
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
+void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset);
 void mine(char (*level)[LVL_WIDTH], player_t *player, int direction);
+void placeLadder(char (*level)[LVL_WIDTH], player_t *player);
 void drawHUD(player_t *player, int currentLevel);
 
 int main()
@@ -50,7 +52,10 @@ int main()
     Texture2D borderTexture = LoadTexture("sprites/border.png");
     Texture2D dirtTexture = LoadTexture("sprites/dirt.png");
     Texture2D HUDTexture = LoadTexture("sprites/hud.png");
+    Texture2D ladderTexture = LoadTexture("sprites/ladder.png");
     Texture2D oreTexture = LoadTexture("sprites/ore.png");
+    Texture2D playerLadderPickaxeTexture = LoadTexture("sprites/player_ladder_pickaxe.png");
+    Texture2D playerLadderTexture = LoadTexture("sprites/player_ladder.png");
     Texture2D playerPickaxeTexture = LoadTexture("sprites/player_pickaxe.png");
     Texture2D playerTexture = LoadTexture("sprites/player.png");
 
@@ -82,10 +87,12 @@ int main()
         }
         if (IsKeyPressed(KEY_W))
         {
+            moveVertical(level, &player, -1);
             direction = KEY_W;
         }
         if (IsKeyPressed(KEY_S))
         {
+            moveVertical(level, &player, 1);
             direction = KEY_S;
         }
 
@@ -96,6 +103,10 @@ int main()
         // Verificar mineração
         if (IsKeyPressed(KEY_SPACE) && player.miningMode)
             mine(level, &player, direction);
+
+        // Verificar posicionamento de escada
+        if (IsKeyPressed(KEY_LEFT_SHIFT))
+            placeLadder(level, &player);
 
         // ------------------------------------------------------------------------------------ //
         // Draw                                                                                 //
@@ -126,6 +137,15 @@ int main()
                     break;
                 case 'B':
                     currentTexture = borderTexture;
+                    break;
+                case 'H':
+                    currentTexture = ladderTexture;
+                    break;
+                case 'E':
+                    if (player.miningMode)
+                        currentTexture = playerLadderPickaxeTexture;
+                    else
+                        currentTexture = playerLadderTexture;
                     break;
                 case 'J':
                     if (player.miningMode)
@@ -191,7 +211,7 @@ void loadLevel(char (*level)[LVL_WIDTH], int currentLevel)
 
 void reduceHealth(player_t *player)
 {
-    player->health -= 1;
+    player->health--;
 }
 
 void updateEnergy(player_t *player, int offset)
@@ -225,16 +245,24 @@ int getFallSize(char (*level)[LVL_WIDTH], int x, int y)
 
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
 {
-    // Verificar se bloco destino é vazio ou jogador
-    if (level[player->position.y][player->position.x + offset] == ' ' ||
-        level[player->position.y][player->position.x + offset] == 'J')
+    // Verificar se bloco destino livre
+    char *target = &level[player->position.y][player->position.x + offset];
+    if (*target == ' ' || *target == 'J' || *target == 'H' || *target == 'E')
     {
         // Verificar tamanho da queda causada pelo movimento
         int fallSize = getFallSize(level, (player->position.x + offset), player->position.y);
 
-        // Alterar matriz
-        level[player->position.y][player->position.x] = ' ';
-        level[player->position.y + fallSize][player->position.x + offset] = 'J';
+        // Alterar bloco atual na matriz
+        if (level[player->position.y][player->position.x] == 'J')
+            level[player->position.y][player->position.x] = ' ';
+        else
+            level[player->position.y][player->position.x] = 'H';
+
+        // Alterar bloco alvo na matriz
+        if (level[player->position.y + fallSize][player->position.x + offset] == ' ')
+            level[player->position.y + fallSize][player->position.x + offset] = 'J';
+        else
+            level[player->position.y + fallSize][player->position.x + offset] = 'E';
 
         // Alterar valores posição do jogador
         player->position.x += offset;
@@ -243,6 +271,21 @@ void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
         // Retirar vida se queda maior que 3 blocos
         if (fallSize > 3)
             reduceHealth(player);
+    }
+}
+
+void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset)
+{
+    // Verificar se bloco atual e destino possuem escadas
+    if (level[player->position.y][player->position.x] == 'E' &&
+        level[player->position.y + offset][player->position.x] == 'H')
+    {
+        // Alterar matriz
+        level[player->position.y][player->position.x] = 'H';
+        level[player->position.y + offset][player->position.x] = 'E';
+
+        // Alterar valores posição do jogador
+        player->position.y += offset;
     }
 }
 
@@ -301,6 +344,36 @@ void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
 
         // Lidar com queda se houver
         moveHorizontal(level, player, 0);
+    }
+}
+
+void placeLadder(char (*level)[LVL_WIDTH], player_t *player)
+{
+    if (player->ladders > 0)
+    {
+        int distance = 0;
+
+        // Verificar escadas já posicionadas e definir alvo
+        while (level[player->position.y - distance][player->position.x] == 'E' ||
+               level[player->position.y - distance][player->position.x] == 'H')
+        {
+            distance++;
+        }
+        char *target = &level[player->position.y - distance][player->position.x];
+
+        // Verificar se alvo é jogador
+        if (*target == ' ')
+        {
+            *target = 'H';
+            player->ladders--;
+        }
+
+        // Verificar se alvo é vazio
+        if (*target == 'J')
+        {
+            *target = 'E';
+            player->ladders--;
+        }
     }
 }
 
