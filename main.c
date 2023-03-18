@@ -17,7 +17,7 @@ typedef struct player
     position_t position;
     char name[MAX_NAME + 1];
     int score;
-    int lives;
+    int health;
     int energy;
     int ladders;
     char lastMined;
@@ -25,6 +25,9 @@ typedef struct player
 } player_t;
 
 void loadLevel(char (*level)[LVL_WIDTH], int currentLevel);
+void reduceHealth(player_t *player);
+void updateEnergy(player_t *player, int offset);
+void updateScore(player_t *player, int offset);
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
 void mine(char (*level)[LVL_WIDTH], player_t *player, int direction);
@@ -186,6 +189,27 @@ void loadLevel(char (*level)[LVL_WIDTH], int currentLevel)
     fclose(levelFile);
 }
 
+void reduceHealth(player_t *player)
+{
+    player->health -= 1;
+}
+
+void updateEnergy(player_t *player, int offset)
+{
+    player->energy += offset;
+    if (player->energy <= 20)
+    {
+        // Retirar vida e restaurar energia
+        reduceHealth(player);
+        player->energy = 100;
+    }
+}
+
+void updateScore(player_t *player, int offset)
+{
+    player->score += offset;
+}
+
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y)
 {
     int fallSize = 0;
@@ -218,7 +242,7 @@ void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
 
         // Retirar vida se queda maior que 3 blocos
         if (fallSize > 3)
-            player->lives -= 1;
+            reduceHealth(player);
     }
 }
 
@@ -250,25 +274,25 @@ void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
         switch (*block)
         {
         case 'X':
-            player->energy -= 3;
+            updateEnergy(player, -3);
             break;
         case 'T':
-            player->energy += 30;
-            player->score += 150;
+            updateEnergy(player, 30);
+            updateScore(player, 150);
             break;
         case 'G':
-            player->energy += 20;
-            player->score += 100;
+            updateEnergy(player, 20);
+            updateScore(player, 100);
             break;
         case 'S':
-            player->energy += 10;
-            player->score += 50;
+            updateEnergy(player, 10);
+            updateScore(player, 50);
             break;
         case 'C':
-            player->energy -= 20;
+            updateEnergy(player, -20);
             break;
         case 'U':
-            player->energy -= 30;
+            updateEnergy(player, -30);
             break;
         }
 
@@ -282,7 +306,7 @@ void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
 
 void drawHUD(player_t *player, int currentLevel)
 {
-    DrawText(TextFormat("%i", player->lives), 66, 8, HUD_FONT_SIZE, RAYWHITE);
+    DrawText(TextFormat("%i", player->health), 66, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->energy), 177, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->ladders), 311, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->score),
