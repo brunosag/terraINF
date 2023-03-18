@@ -21,7 +21,8 @@ typedef struct player
     char lastMined;
 } player_t;
 
-int fall(char (*level)[LVL_WIDTH], int x, int y);
+void loadLevel(char (*level)[LVL_WIDTH], int currentLevel);
+int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
 
 int main()
@@ -48,29 +49,10 @@ int main()
     // Inicalizar jogador
     player_t player = {{11, 2}, {0}, 0, 3, 100, 20, 0};
 
-    // Definir nível inicial
+    // Carregar nível inicial
     int currentLevel = 1;
-
-    // Abrir arquivo texto do nível
-    FILE *levelFile = fopen("nivel1.txt", "r");
-    if (levelFile == NULL)
-        printf("Erro ao ler o arquivo da matriz do nível.");
-
-    // Ler caracteres do arquivo e transferir para matriz
     char level[LVL_HEIGHT][LVL_WIDTH];
-    for (int i = 0; i < LVL_HEIGHT; i++)
-    {
-        for (int j = 0; j < LVL_WIDTH; j++)
-        {
-            fread(&level[i][j], sizeof(char), 1, levelFile);
-        }
-
-        // Pular caractere de nova linha
-        fseek(levelFile, 2, SEEK_CUR);
-    }
-
-    // Fechar arquivo texto do nível
-    fclose(levelFile);
+    loadLevel(level, currentLevel);
 
     while (!WindowShouldClose())
     {
@@ -139,6 +121,44 @@ int main()
 
     CloseWindow();
     return 0;
+}
+
+void loadLevel(char (*level)[LVL_WIDTH], int currentLevel)
+{
+    // Ajustar nome do arquivo
+    char *filename;
+    switch (currentLevel)
+    {
+    case 1:
+        filename = "nivel1.txt";
+        break;
+    case 2:
+        filename = "nivel2.txt";
+        break;
+    case 3:
+        filename = "nivel3.txt";
+        break;
+    }
+
+    // Abrir arquivo texto do nível
+    FILE *levelFile = fopen(filename, "r");
+    if (levelFile == NULL)
+        printf("Erro ao ler o arquivo da matriz do nível.");
+
+    // Ler caracteres do arquivo e transferir para matriz
+    for (int i = 0; i < LVL_HEIGHT; i++)
+    {
+        for (int j = 0; j < LVL_WIDTH; j++)
+        {
+            fread(&level[i][j], sizeof(char), 1, levelFile);
+        }
+
+        // Pular caractere de nova linha
+        fseek(levelFile, 2, SEEK_CUR);
+    }
+
+    // Fechar arquivo texto do nível
+    fclose(levelFile);
 }
 
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y)
