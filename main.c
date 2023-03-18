@@ -65,13 +65,13 @@ int main()
         // ------------------------------------------------------------------------------------ //
 
         // Verificar movimentação horizontal
-        if (IsKeyPressed(KEY_RIGHT))
+        if (IsKeyPressed(KEY_D))
             moveHorizontal(level, &player, 1);
-        if (IsKeyPressed(KEY_LEFT))
+        if (IsKeyPressed(KEY_A))
             moveHorizontal(level, &player, -1);
 
         // Verificar modo mineração
-        if (IsKeyPressed(KEY_ONE) || IsKeyPressed(KEY_KP_1))
+        if (IsKeyPressed(KEY_ONE))
             player.miningMode = !player.miningMode;
 
         // ------------------------------------------------------------------------------------ //
