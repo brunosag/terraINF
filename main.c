@@ -1,3 +1,13 @@
+/*
+ * File:         main.c
+ * Authors:      Ana Rodrigues, Bruno Samuel e Pedro Lima
+ * Date Created: 24/02/2023
+ * 
+ * Description:  Arquivo principal do projeto com a implementação
+ *               das funções de manipulação de arquivos, lógica do
+ *               jogo e interface do(s) jogador(es).
+ */
+
 #include "raylib.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -44,7 +54,7 @@ int main()
     const int screenHeight = 800;
     const int elementSize = 40;
 
-    // Incializar janela do jogo
+    // Inicializar janela do jogo
     InitWindow(screenWidth, screenHeight, "TerraINF");
 
     // Carregar sprites
@@ -59,7 +69,7 @@ int main()
     Texture2D playerPickaxeTexture = LoadTexture("sprites/player_pickaxe.png");
     Texture2D playerTexture = LoadTexture("sprites/player.png");
 
-    // Inicalizar jogador
+    // Inicializar jogador
     player_t player = {{11, 2}, {0}, 0, 3, 100, 20, 0, false};
 
     // Carregar nível inicial
