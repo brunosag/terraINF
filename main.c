@@ -234,22 +234,22 @@ void startGame()
         // ------------------------------------------------------------------------------------ //
 
         // Verificar movimentação
-        if (IsKeyPressed(KEY_D))
+        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
         {
             moveHorizontal(level, &player, 1);
             direction = KEY_D;
         }
-        if (IsKeyPressed(KEY_A))
+        if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
         {
             moveHorizontal(level, &player, -1);
             direction = KEY_A;
         }
-        if (IsKeyPressed(KEY_W))
+        if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
         {
             moveVertical(level, &player, -1);
             direction = KEY_W;
         }
-        if (IsKeyPressed(KEY_S))
+        if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
         {
             moveVertical(level, &player, 1);
             direction = KEY_S;
@@ -440,15 +440,19 @@ void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
     switch (direction)
     {
     case (KEY_W):
+    case (KEY_UP):
         block = &level[player->position.y - 1][player->position.x];
         break;
     case (KEY_S):
+    case (KEY_DOWN):
         block = &level[player->position.y + 1][player->position.x];
         break;
     case (KEY_D):
+    case (KEY_RIGHT):
         block = &level[player->position.y][player->position.x + 1];
         break;
     case (KEY_A):
+    case (KEY_LEFT):
         block = &level[player->position.y][player->position.x - 1];
         break;
     }
