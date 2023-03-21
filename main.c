@@ -16,8 +16,12 @@
 #define MAX_LVL_NAME 30
 #define LVL_WIDTH 30
 #define LVL_HEIGHT 20
+#define SCREEN_WIDTH 1200
+#define SCREEN_HEIGHT 800
+#define ELEMENT_SIZE 40
 #define HUD_FONT_SIZE 26
 #define HUD_ORE_SIZE 8
+#define MENU_FONT_SIZE 22
 
 #define CHAR_PLAYER 'J'
 #define CHAR_GOLD 'G'
@@ -30,6 +34,14 @@
 #define CHAR_DIRT 'X'
 #define CHAR_LADDER 'H'
 #define CHAR_PLAYER_LADDER 'E'
+
+typedef enum menu_option
+{
+    StartGame = 1,
+    Ranking,
+    LevelEditor,
+    Exit
+} menu_option_t;
 
 typedef struct position
 {
@@ -64,6 +76,8 @@ void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset);
 void mine(char (*level)[LVL_WIDTH], player_t *player, int direction);
 void placeLadder(char (*level)[LVL_WIDTH], player_t *player);
 void drawHUD(player_t *player, int currentLevel);
+menu_option_t startMenu();
+void startGame();
 
 // Quando migrar para vários arquivos, fazer um arquivo separado para "tabelas globais"
 ore_t caesiumOre = {"Césio", (Color){226, 156, 100, 255}, (Texture2D){0, 0, 0, 0, 0}};
@@ -74,15 +88,118 @@ ore_t uraniumOre = {"Urânio", (Color){119, 193, 111, 255}, (Texture2D){0, 0, 0,
 
 int main()
 {
-    // ---------------------------------------------------------------------------------------- //
-    // Initialize                                                                               //
-    // ---------------------------------------------------------------------------------------- //
     const int screenWidth = 1200;
     const int screenHeight = 800;
-    const int elementSize = 40;
 
     // Inicializar janela do jogo
     InitWindow(screenWidth, screenHeight, "TerraINF");
+
+    menu_option_t selected;
+    while (!WindowShouldClose())
+    {
+        // Ler opção do usuário e direcionar à respectiva tela
+        selected = startMenu();
+        switch (selected)
+        {
+        case StartGame:
+            startGame();
+            break;
+        case Ranking:
+            break;
+        case LevelEditor:
+            break;
+        case Exit:
+            CloseWindow();
+            break;
+        }
+    }
+    return 0;
+}
+
+menu_option_t startMenu()
+{
+    // Carregar sprites
+    Texture2D menuTexture = LoadTexture("sprites/menu.png");
+
+    // Selecionar primeira opção do menu
+    static menu_option_t selected = StartGame;
+
+    bool confirmed = false;
+    while (!(WindowShouldClose() || confirmed))
+    {
+        // Verificar navegação de seleção
+        if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+        {
+            if (selected < Exit)
+                selected++;
+        }
+        if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+        {
+            if (selected > StartGame)
+                selected--;
+        }
+
+        // Verificar confirmação de seleção
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
+        {
+            // Confirmar seleção
+            confirmed = true;
+        }
+
+        BeginDrawing();
+
+        // Desenhar fundo do menu
+        DrawTexture(menuTexture, 0, 0, WHITE);
+
+        // Desenhar opções
+        DrawText("INICIAR JOGO",
+                 (SCREEN_WIDTH / 2 - MeasureText("INICIAR JOGO", MENU_FONT_SIZE) / 2), 394,
+                 MENU_FONT_SIZE, RAYWHITE);
+        DrawText("RANKING DE PONTOS",
+                 (SCREEN_WIDTH / 2 - MeasureText("RANKING DE PONTOS", MENU_FONT_SIZE) / 2), 460,
+                 MENU_FONT_SIZE, RAYWHITE);
+        DrawText("EDITOR DE NIVEL",
+                 (SCREEN_WIDTH / 2 - MeasureText("EDITOR DE NIVEL", MENU_FONT_SIZE) / 2), 526,
+                 MENU_FONT_SIZE, RAYWHITE);
+        DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 592,
+                 MENU_FONT_SIZE, RAYWHITE);
+
+        // Desenhar opção selecionada
+        switch (selected)
+        {
+        case 1:
+            DrawText("- INICIAR JOGO -",
+                     (SCREEN_WIDTH / 2 - MeasureText("- INICIAR JOGO -", MENU_FONT_SIZE) / 2), 395,
+                     MENU_FONT_SIZE, RAYWHITE);
+            break;
+        case 2:
+            DrawText("- RANKING DE PONTOS -",
+                     (SCREEN_WIDTH / 2 - MeasureText("- RANKING DE PONTOS -", MENU_FONT_SIZE) / 2),
+                     461, MENU_FONT_SIZE, RAYWHITE);
+            break;
+        case 3:
+            DrawText("- EDITOR DE NIVEL -",
+                     (SCREEN_WIDTH / 2 - MeasureText("- EDITOR DE NIVEL -", MENU_FONT_SIZE) / 2),
+                     527, MENU_FONT_SIZE, RAYWHITE);
+            break;
+        case 4:
+            DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2),
+                     593, MENU_FONT_SIZE, RAYWHITE);
+            break;
+        }
+
+        EndDrawing();
+    }
+
+    // Retornar opção selecionada se confirmado
+    return (confirmed ? selected : Exit);
+}
+
+void startGame()
+{
+    // ---------------------------------------------------------------------------------------- //
+    // Initialize                                                                               //
+    // ---------------------------------------------------------------------------------------- //
 
     // Carregar sprites
     Texture2D backgroundTexture = LoadTexture("sprites/background.png");
@@ -198,7 +315,7 @@ int main()
                 }
 
                 // Desenhar elemento
-                DrawTexture(currentTexture, (j * elementSize), (i * elementSize), WHITE);
+                DrawTexture(currentTexture, (j * ELEMENT_SIZE), (i * ELEMENT_SIZE), WHITE);
             }
         }
 
@@ -208,9 +325,7 @@ int main()
 
         EndDrawing();
     }
-
     CloseWindow();
-    return 0;
 }
 
 void loadLevel(char (*level)[LVL_WIDTH], int currentLevel, player_t *player)
