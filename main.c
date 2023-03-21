@@ -9,6 +9,7 @@
  */
 
 #include "raylib.h"
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #define MAX_PLAYER_NAME 3
@@ -65,17 +66,18 @@ typedef struct player
     int health;
     int energy;
     int ladders;
+    int currentLevel;
     bool miningMode;
 } player_t;
 
-void loadLevel(char (*level)[LVL_WIDTH], int currentLevel, player_t *player);
+void loadLevel(char (*level)[LVL_WIDTH], player_t *player);
 void updateEnergy(player_t *player, int offset);
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
 void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset);
 void mine(char (*level)[LVL_WIDTH], player_t *player, int direction);
 void placeLadder(char (*level)[LVL_WIDTH], player_t *player);
-void drawHUD(player_t *player, int currentLevel);
+void drawHUD(player_t *player);
 menu_option_t startMenu();
 void startGame();
 
@@ -192,7 +194,7 @@ menu_option_t startMenu()
     }
 
     // Retornar opção selecionada se confirmado
-    return (confirmed ? selected : Exit);
+    return confirmed ? selected : Exit;
 }
 
 void startGame()
@@ -219,19 +221,26 @@ void startGame()
     uraniumOre.oreTexture = LoadTexture("sprites/uranium_ore.png");
 
     // Inicializar jogador
-    player_t player = {{0}, {1, 2}, {'\0'}, 0, 3, 100, 20, false};
+    player_t player = {{0}, {1, 2}, {'\0'}, 0, 3, 100, 20, 1, false};
     KeyboardKey direction = KEY_S;
 
     // Carregar nível inicial
-    int currentLevel = 1;
     char level[LVL_HEIGHT][LVL_WIDTH];
-    loadLevel(level, currentLevel, &player);
+    loadLevel(level, &player);
+    int currentLevel = player.currentLevel;
 
     while (!WindowShouldClose())
     {
         // ------------------------------------------------------------------------------------ //
         // Update                                                                               //
         // ------------------------------------------------------------------------------------ //
+
+        // Verificar troca de nível
+        if (currentLevel != player.currentLevel)
+        {
+            currentLevel = player.currentLevel;
+            loadLevel(level, &player);
+        }
 
         // Verificar movimentação
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
@@ -321,18 +330,22 @@ void startGame()
 
         // Desenhar HUD
         DrawTexture(HUDTexture, 0, 0, WHITE);
-        drawHUD(&player, currentLevel);
+        drawHUD(&player);
 
         EndDrawing();
     }
     CloseWindow();
 }
 
-void loadLevel(char (*level)[LVL_WIDTH], int currentLevel, player_t *player)
+void loadLevel(char (*level)[LVL_WIDTH], player_t *player)
 {
+    // Reiniciar status do jogador
+    player->score = 0;
+    player->ladders = 20;
+
     // Ajustar nome do arquivo
     char filename[MAX_LVL_NAME + 1] = {'\0'};
-    snprintf(filename, sizeof(filename), "nivel%d.txt", currentLevel);
+    snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player->currentLevel);
 
     // Abrir arquivo texto do nível
     FILE *levelFile = fopen((const char *)filename, "r");
@@ -370,6 +383,17 @@ void updateEnergy(player_t *player, int offset)
         // Retirar vida e restaurar energia
         player->health--;
         player->energy = 100;
+    }
+}
+
+void updateScore(player_t *player, int offset)
+{
+    player->score += offset;
+
+    // Verificar se jogador passou de fase
+    if (player->score >= (int)(1000 * pow(2, player->currentLevel - 1)))
+    {
+        player->currentLevel++;
     }
 }
 
@@ -469,17 +493,17 @@ void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
             break;
         case CHAR_TITANIUM:
             updateEnergy(player, 30);
-            player->score += 150;
+            updateScore(player, 150);
             player->lastMined = titaniumOre;
             break;
         case CHAR_GOLD:
             updateEnergy(player, 20);
-            player->score += 100;
+            updateScore(player, 100);
             player->lastMined = goldOre;
             break;
         case CHAR_SILVER:
             updateEnergy(player, 10);
-            player->score += 50;
+            updateScore(player, 50);
             player->lastMined = silverOre;
             break;
         case CHAR_CAESIUM:
@@ -530,7 +554,7 @@ void placeLadder(char (*level)[LVL_WIDTH], player_t *player)
     }
 }
 
-void drawHUD(player_t *player, int currentLevel)
+void drawHUD(player_t *player)
 {
     DrawText(TextFormat("%i", player->health), 66, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->energy), 177, 8, HUD_FONT_SIZE, RAYWHITE);
@@ -543,6 +567,7 @@ void drawHUD(player_t *player, int currentLevel)
              HUD_FONT_SIZE, player->lastMined.oreNameColor);
     DrawText(TextFormat("%i", player->score),
              (956 - MeasureText(TextFormat("%i", player->score), 28)), 8, 28, RAYWHITE);
-    DrawText("/1000", 962, 14, 20, DARKGRAY);
-    DrawText(TextFormat("Nível %i", currentLevel), 1080, 8, HUD_FONT_SIZE, RAYWHITE);
+    DrawText(TextFormat("/%i", (int)(1000 * pow(2, player->currentLevel - 1))), 962, 14, 20,
+             DARKGRAY);
+    DrawText(TextFormat("Nível %i", player->currentLevel), 1080, 8, HUD_FONT_SIZE, RAYWHITE);
 }
