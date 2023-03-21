@@ -12,7 +12,10 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #define MAX_PLAYER_NAME 3
+#define MAX_RANKING_SIZE 5
 #define MAX_ORE_NAME 20
 #define MAX_LVL_NAME 30
 #define LVL_WIDTH 30
@@ -23,6 +26,8 @@
 #define HUD_FONT_SIZE 26
 #define HUD_ORE_SIZE 8
 #define MENU_FONT_SIZE 22
+#define ALPHA_MIN 65
+#define ALPHA_MAX 90
 
 #define CHAR_PLAYER 'J'
 #define CHAR_GOLD 'G'
@@ -78,8 +83,11 @@ void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset);
 void mine(char (*level)[LVL_WIDTH], player_t *player, int direction);
 void placeLadder(char (*level)[LVL_WIDTH], player_t *player);
 void drawHUD(player_t *player);
-menu_option_t startMenu();
-void startGame();
+menu_option_t startMenu(void);
+void startGame(void);
+void generateRandomName(char name[MAX_PLAYER_NAME + 1]);
+void createRankingFile(void);
+void gameOver(void);
 
 // Quando migrar para vários arquivos, fazer um arquivo separado para "tabelas globais"
 ore_t caesiumOre = {"Césio", (Color){226, 156, 100, 255}, (Texture2D){0, 0, 0, 0, 0}};
@@ -570,4 +578,35 @@ void drawHUD(player_t *player)
     DrawText(TextFormat("/%i", (int)(1000 * pow(2, player->currentLevel - 1))), 962, 14, 20,
              DARKGRAY);
     DrawText(TextFormat("Nível %i", player->currentLevel), 1080, 8, HUD_FONT_SIZE, RAYWHITE);
+}
+
+void generateRandomName(char name[MAX_PLAYER_NAME + 1])
+{
+    srand(0);
+    for (int i = 0; i < MAX_PLAYER_NAME; i++)
+    {
+        name[i] = ALPHA_MIN + (rand() % (ALPHA_MAX - ALPHA_MIN + 1));
+    }
+}
+
+void createRankingFile(void)
+{
+    FILE *file = fopen("ranking.bin", "w");
+    char name[MAX_PLAYER_NAME + 1] = {0};
+    int score = 0;
+    for (int i = 0; i < MAX_RANKING_SIZE; i++)
+    {
+        generateRandomName(name);
+        fwrite(name, (MAX_PLAYER_NAME + 1), 1, file);
+        fwrite(&score, sizeof(int), 1, file);
+    }
+}
+
+void gameOver(void)
+{
+    // Verificar se arquivo de ranking existe
+    if (!fopen("ranking.bin", "r"))
+    {
+        createRankingFile();
+    }
 }
