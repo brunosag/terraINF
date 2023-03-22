@@ -66,6 +66,12 @@ typedef enum ore_number
     Uranium
 } ore_number_t;
 
+typedef struct level
+{
+    char elements[LVL_HEIGHT][LVL_WIDTH];
+    int oreCount;
+} level_t;
+
 typedef struct position
 {
     int x;
@@ -74,9 +80,9 @@ typedef struct position
 
 typedef struct ore
 {
-    char oreName[MAX_ORE_NAME + 1];
-    Color oreNameColor;
-    Texture2D oreTexture;
+    char name[MAX_ORE_NAME + 1];
+    Color nameColor;
+    Texture2D texture;
 } ore_t;
 
 typedef struct player
@@ -92,19 +98,25 @@ typedef struct player
     bool miningMode;
 } player_t;
 
-void loadLevel(char (*level)[LVL_WIDTH], player_t *player);
+typedef struct ranking
+{
+    char name[MAX_PLAYER_NAME + 1];
+    int score;
+} ranking_t;
+
+void loadLevel(level_t *level, player_t *player);
 void updateEnergy(player_t *player, int offset);
-int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
-void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
-void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset);
-void mine(char (*level)[LVL_WIDTH], ore_t *ores, player_t *player, int direction);
-void placeLadder(char (*level)[LVL_WIDTH], player_t *player);
+int getFallSize(level_t *level, int x, int y);
+void moveHorizontal(level_t *level, player_t *player, int offset);
+void moveVertical(level_t *level, player_t *player, int offset);
+void mine(level_t *level, ore_t *ores, player_t *player, int direction);
+void placeLadder(level_t *level, player_t *player);
 void drawHUD(player_t *player);
 menu_option_t startMenu(void);
 void startGame(player_t *player);
-void generateRandomName(char name[MAX_PLAYER_NAME + 1]);
-void createRankingFile(void);
-void gameOver(void);
+void generateRandomName(char *name, int nameLength);
+bool createRankingFile(int rankingSize);
+void gameOver(level_t *level, player_t *player);
 
 int main()
 {
@@ -224,17 +236,17 @@ void startGame(player_t *player)
     // Criar e inicializar minérios
     ore_t ores[ORE_COUNT];
 
-    ores[Caesium].oreNameColor = CAESIUM_COLOR;
-    ores[Gold].oreNameColor = GOLD_COLOR;
-    ores[Silver].oreNameColor = SILVER_COLOR;
-    ores[Titanium].oreNameColor = TITANIUM_COLOR;
-    ores[Uranium].oreNameColor = URANIUM_COLOR;
+    ores[Caesium].nameColor = CAESIUM_COLOR;
+    ores[Gold].nameColor = GOLD_COLOR;
+    ores[Silver].nameColor = SILVER_COLOR;
+    ores[Titanium].nameColor = TITANIUM_COLOR;
+    ores[Uranium].nameColor = URANIUM_COLOR;
 
-    snprintf(ores[Caesium].oreName, MAX_ORE_NAME, "Césio");
-    snprintf(ores[Gold].oreName, MAX_ORE_NAME, "Ouro");
-    snprintf(ores[Silver].oreName, MAX_ORE_NAME, "Prata");
-    snprintf(ores[Titanium].oreName, MAX_ORE_NAME, "Titânio");
-    snprintf(ores[Uranium].oreName, MAX_ORE_NAME, "Urânio");
+    snprintf(ores[Caesium].name, MAX_ORE_NAME, "Césio");
+    snprintf(ores[Gold].name, MAX_ORE_NAME, "Ouro");
+    snprintf(ores[Silver].name, MAX_ORE_NAME, "Prata");
+    snprintf(ores[Titanium].name, MAX_ORE_NAME, "Titânio");
+    snprintf(ores[Uranium].name, MAX_ORE_NAME, "Urânio");
     
     // Carregar sprites
     Texture2D backgroundTexture = LoadTexture("sprites/background.png");
@@ -247,51 +259,60 @@ void startGame(player_t *player)
     Texture2D playerLadderTexture = LoadTexture("sprites/player_ladder.png");
     Texture2D playerPickaxeTexture = LoadTexture("sprites/player_pickaxe.png");
     Texture2D playerTexture = LoadTexture("sprites/player.png");
-    ores[Caesium].oreTexture = LoadTexture("sprites/caesium_ore.png");
-    ores[Gold].oreTexture = LoadTexture("sprites/gold_ore.png");
-    ores[Silver].oreTexture = LoadTexture("sprites/silver_ore.png");
-    ores[Titanium].oreTexture = LoadTexture("sprites/titanium_ore.png");
-    ores[Uranium].oreTexture = LoadTexture("sprites/uranium_ore.png");
+    ores[Caesium].texture = LoadTexture("sprites/caesium_ore.png");
+    ores[Gold].texture = LoadTexture("sprites/gold_ore.png");
+    ores[Silver].texture = LoadTexture("sprites/silver_ore.png");
+    ores[Titanium].texture = LoadTexture("sprites/titanium_ore.png");
+    ores[Uranium].texture = LoadTexture("sprites/uranium_ore.png");
 
     KeyboardKey direction = KEY_S;
 
     // Carregar nível inicial
-    char level[LVL_HEIGHT][LVL_WIDTH];
-    loadLevel(level, player);
-    int currentLevel = player->currentLevel;
+    level_t level;
+    loadLevel(&level, player);
+    int currentLevel;
+    currentLevel = player->currentLevel;
 
-    while (!WindowShouldClose())
+    bool gameOverFlag = false;
+    while (!WindowShouldClose() && !gameOverFlag)
     {
         // ------------------------------------------------------------------------------------ //
         // Update                                                                               //
         // ------------------------------------------------------------------------------------ //
 
+        // Verificar se as condições de gameover ocorreram
+        if(!player->health || !level.oreCount)
+        {
+            gameOverFlag = true;
+            gameOver(&level, player);
+        }
+
         // Verificar troca de nível
         if (currentLevel != player->currentLevel)
         {
             currentLevel = player->currentLevel;
-            loadLevel(level, player);
+            loadLevel(&level, player);
         }
 
         // Verificar movimentação
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
         {
-            moveHorizontal(level, player, 1);
+            moveHorizontal(&level, player, 1);
             direction = KEY_D;
         }
         if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
         {
-            moveHorizontal(level, player, -1);
+            moveHorizontal(&level, player, -1);
             direction = KEY_A;
         }
         if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
         {
-            moveVertical(level, player, -1);
+            moveVertical(&level, player, -1);
             direction = KEY_W;
         }
         if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
         {
-            moveVertical(level, player, 1);
+            moveVertical(&level, player, 1);
             direction = KEY_S;
         }
 
@@ -301,11 +322,11 @@ void startGame(player_t *player)
 
         // Verificar mineração
         if (IsKeyPressed(KEY_SPACE) && player->miningMode)
-            mine(level, ores, player, direction);
+            mine(&level, ores, player, direction);
 
         // Verificar posicionamento de escada
         if (IsKeyPressed(KEY_LEFT_SHIFT))
-            placeLadder(level, player);
+            placeLadder(&level, player);
 
         // ------------------------------------------------------------------------------------ //
         // Draw                                                                                 //
@@ -319,7 +340,7 @@ void startGame(player_t *player)
             for (int j = 0; j < LVL_WIDTH; j++)
             {
                 // Verificar elemento atual na matriz
-                switch (level[i][j])
+                switch (level.elements[i][j])
                 {
                 case CHAR_GOLD:
                 case CHAR_TITANIUM:
@@ -368,11 +389,12 @@ void startGame(player_t *player)
     CloseWindow();
 }
 
-void loadLevel(char (*level)[LVL_WIDTH], player_t *player)
+void loadLevel(level_t *level, player_t *player)
 {
     // Reiniciar status do jogador
     player->score = 0;
     player->ladders = 20;
+    player->energy = 100;
 
     // Ajustar nome do arquivo
     char filename[MAX_LVL_NAME + 1] = {'\0'};
@@ -387,11 +409,21 @@ void loadLevel(char (*level)[LVL_WIDTH], player_t *player)
         {
             for (int j = 0; j < LVL_WIDTH; j++)
             {
-                fread(&level[i][j], sizeof(char), 1, levelFile);
-                if (level[i][j] == CHAR_PLAYER)
+                fread(&level->elements[i][j], sizeof(char), 1, levelFile);
+                
+                switch(level->elements[i][j])
                 {
+                case CHAR_PLAYER:
                     player->position.x = j;
                     player->position.y = i;
+                    break;
+                case CHAR_CAESIUM:
+                case CHAR_GOLD:
+                case CHAR_SILVER:
+                case CHAR_TITANIUM:
+                case CHAR_URANIUM:
+                    level->oreCount++;
+                    break;
                 }
             }
 
@@ -428,12 +460,12 @@ void updateScore(player_t *player, int offset)
     }
 }
 
-int getFallSize(char (*level)[LVL_WIDTH], int x, int y)
+int getFallSize(level_t *level, int x, int y)
 {
     int fallSize = 0;
 
     // Aumentar tamanho da queda a cada bloco vazio abaixo do destino
-    while (level[y + 1][x] == CHAR_EMPTY)
+    while (level->elements[y + 1][x] == CHAR_EMPTY)
     {
         y++;
         fallSize++;
@@ -441,10 +473,10 @@ int getFallSize(char (*level)[LVL_WIDTH], int x, int y)
     return fallSize;
 }
 
-void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
+void moveHorizontal(level_t *level, player_t *player, int offset)
 {
     // Verificar se bloco destino livre
-    char *target = &level[player->position.y][player->position.x + offset];
+    char *target = &level->elements[player->position.y][player->position.x + offset];
     if (*target == CHAR_EMPTY || *target == CHAR_PLAYER || *target == CHAR_LADDER ||
         *target == CHAR_PLAYER_LADDER)
     {
@@ -452,16 +484,16 @@ void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
         int fallSize = getFallSize(level, (player->position.x + offset), player->position.y);
 
         // Alterar bloco atual na matriz
-        if (level[player->position.y][player->position.x] == CHAR_PLAYER)
-            level[player->position.y][player->position.x] = CHAR_EMPTY;
+        if (level->elements[player->position.y][player->position.x] == CHAR_PLAYER)
+            level->elements[player->position.y][player->position.x] = CHAR_EMPTY;
         else
-            level[player->position.y][player->position.x] = CHAR_LADDER;
+            level->elements[player->position.y][player->position.x] = CHAR_LADDER;
 
         // Alterar bloco alvo na matriz
-        if (level[player->position.y + fallSize][player->position.x + offset] == CHAR_EMPTY)
-            level[player->position.y + fallSize][player->position.x + offset] = CHAR_PLAYER;
+        if (level->elements[player->position.y + fallSize][player->position.x + offset] == CHAR_EMPTY)
+            level->elements[player->position.y + fallSize][player->position.x + offset] = CHAR_PLAYER;
         else
-            level[player->position.y + fallSize][player->position.x + offset] = CHAR_PLAYER_LADDER;
+            level->elements[player->position.y + fallSize][player->position.x + offset] = CHAR_PLAYER_LADDER;
 
         // Alterar valores posição do jogador
         player->position.x += offset;
@@ -473,22 +505,22 @@ void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset)
     }
 }
 
-void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset)
+void moveVertical(level_t *level, player_t *player, int offset)
 {
     // Verificar se bloco atual e destino possuem escadas
-    if (level[player->position.y][player->position.x] == CHAR_PLAYER_LADDER &&
-        level[player->position.y + offset][player->position.x] == CHAR_LADDER)
+    if (level->elements[player->position.y][player->position.x] == CHAR_PLAYER_LADDER &&
+        level->elements[player->position.y + offset][player->position.x] == CHAR_LADDER)
     {
         // Alterar matriz
-        level[player->position.y][player->position.x] = CHAR_LADDER;
-        level[player->position.y + offset][player->position.x] = CHAR_PLAYER_LADDER;
+        level->elements[player->position.y][player->position.x] = CHAR_LADDER;
+        level->elements[player->position.y + offset][player->position.x] = CHAR_PLAYER_LADDER;
 
         // Alterar valores posição do jogador
         player->position.y += offset;
     }
 }
 
-void mine(char (*level)[LVL_WIDTH], ore_t *ores, player_t *player, int direction)
+void mine(level_t *level, ore_t *ores, player_t *player, int direction)
 {
     // Verificar bloco alvo
     char *block = NULL;
@@ -496,19 +528,19 @@ void mine(char (*level)[LVL_WIDTH], ore_t *ores, player_t *player, int direction
     {
     case (KEY_W):
     case (KEY_UP):
-        block = &level[player->position.y - 1][player->position.x];
+        block = &level->elements[player->position.y - 1][player->position.x];
         break;
     case (KEY_S):
     case (KEY_DOWN):
-        block = &level[player->position.y + 1][player->position.x];
+        block = &level->elements[player->position.y + 1][player->position.x];
         break;
     case (KEY_D):
     case (KEY_RIGHT):
-        block = &level[player->position.y][player->position.x + 1];
+        block = &level->elements[player->position.y][player->position.x + 1];
         break;
     case (KEY_A):
     case (KEY_LEFT):
-        block = &level[player->position.y][player->position.x - 1];
+        block = &level->elements[player->position.y][player->position.x - 1];
         break;
     }
 
@@ -526,24 +558,29 @@ void mine(char (*level)[LVL_WIDTH], ore_t *ores, player_t *player, int direction
             updateEnergy(player, 30);
             updateScore(player, 150);
             player->lastMined = ores[Titanium];
+            level->oreCount--;
             break;
         case CHAR_GOLD:
             updateEnergy(player, 20);
             updateScore(player, 100);
             player->lastMined = ores[Gold];
+            level->oreCount--;
             break;
         case CHAR_SILVER:
             updateEnergy(player, 10);
             updateScore(player, 50);
             player->lastMined = ores[Silver];
+            level->oreCount--;
             break;
         case CHAR_CAESIUM:
             updateEnergy(player, -20);
             player->lastMined = ores[Caesium];
+            level->oreCount--;
             break;
         case CHAR_URANIUM:
             updateEnergy(player, -30);
             player->lastMined = ores[Uranium];
+            level->oreCount--;
             break;
         }
 
@@ -555,19 +592,19 @@ void mine(char (*level)[LVL_WIDTH], ore_t *ores, player_t *player, int direction
     }
 }
 
-void placeLadder(char (*level)[LVL_WIDTH], player_t *player)
+void placeLadder(level_t *level, player_t *player)
 {
     if (player->ladders > 0)
     {
         int distance = 0;
 
         // Verificar escadas já posicionadas e definir alvo
-        while (level[player->position.y - distance][player->position.x] == CHAR_PLAYER_LADDER ||
-               level[player->position.y - distance][player->position.x] == CHAR_LADDER)
+        while (level->elements[player->position.y - distance][player->position.x] == CHAR_PLAYER_LADDER ||
+               level->elements[player->position.y - distance][player->position.x] == CHAR_LADDER)
         {
             distance++;
         }
-        char *target = &level[player->position.y - distance][player->position.x];
+        char *target = &level->elements[player->position.y - distance][player->position.x];
 
         // Verificar se alvo é jogador
         if (*target == CHAR_EMPTY)
@@ -590,12 +627,12 @@ void drawHUD(player_t *player)
     DrawText(TextFormat("%i", player->health), 66, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->energy), 177, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->ladders), 311, 8, HUD_FONT_SIZE, RAYWHITE);
-    DrawTexture(player->lastMined.oreTexture,
-                (590 - MeasureText(TextFormat(player->lastMined.oreName), HUD_FONT_SIZE) / 2), 12,
+    DrawTexture(player->lastMined.texture,
+                (590 - MeasureText(TextFormat(player->lastMined.name), HUD_FONT_SIZE) / 2), 12,
                 WHITE);
-    DrawText(player->lastMined.oreName,
-             (620 - MeasureText(TextFormat(player->lastMined.oreName), HUD_FONT_SIZE) / 2), 8,
-             HUD_FONT_SIZE, player->lastMined.oreNameColor);
+    DrawText(player->lastMined.name,
+             (620 - MeasureText(TextFormat(player->lastMined.name), HUD_FONT_SIZE) / 2), 8,
+             HUD_FONT_SIZE, player->lastMined.nameColor);
     DrawText(TextFormat("%i", player->score),
              (956 - MeasureText(TextFormat("%i", player->score), 28)), 8, 28, RAYWHITE);
     DrawText(TextFormat("/%i", (int)(1000 * pow(2, player->currentLevel - 1))), 962, 14, 20,
@@ -603,33 +640,44 @@ void drawHUD(player_t *player)
     DrawText(TextFormat("Nível %i", player->currentLevel), 1080, 8, HUD_FONT_SIZE, RAYWHITE);
 }
 
-void generateRandomName(char name[MAX_PLAYER_NAME + 1])
+void generateRandomName(char *name, int nameLength)
 {
     srand(0);
-    for (int i = 0; i < MAX_PLAYER_NAME; i++)
-    {
+    for (int i = 0; i < nameLength; i++)
         name[i] = ALPHA_MIN + (rand() % (ALPHA_MAX - ALPHA_MIN + 1));
-    }
 }
 
-void createRankingFile(void)
+bool createRankingFile(int rankingSize)
 {
-    FILE *file = fopen("ranking.bin", "w");
-    char name[MAX_PLAYER_NAME + 1] = {0};
-    int score = 0;
-    for (int i = 0; i < MAX_RANKING_SIZE; i++)
+    FILE *file;
+    file = fopen("ranking.bin", "w");
+    bool fileCreated = false;
+
+    // Verificar a abertura do arquivo
+    if(file != NULL)
     {
-        generateRandomName(name);
-        fwrite(name, (MAX_PLAYER_NAME + 1), 1, file);
-        fwrite(&score, sizeof(int), 1, file);
+        ranking_t rankingPlaceholder = {{0}, 0};
+
+        // Guardar no primeiro byte do arquivo a quantidade de jogadores no ranking
+        fwrite(&rankingSize, sizeof(rankingSize), 1, file);
+
+        for (int i = 0; i < rankingSize; i++)
+        {
+            generateRandomName(rankingPlaceholder.name, MAX_PLAYER_NAME);
+            fwrite(rankingPlaceholder.name, sizeof(rankingPlaceholder.name), 1, file);
+            fwrite(&rankingPlaceholder.score, sizeof(rankingPlaceholder.score), 1, file);
+        }
+        fileCreated = true;
     }
+
+    return fileCreated;
 }
 
-void gameOver(void)
+void gameOver(level_t *level, player_t *player)
 {
     // Verificar se arquivo de ranking existe
     if (!fopen("ranking.bin", "r"))
     {
-        createRankingFile();
+        createRankingFile(MAX_RANKING_SIZE);
     }
 }
