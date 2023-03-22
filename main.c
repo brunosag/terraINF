@@ -14,9 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #define MAX_PLAYER_NAME 3
 #define MAX_RANKING_SIZE 5
-#define MAX_ORE_NAME 20
 #define MAX_LVL_NAME 30
 #define LVL_WIDTH 30
 #define LVL_HEIGHT 20
@@ -28,6 +28,14 @@
 #define MENU_FONT_SIZE 22
 #define ALPHA_MIN 65
 #define ALPHA_MAX 90
+
+#define MAX_ORE_NAME 20
+#define ORE_COUNT 5
+#define CAESIUM_COLOR (Color){226, 156, 100, 255}
+#define GOLD_COLOR (Color){226, 209, 126, 255}
+#define SILVER_COLOR (Color){190, 190, 190, 255}
+#define TITANIUM_COLOR (Color){192, 219, 196, 255}
+#define URANIUM_COLOR (Color){119, 193, 111, 255}
 
 #define CHAR_PLAYER 'J'
 #define CHAR_GOLD 'G'
@@ -48,6 +56,15 @@ typedef enum menu_option
     LevelEditor,
     Exit
 } menu_option_t;
+
+typedef enum ore_number
+{
+    Caesium,
+    Gold,
+    Silver,
+    Titanium,
+    Uranium
+} ore_number_t;
 
 typedef struct position
 {
@@ -80,29 +97,22 @@ void updateEnergy(player_t *player, int offset);
 int getFallSize(char (*level)[LVL_WIDTH], int x, int y);
 void moveHorizontal(char (*level)[LVL_WIDTH], player_t *player, int offset);
 void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset);
-void mine(char (*level)[LVL_WIDTH], player_t *player, int direction);
+void mine(char (*level)[LVL_WIDTH], ore_t *ores, player_t *player, int direction);
 void placeLadder(char (*level)[LVL_WIDTH], player_t *player);
 void drawHUD(player_t *player);
 menu_option_t startMenu(void);
-void startGame(void);
+void startGame(player_t *player);
 void generateRandomName(char name[MAX_PLAYER_NAME + 1]);
 void createRankingFile(void);
 void gameOver(void);
 
-// Quando migrar para vários arquivos, fazer um arquivo separado para "tabelas globais"
-ore_t caesiumOre = {"Césio", (Color){226, 156, 100, 255}, (Texture2D){0, 0, 0, 0, 0}};
-ore_t goldOre = {"Ouro", (Color){226, 209, 126, 255}, (Texture2D){0, 0, 0, 0, 0}};
-ore_t silverOre = {"Prata", (Color){190, 190, 190, 255}, (Texture2D){0, 0, 0, 0, 0}};
-ore_t titaniumOre = {"Titânio", (Color){192, 219, 196, 255}, (Texture2D){0, 0, 0, 0, 0}};
-ore_t uraniumOre = {"Urânio", (Color){119, 193, 111, 255}, (Texture2D){0, 0, 0, 0, 0}};
-
 int main()
 {
-    const int screenWidth = 1200;
-    const int screenHeight = 800;
+    // Inicializar jogador
+    player_t player = {{0}, {1, 2}, {'\0'}, 0, 3, 100, 20, 1, false};
 
     // Inicializar janela do jogo
-    InitWindow(screenWidth, screenHeight, "TerraINF");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TerraINF");
 
     menu_option_t selected;
     while (!WindowShouldClose())
@@ -112,7 +122,7 @@ int main()
         switch (selected)
         {
         case StartGame:
-            startGame();
+            startGame(&player);
             break;
         case Ranking:
             break;
@@ -205,12 +215,27 @@ menu_option_t startMenu()
     return confirmed ? selected : Exit;
 }
 
-void startGame()
+void startGame(player_t *player)
 {
     // ---------------------------------------------------------------------------------------- //
     // Initialize                                                                               //
     // ---------------------------------------------------------------------------------------- //
 
+    // Criar e inicializar minérios
+    ore_t ores[ORE_COUNT];
+
+    ores[Caesium].oreNameColor = CAESIUM_COLOR;
+    ores[Gold].oreNameColor = GOLD_COLOR;
+    ores[Silver].oreNameColor = SILVER_COLOR;
+    ores[Titanium].oreNameColor = TITANIUM_COLOR;
+    ores[Uranium].oreNameColor = URANIUM_COLOR;
+
+    snprintf(ores[Caesium].oreName, MAX_ORE_NAME, "Césio");
+    snprintf(ores[Gold].oreName, MAX_ORE_NAME, "Ouro");
+    snprintf(ores[Silver].oreName, MAX_ORE_NAME, "Prata");
+    snprintf(ores[Titanium].oreName, MAX_ORE_NAME, "Titânio");
+    snprintf(ores[Uranium].oreName, MAX_ORE_NAME, "Urânio");
+    
     // Carregar sprites
     Texture2D backgroundTexture = LoadTexture("sprites/background.png");
     Texture2D dirtTexture = LoadTexture("sprites/dirt.png");
@@ -222,20 +247,18 @@ void startGame()
     Texture2D playerLadderTexture = LoadTexture("sprites/player_ladder.png");
     Texture2D playerPickaxeTexture = LoadTexture("sprites/player_pickaxe.png");
     Texture2D playerTexture = LoadTexture("sprites/player.png");
-    caesiumOre.oreTexture = LoadTexture("sprites/caesium_ore.png");
-    goldOre.oreTexture = LoadTexture("sprites/gold_ore.png");
-    silverOre.oreTexture = LoadTexture("sprites/silver_ore.png");
-    titaniumOre.oreTexture = LoadTexture("sprites/titanium_ore.png");
-    uraniumOre.oreTexture = LoadTexture("sprites/uranium_ore.png");
+    ores[Caesium].oreTexture = LoadTexture("sprites/caesium_ore.png");
+    ores[Gold].oreTexture = LoadTexture("sprites/gold_ore.png");
+    ores[Silver].oreTexture = LoadTexture("sprites/silver_ore.png");
+    ores[Titanium].oreTexture = LoadTexture("sprites/titanium_ore.png");
+    ores[Uranium].oreTexture = LoadTexture("sprites/uranium_ore.png");
 
-    // Inicializar jogador
-    player_t player = {{0}, {1, 2}, {'\0'}, 0, 3, 100, 20, 1, false};
     KeyboardKey direction = KEY_S;
 
     // Carregar nível inicial
     char level[LVL_HEIGHT][LVL_WIDTH];
-    loadLevel(level, &player);
-    int currentLevel = player.currentLevel;
+    loadLevel(level, player);
+    int currentLevel = player->currentLevel;
 
     while (!WindowShouldClose())
     {
@@ -244,45 +267,45 @@ void startGame()
         // ------------------------------------------------------------------------------------ //
 
         // Verificar troca de nível
-        if (currentLevel != player.currentLevel)
+        if (currentLevel != player->currentLevel)
         {
-            currentLevel = player.currentLevel;
-            loadLevel(level, &player);
+            currentLevel = player->currentLevel;
+            loadLevel(level, player);
         }
 
         // Verificar movimentação
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
         {
-            moveHorizontal(level, &player, 1);
+            moveHorizontal(level, player, 1);
             direction = KEY_D;
         }
         if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
         {
-            moveHorizontal(level, &player, -1);
+            moveHorizontal(level, player, -1);
             direction = KEY_A;
         }
         if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
         {
-            moveVertical(level, &player, -1);
+            moveVertical(level, player, -1);
             direction = KEY_W;
         }
         if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
         {
-            moveVertical(level, &player, 1);
+            moveVertical(level, player, 1);
             direction = KEY_S;
         }
 
         // Verificar modo mineração
         if (IsKeyPressed(KEY_ONE))
-            player.miningMode = !player.miningMode;
+            player->miningMode = !player->miningMode;
 
         // Verificar mineração
-        if (IsKeyPressed(KEY_SPACE) && player.miningMode)
-            mine(level, &player, direction);
+        if (IsKeyPressed(KEY_SPACE) && player->miningMode)
+            mine(level, ores, player, direction);
 
         // Verificar posicionamento de escada
         if (IsKeyPressed(KEY_LEFT_SHIFT))
-            placeLadder(level, &player);
+            placeLadder(level, player);
 
         // ------------------------------------------------------------------------------------ //
         // Draw                                                                                 //
@@ -290,12 +313,12 @@ void startGame()
         BeginDrawing();
 
         // Desenhar texturas com base na matriz
+        Texture2D currentTexture;
         for (int i = 0; i < LVL_HEIGHT; i++)
         {
             for (int j = 0; j < LVL_WIDTH; j++)
             {
                 // Verificar elemento atual na matriz
-                Texture2D currentTexture;
                 switch (level[i][j])
                 {
                 case CHAR_GOLD:
@@ -318,13 +341,13 @@ void startGame()
                     currentTexture = ladderTexture;
                     break;
                 case CHAR_PLAYER_LADDER:
-                    if (player.miningMode)
+                    if (player->miningMode)
                         currentTexture = playerLadderPickaxeTexture;
                     else
                         currentTexture = playerLadderTexture;
                     break;
                 case CHAR_PLAYER:
-                    if (player.miningMode)
+                    if (player->miningMode)
                         currentTexture = playerPickaxeTexture;
                     else
                         currentTexture = playerTexture;
@@ -338,7 +361,7 @@ void startGame()
 
         // Desenhar HUD
         DrawTexture(HUDTexture, 0, 0, WHITE);
-        drawHUD(&player);
+        drawHUD(player);
 
         EndDrawing();
     }
@@ -353,7 +376,7 @@ void loadLevel(char (*level)[LVL_WIDTH], player_t *player)
 
     // Ajustar nome do arquivo
     char filename[MAX_LVL_NAME + 1] = {'\0'};
-    snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player->currentLevel);
+    snprintf(filename, sizeof(filename) - 1, "levels/nivel%d.txt", player->currentLevel);
 
     // Abrir arquivo texto do nível
     FILE *levelFile = fopen((const char *)filename, "r");
@@ -465,7 +488,7 @@ void moveVertical(char (*level)[LVL_WIDTH], player_t *player, int offset)
     }
 }
 
-void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
+void mine(char (*level)[LVL_WIDTH], ore_t *ores, player_t *player, int direction)
 {
     // Verificar bloco alvo
     char *block = NULL;
@@ -502,25 +525,25 @@ void mine(char (*level)[LVL_WIDTH], player_t *player, int direction)
         case CHAR_TITANIUM:
             updateEnergy(player, 30);
             updateScore(player, 150);
-            player->lastMined = titaniumOre;
+            player->lastMined = ores[Titanium];
             break;
         case CHAR_GOLD:
             updateEnergy(player, 20);
             updateScore(player, 100);
-            player->lastMined = goldOre;
+            player->lastMined = ores[Gold];
             break;
         case CHAR_SILVER:
             updateEnergy(player, 10);
             updateScore(player, 50);
-            player->lastMined = silverOre;
+            player->lastMined = ores[Silver];
             break;
         case CHAR_CAESIUM:
             updateEnergy(player, -20);
-            player->lastMined = caesiumOre;
+            player->lastMined = ores[Caesium];
             break;
         case CHAR_URANIUM:
             updateEnergy(player, -30);
-            player->lastMined = uraniumOre;
+            player->lastMined = ores[Uranium];
             break;
         }
 
