@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define GAME_FRAMERATE 60
+#define TIMING_SAMPLE 0.2f
+
 #define MAX_PLAYER_NAME 3
 #define MAX_RANKING_SIZE 5
 #define MAX_LVL_NAME 30
@@ -26,6 +29,9 @@
 #define HUD_FONT_SIZE 26
 #define HUD_ORE_SIZE 8
 #define MENU_FONT_SIZE 22
+#define LOADING_FONT_SIZE 100
+#define LOADING_FADEIN_TIME 0.5f  // Aproximadamente em segundos
+#define LOADING_FADEOUT_TIME 2.0f // Aproximadamente em segundos
 #define ALPHA_MIN 65
 #define ALPHA_MAX 90
 
@@ -115,7 +121,7 @@ void drawHUD(player_t *player);
 menu_option_t startMenu(void);
 void startGame(player_t *player);
 void generateRandomName(char *name, int nameLength);
-bool createRankingFile(int rankingSize);
+FILE *createRankingFile(int rankingSize);
 void gameOver(level_t *level, player_t *player);
 
 int main()
@@ -125,6 +131,7 @@ int main()
 
     // Inicializar janela do jogo
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TerraINF");
+    SetTargetFPS(GAME_FRAMERATE);
 
     menu_option_t selected;
     while (!WindowShouldClose())
@@ -145,13 +152,14 @@ int main()
             break;
         }
     }
+
     return 0;
 }
 
 menu_option_t startMenu()
 {
     // Carregar sprites
-    Texture2D menuTexture = LoadTexture("sprites/menu.png");
+    Texture2D menuTexture = LoadTexture("backgrounds/menu.png");
 
     // Selecionar primeira opção do menu
     static menu_option_t selected = StartGame;
@@ -199,22 +207,22 @@ menu_option_t startMenu()
         // Desenhar opção selecionada
         switch (selected)
         {
-        case 1:
+        case StartGame:
             DrawText("- INICIAR JOGO -",
                      (SCREEN_WIDTH / 2 - MeasureText("- INICIAR JOGO -", MENU_FONT_SIZE) / 2), 395,
                      MENU_FONT_SIZE, RAYWHITE);
             break;
-        case 2:
+        case Ranking:
             DrawText("- RANKING DE PONTOS -",
                      (SCREEN_WIDTH / 2 - MeasureText("- RANKING DE PONTOS -", MENU_FONT_SIZE) / 2),
                      461, MENU_FONT_SIZE, RAYWHITE);
             break;
-        case 3:
+        case LevelEditor:
             DrawText("- EDITOR DE NIVEL -",
                      (SCREEN_WIDTH / 2 - MeasureText("- EDITOR DE NIVEL -", MENU_FONT_SIZE) / 2),
                      527, MENU_FONT_SIZE, RAYWHITE);
             break;
-        case 4:
+        case Exit:
             DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2),
                      593, MENU_FONT_SIZE, RAYWHITE);
             break;
@@ -386,15 +394,57 @@ void startGame(player_t *player)
 
         EndDrawing();
     }
-    CloseWindow();
 }
 
 void loadLevel(level_t *level, player_t *player)
 {
-    // Reiniciar status do jogador
+    // Reiniciar status do jogador e nivel
+    player->lastMined = (ore_t) {0};
     player->score = 0;
-    player->ladders = 20;
+    player->health = 3;
     player->energy = 100;
+    player->ladders = 20;
+    level->oreCount = 0;
+
+    // Desenhar tela preta
+    Texture2D loadingTexture = LoadTexture("backgrounds/loading.png");
+    
+    // Desenhar tela de carregamento
+    float fadeTimer = 0.0f;
+    float fadeSample = 0.0f;
+    float alphaIntensity = 0.0f;
+    bool fadeIn = true;
+    while(alphaIntensity >= 0.0f)
+    {
+        // Cronometrar o tempo de fade in e fade out
+        fadeTimer += GetFrameTime();
+        if (fadeTimer >= TIMING_SAMPLE)
+        {
+            fadeTimer = 0.0f;
+
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            fadeSample += TIMING_SAMPLE;
+            if (fadeIn)
+                alphaIntensity = fadeSample / (LOADING_FADEIN_TIME * 10.0f);
+            else
+                alphaIntensity = 1.0f - fadeSample / (LOADING_FADEOUT_TIME * 10.0f);
+        
+            // Trocar de fade in para fade out
+            if (alphaIntensity >= 1.0f)
+            {
+                fadeSample = 0.0f;
+                fadeIn = false;
+            }
+        
+            DrawTexture(loadingTexture, 0, 0, Fade(WHITE, alphaIntensity));
+            DrawText(TextFormat("Nível %i", player->currentLevel),
+                    (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Nível %i", player->currentLevel), LOADING_FONT_SIZE) / 2),
+                    (SCREEN_HEIGHT - LOADING_FONT_SIZE) / 2, LOADING_FONT_SIZE, Fade(RAYWHITE, alphaIntensity));
+            EndDrawing();
+        }
+    }
 
     // Ajustar nome do arquivo
     char filename[MAX_LVL_NAME + 1] = {'\0'};
@@ -409,8 +459,7 @@ void loadLevel(level_t *level, player_t *player)
         {
             for (int j = 0; j < LVL_WIDTH; j++)
             {
-                fread(&level->elements[i][j], sizeof(char), 1, levelFile);
-                
+                level->elements[i][j] = fgetc(levelFile);
                 switch(level->elements[i][j])
                 {
                 case CHAR_PLAYER:
@@ -435,7 +484,7 @@ void loadLevel(level_t *level, player_t *player)
         fclose(levelFile);
     }
     else
-        printf("Erro ao ler o arquivo da matriz do nível.");
+        printf("Erro ao ler o arquivo da matriz do nivel.");
 }
 
 void updateEnergy(player_t *player, int offset)
@@ -647,11 +696,9 @@ void generateRandomName(char *name, int nameLength)
         name[i] = ALPHA_MIN + (rand() % (ALPHA_MAX - ALPHA_MIN + 1));
 }
 
-bool createRankingFile(int rankingSize)
+FILE *createRankingFile(int rankingSize)
 {
-    FILE *file;
-    file = fopen("ranking.bin", "w");
-    bool fileCreated = false;
+    FILE *file = fopen("ranking/ranking.bin", "w");
 
     // Verificar a abertura do arquivo
     if(file != NULL)
@@ -667,17 +714,19 @@ bool createRankingFile(int rankingSize)
             fwrite(rankingPlaceholder.name, sizeof(rankingPlaceholder.name), 1, file);
             fwrite(&rankingPlaceholder.score, sizeof(rankingPlaceholder.score), 1, file);
         }
-        fileCreated = true;
+
+        rewind(file);
     }
 
-    return fileCreated;
+    return file;
 }
 
 void gameOver(level_t *level, player_t *player)
 {
     // Verificar se arquivo de ranking existe
-    if (!fopen("ranking.bin", "r"))
-    {
-        createRankingFile(MAX_RANKING_SIZE);
-    }
+    FILE *rankingFile = fopen("ranking/ranking.bin", "r+");
+    if (rankingFile == NULL)
+        rankingFile = createRankingFile(MAX_RANKING_SIZE);
+
+    fclose(rankingFile);
 }
