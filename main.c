@@ -31,7 +31,7 @@
 #define MENU_FONT_SIZE 22
 #define LOADING_FONT_SIZE 100
 #define LOADING_FADEIN_TIME 0.5f  // Aproximadamente em segundos
-#define LOADING_FADEOUT_TIME 2.0f // Aproximadamente em segundos
+#define LOADING_FADEOUT_TIME 3.0f // Aproximadamente em segundos
 #define ALPHA_MIN 65
 #define ALPHA_MAX 90
 
@@ -698,7 +698,7 @@ void generateRandomName(char *name, int nameLength)
 
 FILE *createRankingFile(int rankingSize)
 {
-    FILE *file = fopen("ranking/ranking.bin", "w");
+    FILE *file = fopen("ranking/ranking.bin", "wb");
 
     // Verificar a abertura do arquivo
     if(file != NULL)
@@ -724,7 +724,7 @@ FILE *createRankingFile(int rankingSize)
 void gameOver(level_t *level, player_t *player)
 {
     // Verificar se arquivo de ranking existe
-    FILE *rankingFile = fopen("ranking/ranking.bin", "r+");
+    FILE *rankingFile = fopen("ranking/ranking.bin", "rb+");
     if (rankingFile == NULL)
         rankingFile = createRankingFile(MAX_RANKING_SIZE);
 
