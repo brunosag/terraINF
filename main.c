@@ -16,7 +16,8 @@
 #include <string.h>
 
 #define GAME_FRAMERATE 60
-#define TIMING_SAMPLE 0.2f
+#define TIMING_SAMPLE 0.05f
+#define FADE_OVER -1.0f
 
 #define MAX_PLAYER_NAME 3
 #define MAX_RANKING_SIZE 5
@@ -29,9 +30,10 @@
 #define HUD_FONT_SIZE 26
 #define HUD_ORE_SIZE 8
 #define MENU_FONT_SIZE 22
-#define LOADING_FONT_SIZE 100
-#define LOADING_FADEIN_TIME 0.5f  // Aproximadamente em segundos
-#define LOADING_FADEOUT_TIME 3.0f // Aproximadamente em segundos
+#define SPLASH_FONT_SIZE 100
+#define SPLASH_FADEIN_TIME 0.5f  // Aproximadamente em segundos
+#define SPLASH_FADEOFF_TIME 1.0f // Aproximadamente em segundos
+#define SPLASH_FADEOUT_TIME 1.0f // Aproximadamente em segundos
 #define ALPHA_MIN 65
 #define ALPHA_MAX 90
 
@@ -110,6 +112,15 @@ typedef struct ranking
     int score;
 } ranking_t;
 
+typedef enum fade
+{
+    FadeReset,
+    FadeIn,
+    FadeOff,
+    FadeOut
+} fade_t;
+
+float fadeTimer(float fadeInTime, float fadeOffTime, float fadeOutTime);
 void loadLevel(level_t *level, player_t *player);
 void updateEnergy(player_t *player, int offset);
 int getFallSize(level_t *level, int x, int y);
@@ -241,7 +252,7 @@ void startGame(player_t *player)
     // Initialize                                                                               //
     // ---------------------------------------------------------------------------------------- //
 
-    // Criar e inicializar minérios
+    // Criar e inicializar minérios e vida do jogador
     ore_t ores[ORE_COUNT];
 
     ores[Caesium].nameColor = CAESIUM_COLOR;
@@ -272,6 +283,8 @@ void startGame(player_t *player)
     ores[Silver].texture = LoadTexture("sprites/silver_ore.png");
     ores[Titanium].texture = LoadTexture("sprites/titanium_ore.png");
     ores[Uranium].texture = LoadTexture("sprites/uranium_ore.png");
+
+    player->health = 3;
 
     KeyboardKey direction = KEY_S;
 
@@ -396,54 +409,89 @@ void startGame(player_t *player)
     }
 }
 
+float fadeTimer(float fadeInTime, float fadeOffTime, float fadeOutTime)
+{
+    static float alpha = FADE_OVER;
+    static float fadeTimer = 0.0f;
+    static float fadeSample = 0.0f;
+    static fade_t fadeState = FadeReset;
+
+    // Caso a função já tenha sido completa, reiniciar ciclo de fade
+    if (fadeState == FadeReset)
+    {
+        alpha = 0.0f;
+        fadeState = FadeIn;
+    }
+
+    // Cronometrar o tempo de fade in, fade off e fade out
+    fadeTimer += GetFrameTime();
+    if (fadeTimer >= TIMING_SAMPLE)
+    {
+        fadeTimer = 0.0f;
+        fadeSample += TIMING_SAMPLE;
+        switch (fadeState)
+        {
+        case FadeReset:
+            alpha = 0.0f;
+            fadeState = FadeIn;
+            break;
+        case FadeIn:
+            alpha = fadeSample / (fadeInTime);
+            if(alpha >= 1.0f)
+            {
+                fadeSample = 0.0f;
+                fadeState++;
+            }
+            break;
+        case FadeOff:
+            alpha = 1.0f;
+            if(fadeSample >= fadeOffTime)
+            {
+                fadeSample = 0.0f;
+                fadeState++;
+            }
+            break;
+        case FadeOut:
+            alpha = 1.0f - fadeSample / (fadeOutTime);
+            if(alpha <= 0.0f)
+            {
+                alpha = FADE_OVER;
+                fadeTimer = 0.0f;
+                fadeSample = 0.0f;
+                fadeState = FadeReset;
+            }
+            break;
+        }
+    }
+
+    // Retornar a transparência atualizada a cada chamada
+    return alpha;
+}
+
 void loadLevel(level_t *level, player_t *player)
 {
     // Reiniciar status do jogador e nivel
     player->lastMined = (ore_t) {0};
     player->score = 0;
-    player->health = 3;
     player->energy = 100;
     player->ladders = 20;
     level->oreCount = 0;
-
-    // Desenhar tela preta
-    Texture2D loadingTexture = LoadTexture("backgrounds/loading.png");
     
-    // Desenhar tela de carregamento
-    float fadeTimer = 0.0f;
-    float fadeSample = 0.0f;
+    // Desenhar splash screen
+    Texture2D splashTexture = LoadTexture("backgrounds/splash.png");
     float alphaIntensity = 0.0f;
-    bool fadeIn = true;
-    while(alphaIntensity >= 0.0f)
+    while(alphaIntensity != FADE_OVER)
     {
-        // Cronometrar o tempo de fade in e fade out
-        fadeTimer += GetFrameTime();
-        if (fadeTimer >= TIMING_SAMPLE)
-        {
-            fadeTimer = 0.0f;
+        BeginDrawing();
+        ClearBackground(BLACK);
+        DrawTexture(splashTexture, 0, 0, Fade(WHITE, alphaIntensity));
+        DrawText(TextFormat("Nível %i", player->currentLevel),
+                (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Nível %i", player->currentLevel), SPLASH_FONT_SIZE) / 2),
+                (SCREEN_HEIGHT - SPLASH_FONT_SIZE) / 2, SPLASH_FONT_SIZE, Fade(RAYWHITE, alphaIntensity));
 
-            BeginDrawing();
-            ClearBackground(BLACK);
-
-            fadeSample += TIMING_SAMPLE;
-            if (fadeIn)
-                alphaIntensity = fadeSample / (LOADING_FADEIN_TIME * 10.0f);
-            else
-                alphaIntensity = 1.0f - fadeSample / (LOADING_FADEOUT_TIME * 10.0f);
+        alphaIntensity = fadeTimer(SPLASH_FADEIN_TIME, SPLASH_FADEOFF_TIME, SPLASH_FADEOUT_TIME);
         
-            // Trocar de fade in para fade out
-            if (alphaIntensity >= 1.0f)
-            {
-                fadeSample = 0.0f;
-                fadeIn = false;
-            }
-        
-            DrawTexture(loadingTexture, 0, 0, Fade(WHITE, alphaIntensity));
-            DrawText(TextFormat("Nível %i", player->currentLevel),
-                    (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Nível %i", player->currentLevel), LOADING_FONT_SIZE) / 2),
-                    (SCREEN_HEIGHT - LOADING_FONT_SIZE) / 2, LOADING_FONT_SIZE, Fade(RAYWHITE, alphaIntensity));
-            EndDrawing();
-        }
+        EndDrawing();
     }
 
     // Ajustar nome do arquivo
