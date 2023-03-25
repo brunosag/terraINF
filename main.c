@@ -31,9 +31,12 @@
 #define HUD_ORE_SIZE 8
 #define MENU_FONT_SIZE 22
 #define SPLASH_FONT_SIZE 100
-#define SPLASH_FADEIN_TIME 0.5f  // Aproximadamente em segundos
-#define SPLASH_FADEOFF_TIME 1.0f // Aproximadamente em segundos
-#define SPLASH_FADEOUT_TIME 1.0f // Aproximadamente em segundos
+#define SPLASH_FADEIN_TIME 0.5f
+#define SPLASH_FADEOFF_TIME 1.0f
+#define SPLASH_FADEOUT_TIME 1.0f
+#define LAST_MINED_FADEIN_TIME 0.5f
+#define LAST_MINED_FADEOFF_TIME 1.0f
+#define LAST_MINED_FADEOUT_TIME 0.5f
 #define ALPHA_MIN 65
 #define ALPHA_MAX 90
 
@@ -120,7 +123,7 @@ typedef enum fade
     FadeOut
 } fade_t;
 
-float fadeTimer(float fadeInTime, float fadeOffTime, float fadeOutTime);
+float fadeTimer(bool reset, float fadeInTime, float fadeOffTime, float fadeOutTime);
 void loadLevel(level_t *level, player_t *player);
 void updateEnergy(player_t *player, int offset);
 int getFallSize(level_t *level, int x, int y);
@@ -409,61 +412,74 @@ void startGame(player_t *player)
     }
 }
 
-float fadeTimer(float fadeInTime, float fadeOffTime, float fadeOutTime)
+float fadeTimer(bool reset, float fadeInTime, float fadeOffTime, float fadeOutTime)
 {
     static float alpha = FADE_OVER;
     static float fadeTimer = 0.0f;
     static float fadeSample = 0.0f;
     static fade_t fadeState = FadeReset;
 
-    // Caso a função já tenha sido completa, reiniciar ciclo de fade
-    if (fadeState == FadeReset)
+    // Caso não queira-se reiniciar a contagem do timer
+    if(!reset)
     {
-        alpha = 0.0f;
-        fadeState = FadeIn;
-    }
-
-    // Cronometrar o tempo de fade in, fade off e fade out
-    fadeTimer += GetFrameTime();
-    if (fadeTimer >= TIMING_SAMPLE)
-    {
-        fadeTimer = 0.0f;
-        fadeSample += TIMING_SAMPLE;
-        switch (fadeState)
+        // Caso a função já tenha sido completa, reiniciar ciclo de fade
+        if (fadeState == FadeReset)
         {
-        case FadeReset:
             alpha = 0.0f;
             fadeState = FadeIn;
-            break;
-        case FadeIn:
-            alpha = fadeSample / (fadeInTime);
-            if(alpha >= 1.0f)
+        }
+
+        // Cronometrar o tempo de fade in, fade off e fade out
+        fadeTimer += GetFrameTime();
+        if (fadeTimer >= TIMING_SAMPLE)
+        {
+            fadeTimer = 0.0f;
+            fadeSample += TIMING_SAMPLE;
+            switch (fadeState)
             {
-                fadeSample = 0.0f;
-                fadeState++;
-            }
-            break;
-        case FadeOff:
-            alpha = 1.0f;
-            if(fadeSample >= fadeOffTime)
-            {
-                fadeSample = 0.0f;
-                fadeState++;
-            }
-            break;
-        case FadeOut:
-            alpha = 1.0f - fadeSample / (fadeOutTime);
-            if(alpha <= 0.0f)
-            {
-                alpha = FADE_OVER;
+            case FadeReset:
+                alpha = 0.0f;
                 fadeTimer = 0.0f;
                 fadeSample = 0.0f;
-                fadeState = FadeReset;
+                fadeState = FadeIn;
+                break;
+            case FadeIn:
+                alpha = fadeSample / (fadeInTime);
+                if(alpha >= 1.0f)
+                {
+                    fadeSample = 0.0f;
+                    fadeState++;
+                }
+                break;
+            case FadeOff:
+                alpha = 1.0f;
+                if(fadeSample >= fadeOffTime)
+                {
+                    fadeSample = 0.0f;
+                    fadeState++;
+                }
+                break;
+            case FadeOut:
+                alpha = 1.0f - fadeSample / (fadeOutTime);
+                if(alpha <= 0.0f)
+                {
+                    alpha = FADE_OVER;
+                    fadeTimer = 0.0f;
+                    fadeSample = 0.0f;
+                    fadeState = FadeReset;
+                }
+                break;
             }
-            break;
         }
     }
-
+    else
+    {
+        alpha = 0.0f;
+        fadeTimer = 0.0f;
+        fadeSample = 0.0f;
+        fadeState = FadeReset;
+    }
+    
     // Retornar a transparência atualizada a cada chamada
     return alpha;
 }
@@ -475,11 +491,13 @@ void loadLevel(level_t *level, player_t *player)
     player->score = 0;
     player->energy = 100;
     player->ladders = 20;
+    player->miningMode = false;
     level->oreCount = 0;
     
     // Desenhar splash screen
     Texture2D splashTexture = LoadTexture("backgrounds/splash.png");
     float alphaIntensity = 0.0f;
+    alphaIntensity = fadeTimer(true, 0.0f, 0.0f, 0.0f);
     while(alphaIntensity != FADE_OVER)
     {
         BeginDrawing();
@@ -489,7 +507,7 @@ void loadLevel(level_t *level, player_t *player)
                 (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Nível %i", player->currentLevel), SPLASH_FONT_SIZE) / 2),
                 (SCREEN_HEIGHT - SPLASH_FONT_SIZE) / 2, SPLASH_FONT_SIZE, Fade(RAYWHITE, alphaIntensity));
 
-        alphaIntensity = fadeTimer(SPLASH_FADEIN_TIME, SPLASH_FADEOFF_TIME, SPLASH_FADEOUT_TIME);
+        alphaIntensity = fadeTimer(false, SPLASH_FADEIN_TIME, SPLASH_FADEOFF_TIME, SPLASH_FADEOUT_TIME);
         
         EndDrawing();
     }
@@ -721,15 +739,21 @@ void placeLadder(level_t *level, player_t *player)
 
 void drawHUD(player_t *player)
 {
+    static float alphaIntensity = 0.0f;
+
     DrawText(TextFormat("%i", player->health), 66, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->energy), 177, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->ladders), 311, 8, HUD_FONT_SIZE, RAYWHITE);
+
+    // Aplicar efeito de fade no último ítem minerado
     DrawTexture(player->lastMined.texture,
                 (590 - MeasureText(TextFormat(player->lastMined.name), HUD_FONT_SIZE) / 2), 12,
-                WHITE);
+                Fade(WHITE, alphaIntensity));
     DrawText(player->lastMined.name,
              (620 - MeasureText(TextFormat(player->lastMined.name), HUD_FONT_SIZE) / 2), 8,
-             HUD_FONT_SIZE, player->lastMined.nameColor);
+             HUD_FONT_SIZE, Fade(player->lastMined.nameColor, alphaIntensity));
+    alphaIntensity = fadeTimer(false, LAST_MINED_FADEIN_TIME, LAST_MINED_FADEOFF_TIME, LAST_MINED_FADEOUT_TIME);
+
     DrawText(TextFormat("%i", player->score),
              (956 - MeasureText(TextFormat("%i", player->score), 28)), 8, 28, RAYWHITE);
     DrawText(TextFormat("/%i", (int)(1000 * pow(2, player->currentLevel - 1))), 962, 14, 20,
