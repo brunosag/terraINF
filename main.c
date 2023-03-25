@@ -745,7 +745,7 @@ void drawHUD(player_t *player)
     DrawText(TextFormat("%i", player->energy), 177, 8, HUD_FONT_SIZE, RAYWHITE);
     DrawText(TextFormat("%i", player->ladders), 311, 8, HUD_FONT_SIZE, RAYWHITE);
 
-    // Aplicar efeito de fade no último ítem minerado
+    // Aplicar efeito de pulsar no último ítem minerado
     DrawTexture(player->lastMined.texture,
                 (590 - MeasureText(TextFormat(player->lastMined.name), HUD_FONT_SIZE) / 2), 12,
                 Fade(WHITE, alphaIntensity));
