@@ -50,6 +50,7 @@
 #define TITANIUM_COLOR (Color){192, 219, 196, 255}
 #define URANIUM_COLOR (Color){119, 193, 111, 255}
 
+#define ELEMENT_COUNT 10
 #define CHAR_PLAYER 'J'
 #define CHAR_GOLD 'G'
 #define CHAR_TITANIUM 'T'
@@ -83,6 +84,20 @@ typedef enum gameover_option
     ResetGame = 1,
     ExitGame
 } gameover_option_t;
+
+typedef enum element_number
+{
+    Background,
+    Dirt,
+    Edge,
+    HUD,
+    Ladder,
+    Ore,
+    PlayerLadderPickaxe,
+    PlayerLadder,
+    PlayerPickaxe,
+    Player
+} element_number_t;
 
 typedef enum ore_number
 {
@@ -122,6 +137,7 @@ typedef struct player
 typedef struct level
 {
     char elements[LVL_HEIGHT][LVL_WIDTH];
+    Texture2D textures[ELEMENT_COUNT];
     ore_t ores[ORE_COUNT];
     int oreCount;
 } level_t;
@@ -268,6 +284,7 @@ void startGame(player_t *player)
 
     // Inicializar a vida do jogador e a tecla pressionada por esse
     player->health = 3;
+    player->currentLevel = 1;
     KeyboardKey direction = KEY_S;
 
     // Carregar nível inicial
@@ -430,6 +447,36 @@ void loadLevel(level_t *level, player_t *player)
     player->miningMode = false;
     level->oreCount = 0;
     
+    // Carregar nome e cor dos minérios da HUD
+    level->ores[Caesium].nameColor = CAESIUM_COLOR;
+    level->ores[Gold].nameColor = GOLD_COLOR;
+    level->ores[Silver].nameColor = SILVER_COLOR;
+    level->ores[Titanium].nameColor = TITANIUM_COLOR;
+    level->ores[Uranium].nameColor = URANIUM_COLOR;
+
+    snprintf(level->ores[Caesium].name, MAX_ORE_NAME, "Césio");
+    snprintf(level->ores[Gold].name, MAX_ORE_NAME, "Ouro");
+    snprintf(level->ores[Silver].name, MAX_ORE_NAME, "Prata");
+    snprintf(level->ores[Titanium].name, MAX_ORE_NAME, "Titânio");
+    snprintf(level->ores[Uranium].name, MAX_ORE_NAME, "Urânio");
+    
+    // Carregar sprites
+    level->textures[Background] = LoadTexture("sprites/background.png");
+    level->textures[Dirt] = LoadTexture("sprites/dirt.png");
+    level->textures[Edge] = LoadTexture("sprites/edge.png");
+    level->textures[HUD] = LoadTexture("sprites/hud.png");
+    level->textures[Ladder] = LoadTexture("sprites/ladder.png");
+    level->textures[Ore] = LoadTexture("sprites/ore.png");
+    level->textures[PlayerLadderPickaxe] = LoadTexture("sprites/player_ladder_pickaxe.png");
+    level->textures[PlayerLadder] = LoadTexture("sprites/player_ladder.png");
+    level->textures[PlayerPickaxe] = LoadTexture("sprites/player_pickaxe.png");
+    level->textures[Player] = LoadTexture("sprites/player.png");
+    level->ores[Caesium].texture = LoadTexture("sprites/caesium_ore.png");
+    level->ores[Gold].texture = LoadTexture("sprites/gold_ore.png");
+    level->ores[Silver].texture = LoadTexture("sprites/silver_ore.png");
+    level->ores[Titanium].texture = LoadTexture("sprites/titanium_ore.png");
+    level->ores[Uranium].texture = LoadTexture("sprites/uranium_ore.png");
+
     // Desenhar splash screen
     Texture2D splashTexture = LoadTexture("backgrounds/splash.png");
     float alphaIntensity = 0.0f;
@@ -502,35 +549,6 @@ void updateEnergy(player_t *player, int offset)
 
 void drawLevel(level_t *level, player_t *player, float alpha)
 {
-    level->ores[Caesium].nameColor = CAESIUM_COLOR;
-    level->ores[Gold].nameColor = GOLD_COLOR;
-    level->ores[Silver].nameColor = SILVER_COLOR;
-    level->ores[Titanium].nameColor = TITANIUM_COLOR;
-    level->ores[Uranium].nameColor = URANIUM_COLOR;
-
-    snprintf(level->ores[Caesium].name, MAX_ORE_NAME, "Césio");
-    snprintf(level->ores[Gold].name, MAX_ORE_NAME, "Ouro");
-    snprintf(level->ores[Silver].name, MAX_ORE_NAME, "Prata");
-    snprintf(level->ores[Titanium].name, MAX_ORE_NAME, "Titânio");
-    snprintf(level->ores[Uranium].name, MAX_ORE_NAME, "Urânio");
-    
-    // Carregar sprites
-    Texture2D backgroundTexture = LoadTexture("sprites/background.png");
-    Texture2D dirtTexture = LoadTexture("sprites/dirt.png");
-    Texture2D edgeTexture = LoadTexture("sprites/edge.png");
-    Texture2D HUDTexture = LoadTexture("sprites/hud.png");
-    Texture2D ladderTexture = LoadTexture("sprites/ladder.png");
-    Texture2D oreTexture = LoadTexture("sprites/ore.png");
-    Texture2D playerLadderPickaxeTexture = LoadTexture("sprites/player_ladder_pickaxe.png");
-    Texture2D playerLadderTexture = LoadTexture("sprites/player_ladder.png");
-    Texture2D playerPickaxeTexture = LoadTexture("sprites/player_pickaxe.png");
-    Texture2D playerTexture = LoadTexture("sprites/player.png");
-    level->ores[Caesium].texture = LoadTexture("sprites/caesium_ore.png");
-    level->ores[Gold].texture = LoadTexture("sprites/gold_ore.png");
-    level->ores[Silver].texture = LoadTexture("sprites/silver_ore.png");
-    level->ores[Titanium].texture = LoadTexture("sprites/titanium_ore.png");
-    level->ores[Uranium].texture = LoadTexture("sprites/uranium_ore.png");
-
     // Desenhar texturas com base na matriz
     Texture2D currentTexture;
     for (int i = 0; i < LVL_HEIGHT; i++)
@@ -545,31 +563,31 @@ void drawLevel(level_t *level, player_t *player, float alpha)
             case CHAR_SILVER:
             case CHAR_URANIUM:
             case CHAR_CAESIUM:
-                currentTexture = oreTexture;
+                currentTexture = level->textures[Ore];
                 break;
             case CHAR_DIRT:
-                currentTexture = dirtTexture;
+                currentTexture = level->textures[Dirt];
                 break;
             case CHAR_EMPTY:
-                currentTexture = backgroundTexture;
+                currentTexture = level->textures[Background];
             break;
             case CHAR_EDGE:
-                currentTexture = edgeTexture;
+                currentTexture = level->textures[Edge];
                 break;
             case CHAR_LADDER:
-                currentTexture = ladderTexture;
+                currentTexture = level->textures[Ladder];
                 break;
             case CHAR_PLAYER_LADDER:
                 if (player->miningMode)
-                    currentTexture = playerLadderPickaxeTexture;
+                    currentTexture = level->textures[PlayerLadderPickaxe];
                 else
-                    currentTexture = playerLadderTexture;
+                    currentTexture = level->textures[Ladder];
                 break;
             case CHAR_PLAYER:
                 if (player->miningMode)
-                    currentTexture = playerPickaxeTexture;
+                    currentTexture = level->textures[PlayerPickaxe];
                 else
-                    currentTexture = playerTexture;
+                    currentTexture = level->textures[Player];
                 break;
             }
 
@@ -579,7 +597,7 @@ void drawLevel(level_t *level, player_t *player, float alpha)
     }
 
     // Desenhar HUD
-    DrawTexture(HUDTexture, 0, 0, Fade(WHITE, alpha));
+    DrawTexture(level->textures[HUD], 0, 0, Fade(WHITE, alpha));
     drawHUD(player, alpha);
 }
 
