@@ -145,6 +145,7 @@ typedef struct level
 typedef struct ranking
 {
     char name[MAX_PLAYER_NAME + 1];
+    int position;
     int score;
 } ranking_t;
 
@@ -823,16 +824,16 @@ FILE *createRankingFile(int rankingSize)
     // Verificar a abertura do arquivo
     if(file != NULL)
     {
-        ranking_t rankingPlaceholder = {{0}, 0};
+        ranking_t rankingPlaceholder = {{0}, 0, 0};
 
         // Guardar no primeiro byte do arquivo a quantidade de jogadores no ranking
         fwrite(&rankingSize, sizeof(rankingSize), 1, file);
 
         for (int i = 0; i < rankingSize; i++)
         {
+            rankingPlaceholder.position = i + 1;
             generateRandomName(rankingPlaceholder.name, MAX_PLAYER_NAME);
-            fwrite(rankingPlaceholder.name, sizeof(rankingPlaceholder.name), 1, file);
-            fwrite(&rankingPlaceholder.score, sizeof(rankingPlaceholder.score), 1, file);
+            fwrite(&rankingPlaceholder, sizeof(rankingPlaceholder), 1, file);
         }
 
         rewind(file);
