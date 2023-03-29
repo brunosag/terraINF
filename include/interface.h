@@ -1,0 +1,33 @@
+/*
+ * File:         interface.h
+ * Authors:      Ana Rodrigues, Bruno Samuel e Pedro Lima
+ * Date Created: 28/03/2023
+ *
+ * Description:  Módulo com as funções e definições
+ *               para impressão de imagens e textos
+ *               na tela do usuário.
+ */
+
+#ifndef INTERFACE_H
+#define INTERFACE_H
+
+#include "auxiliar.h"
+
+#define HUD_FONT_SIZE 26
+#define HUD_ORE_SIZE 8
+#define LAST_MINED_FADEIN_TIME 0.5f
+#define LAST_MINED_FADEOFF_TIME 1.0f
+#define LAST_MINED_FADEOUT_TIME 0.5f
+
+#define SPLASH_FONT_SIZE 100
+#define SPLASH_FADEIN_TIME 0.5f
+#define SPLASH_FADEOFF_TIME 1.0f
+#define SPLASH_FADEOUT_TIME 1.0f
+
+#define ELEMENT_SIZE 40
+
+void drawLevel(level_t *level, player_t *player, float alpha);
+void drawSplashScreen(player_t *player);
+void drawHUD(player_t *player, float alpha);
+
+#endif
