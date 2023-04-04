@@ -82,7 +82,7 @@ void generateRandomName(char *name, int nameLength)
         name[i] = ASCII_MIN + (rand() % (ASCII_MAX - ASCII_MIN + 1));
 }
 
-bool UninterruptTimer(bool reset, float time)
+bool uninterruptTimer(bool reset, float time)
 {
     static bool timeOver = false;
     static float timeCounter = 0.0f;
