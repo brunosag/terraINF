@@ -3,24 +3,49 @@
 
 #include "../include/interface.h"
 
-void drawSplashScreen(player_t *player)
+void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption)
 {
-    // Desenhar splash screen
-    Texture2D splashTexture = LoadTexture("backgrounds/splash.png");
-    float alphaIntensity = 0.0f;
-    alphaIntensity = fadeTimer(true, 0.0f, 0.0f, 0.0f);
-    while(alphaIntensity != FADE_OVER)
-    {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        DrawTexture(splashTexture, 0, 0, Fade(WHITE, alphaIntensity));
-        DrawText(TextFormat("Nível %i", player->currentLevel),
-                (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Nível %i", player->currentLevel), SPLASH_FONT_SIZE) / 2),
-                (SCREEN_HEIGHT - SPLASH_FONT_SIZE) / 2, SPLASH_FONT_SIZE, Fade(RAYWHITE, alphaIntensity));
+    // Desenhar o nível no fundo com um nível de transparência
+    drawLevel(level, player, 0.25f);
 
-        alphaIntensity = fadeTimer(false, SPLASH_FADEIN_TIME, SPLASH_FADEOFF_TIME, SPLASH_FADEOUT_TIME);
-        
-        EndDrawing();
+    // Desenhar o título da tela
+    if (!player->health)
+    {
+        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", GAMEOVER_TITLE_FONT_SIZE) / 2), 300,
+                GAMEOVER_TITLE_FONT_SIZE, RED);
+        DrawText("Vidas Esgotadas",
+                 (SCREEN_WIDTH / 2 - MeasureText("Vidas Esgotadas", MENU_FONT_SIZE) / 2), 450,
+                 MENU_FONT_SIZE, RAYWHITE);
+    }
+    else
+    {
+        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", GAMEOVER_TITLE_FONT_SIZE) / 2), 300,
+                GAMEOVER_TITLE_FONT_SIZE, DARKBLUE);
+        DrawText("Impossível Continuar",
+                 (SCREEN_WIDTH / 2 - MeasureText("Impossível Continuar", MENU_FONT_SIZE) / 2), 450,
+                 MENU_FONT_SIZE, RAYWHITE);
+    }
+
+    // Desenhar opções
+    DrawText("REINICIAR JOGO",
+             (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 526,
+             MENU_FONT_SIZE, RAYWHITE);
+    DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2),
+             592, MENU_FONT_SIZE, RAYWHITE);
+
+    // Desenhar opção selecionada
+    switch (selectedOption)
+    {
+    case ResetGame:
+        DrawText("- REINICIAR JOGO -",
+                 (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 527,
+                 MENU_FONT_SIZE, RAYWHITE);
+        break;
+    case ExitGame:
+        DrawText("- SAIR DO JOGO -",
+                 (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 593,
+                 MENU_FONT_SIZE, RAYWHITE);
+        break;
     }
 }
 
@@ -113,6 +138,108 @@ void drawLevel(level_t *level, player_t *player, float alpha)
     // Desenhar HUD
     DrawTexture(level->textures[HUD], 0, 0, Fade(WHITE, alpha));
     drawHUD(player, alpha);
+}
+
+void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption)
+{
+    // Desenhar fundo do menu
+    DrawTexture(menuTexture, 0, 0, WHITE);
+
+    // Desenhar opções
+    DrawText("INICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("INICIAR JOGO", MENU_FONT_SIZE) / 2),
+             394, MENU_FONT_SIZE, RAYWHITE);
+    DrawText("RANKING DE PONTOS",
+             (SCREEN_WIDTH / 2 - MeasureText("RANKING DE PONTOS", MENU_FONT_SIZE) / 2), 460,
+             MENU_FONT_SIZE, RAYWHITE);
+    DrawText("EDITOR DE NIVEL",
+             (SCREEN_WIDTH / 2 - MeasureText("EDITOR DE NIVEL", MENU_FONT_SIZE) / 2), 526,
+             MENU_FONT_SIZE, RAYWHITE);
+    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 592,
+             MENU_FONT_SIZE, RAYWHITE);
+
+    // Desenhar opção selecionada
+    switch (selectedOption)
+    {
+    case StartGame:
+        DrawText("- INICIAR JOGO -",
+                 (SCREEN_WIDTH / 2 - MeasureText("- INICIAR JOGO -", MENU_FONT_SIZE) / 2), 395,
+                 MENU_FONT_SIZE, RAYWHITE);
+        break;
+    case Ranking:
+        DrawText("- RANKING DE PONTOS -",
+                 (SCREEN_WIDTH / 2 - MeasureText("- RANKING DE PONTOS -", MENU_FONT_SIZE) / 2), 461,
+                 MENU_FONT_SIZE, RAYWHITE);
+        break;
+    case LevelEditor:
+        DrawText("- EDITOR DE NIVEL -",
+                 (SCREEN_WIDTH / 2 - MeasureText("- EDITOR DE NIVEL -", MENU_FONT_SIZE) / 2), 527,
+                 MENU_FONT_SIZE, RAYWHITE);
+        break;
+    case Exit:
+        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 593,
+                 MENU_FONT_SIZE, RAYWHITE);
+        break;
+    }
+}
+
+void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t selectedOption)
+{
+    // Desenhar título
+    DrawText("RANKING", (SCREEN_WIDTH / 2 - MeasureText("RANKING", MENU_FONT_SIZE) / 2),
+             MENU_FONT_SIZE + 20, MENU_FONT_SIZE, LIGHTGRAY);
+
+    // Desenhar subtítulos
+    DrawText("POSIÇÃO", (SCREEN_WIDTH / 7),
+             MENU_FONT_SIZE + 62, MENU_FONT_SIZE, GOLD_COLOR);
+    DrawText("PONTUAÇÃO", (SCREEN_WIDTH / 2 - MeasureText("PONTUAÇÃO", MENU_FONT_SIZE) / 2),
+             MENU_FONT_SIZE + 62, MENU_FONT_SIZE, GOLD_COLOR);
+    DrawText("NOME", (6 * SCREEN_WIDTH / 7 - MeasureText("NOME", MENU_FONT_SIZE)),
+             MENU_FONT_SIZE + 62, MENU_FONT_SIZE, GOLD_COLOR);
+
+    // Desenhar jogadores do ranking
+    for(int i = 0; i < rankingSize; i++)
+    {
+        DrawText(TextFormat("%d °", players[i].position), (SCREEN_WIDTH / 7),
+                 (124 + (MENU_FONT_SIZE + 20) * i), MENU_FONT_SIZE, RAYWHITE);
+        DrawText(TextFormat("%d", players[i].score), (SCREEN_WIDTH / 2 - MeasureText(TextFormat("%d", players[i].score), MENU_FONT_SIZE) / 2),
+                 (124 + (MENU_FONT_SIZE + 20) * i), MENU_FONT_SIZE, RAYWHITE);
+        DrawText(TextFormat("%s", players[i].name), (6 * SCREEN_WIDTH / 7 - MeasureText(TextFormat("%s", players->name), MENU_FONT_SIZE)),
+                 (124 + (MENU_FONT_SIZE + 20) * i), MENU_FONT_SIZE, RAYWHITE);
+    }
+
+    // Desenhar opções
+    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), (124 + (MENU_FONT_SIZE + 20) * rankingSize),
+             MENU_FONT_SIZE, RAYWHITE);
+
+    // Desenhar opção selecionada
+    switch (selectedOption)
+    {
+    case ExitRanking:
+        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), (124 + (MENU_FONT_SIZE + 20) * rankingSize),
+                 MENU_FONT_SIZE, RAYWHITE);
+        break;
+    }
+}
+
+void drawSplashScreen(player_t *player)
+{
+    // Desenhar splash screen
+    Texture2D splashTexture = LoadTexture("backgrounds/splash.png");
+    float alphaIntensity = 0.0f;
+    alphaIntensity = fadeTimer(true, 0.0f, 0.0f, 0.0f);
+    while(alphaIntensity != FADE_OVER)
+    {
+        BeginDrawing();
+        ClearBackground(BLACK);
+        DrawTexture(splashTexture, 0, 0, Fade(WHITE, alphaIntensity));
+        DrawText(TextFormat("Nível %i", player->currentLevel),
+                (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Nível %i", player->currentLevel), SPLASH_FONT_SIZE) / 2),
+                (SCREEN_HEIGHT - SPLASH_FONT_SIZE) / 2, SPLASH_FONT_SIZE, Fade(RAYWHITE, alphaIntensity));
+
+        alphaIntensity = fadeTimer(false, SPLASH_FADEIN_TIME, SPLASH_FADEOFF_TIME, SPLASH_FADEOUT_TIME);
+        
+        EndDrawing();
+    }
 }
 
 #endif

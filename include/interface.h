@@ -26,8 +26,11 @@
 
 #define ELEMENT_SIZE 40
 
-void drawLevel(level_t *level, player_t *player, float alpha);
-void drawSplashScreen(player_t *player);
+void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption);
 void drawHUD(player_t *player, float alpha);
+void drawLevel(level_t *level, player_t *player, float alpha);
+void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption);
+void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t selectedOption);
+void drawSplashScreen(player_t *player);
 
 #endif

@@ -45,6 +45,11 @@
 #define TITANIUM_COLOR (Color){192, 219, 196, 255}
 #define URANIUM_COLOR (Color){119, 193, 111, 255}
 
+#define MENU_FONT_SIZE 22
+#define GAMEOVER_TITLE_FONT_SIZE 100
+
+#define MAX_RANKING_SIZE 5
+
 typedef enum element_number
 {
     Background,
@@ -67,6 +72,25 @@ typedef enum ore_number
     Titanium,
     Uranium
 } ore_number_t;
+
+typedef enum menu_option
+{
+    StartGame = 1,
+    Ranking,
+    LevelEditor,
+    Exit
+} menu_option_t;
+
+typedef enum ranking_option
+{
+    ExitRanking = 1
+} ranking_option_t;
+
+typedef enum gameover_option
+{
+    ResetGame = 1,
+    ExitGame
+} gameover_option_t;
 
 typedef struct position
 {

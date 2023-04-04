@@ -13,7 +13,8 @@
 #include <string.h>
 #include "auxiliar.h"
 
+int createRankingFile(const char *rankingFile, int rankingSize);
 void loadLevel(level_t *level, player_t *player);
-FILE *createRankingFile(int rankingSize);
+int readRankingFile(const char *rankingFile, ranking_t *players);
 
 #endif

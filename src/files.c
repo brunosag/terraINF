@@ -3,6 +3,34 @@
 
 #include "../include/files.h"
 
+int createRankingFile(const char* rankingFile, int rankingSize)
+{
+    int errorNumber = 0;
+
+    // Verificar a abertura do arquivo
+    FILE *file = fopen(rankingFile, "wb");
+    if(file != NULL)
+    {
+        ranking_t rankingPlaceholder = {{0}, 0, 0};
+
+        // Guardar no primeiro byte do arquivo a quantidade de jogadores no ranking
+        fwrite(&rankingSize, sizeof(rankingSize), 1, file);
+
+        for (int i = 0; i < rankingSize; i++)
+        {
+            rankingPlaceholder.position = i + 1;
+            generateRandomName(rankingPlaceholder.name, MAX_PLAYER_NAME);
+            fwrite(&rankingPlaceholder, sizeof(rankingPlaceholder), 1, file);
+        }
+    }
+    else
+        errorNumber = 1;
+
+    fclose(file);
+
+    return errorNumber;
+}
+
 void loadLevel(level_t *level, player_t *player)
 {
     // Reiniciar status do jogador e nivel
@@ -84,29 +112,25 @@ void loadLevel(level_t *level, player_t *player)
         printf("Erro ao ler o arquivo da matriz do nivel.");
 }
 
-FILE *createRankingFile(int rankingSize)
+int readRankingFile(const char *rankingFile, ranking_t *players)
 {
-    FILE *file = fopen("ranking/ranking.bin", "wb");
+    int entriesRead = 0;
 
-    // Verificar a abertura do arquivo
+    // Verificar abertura de arquivo
+    FILE *file = fopen(rankingFile, "rb");
     if(file != NULL)
     {
-        ranking_t rankingPlaceholder = {{0}, 0, 0};
-
-        // Guardar no primeiro byte do arquivo a quantidade de jogadores no ranking
-        fwrite(&rankingSize, sizeof(rankingSize), 1, file);
-
-        for (int i = 0; i < rankingSize; i++)
-        {
-            rankingPlaceholder.position = i + 1;
-            generateRandomName(rankingPlaceholder.name, MAX_PLAYER_NAME);
-            fwrite(&rankingPlaceholder, sizeof(rankingPlaceholder), 1, file);
-        }
-
-        rewind(file);
+        int rankingSize = 0;
+        if (fread(&rankingSize, sizeof(rankingSize), 1, file) == 1)
+            // Verificar se sabe o tamanho de entradas no arquivo
+            for(int i = 0; i < rankingSize; i++)
+                // Verificar leitura de cada item do arquivo e contabilizar
+                if(fread(&players[i], sizeof(players[i]), 1, file) == 1)
+                    entriesRead++;
     }
 
-    return file;
+    fclose(file);
+    return entriesRead;
 }
 
 #endif

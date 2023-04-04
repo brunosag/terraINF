@@ -23,6 +23,7 @@ int main()
             startGame(&player);
             break;
         case Ranking:
+            startRanking();
             break;
         case LevelEditor:
             break;
@@ -35,26 +36,22 @@ int main()
     return 0;
 }
 
-menu_option_t startMenu()
+gameover_option_t gameOver(level_t *level, player_t *player)
 {
-    // Carregar sprites
-    Texture2D menuTexture = LoadTexture("backgrounds/menu.png");
-
-    // Selecionar primeira opção do menu
-    static menu_option_t selected = StartGame;
-
+    gameover_option_t selected = ResetGame;
+    
     bool confirmed = false;
-    while (!(WindowShouldClose() || confirmed))
+    while (!confirmed)
     {
         // Verificar navegação de seleção
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
-            if (selected < Exit)
+            if (selected < ExitGame)
                 selected++;
         }
         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
         {
-            if (selected > StartGame)
+            if (selected > ResetGame)
                 selected--;
         }
 
@@ -68,51 +65,21 @@ menu_option_t startMenu()
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // Desenhar fundo do menu
-        DrawTexture(menuTexture, 0, 0, WHITE);
-
-        // Desenhar opções
-        DrawText("INICIAR JOGO",
-                 (SCREEN_WIDTH / 2 - MeasureText("INICIAR JOGO", MENU_FONT_SIZE) / 2), 394,
-                 MENU_FONT_SIZE, RAYWHITE);
-        DrawText("RANKING DE PONTOS",
-                 (SCREEN_WIDTH / 2 - MeasureText("RANKING DE PONTOS", MENU_FONT_SIZE) / 2), 460,
-                 MENU_FONT_SIZE, RAYWHITE);
-        DrawText("EDITOR DE NIVEL",
-                 (SCREEN_WIDTH / 2 - MeasureText("EDITOR DE NIVEL", MENU_FONT_SIZE) / 2), 526,
-                 MENU_FONT_SIZE, RAYWHITE);
-        DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 592,
-                 MENU_FONT_SIZE, RAYWHITE);
-
-        // Desenhar opção selecionada
-        switch (selected)
-        {
-        case StartGame:
-            DrawText("- INICIAR JOGO -",
-                     (SCREEN_WIDTH / 2 - MeasureText("- INICIAR JOGO -", MENU_FONT_SIZE) / 2), 395,
-                     MENU_FONT_SIZE, RAYWHITE);
-            break;
-        case Ranking:
-            DrawText("- RANKING DE PONTOS -",
-                     (SCREEN_WIDTH / 2 - MeasureText("- RANKING DE PONTOS -", MENU_FONT_SIZE) / 2),
-                     461, MENU_FONT_SIZE, RAYWHITE);
-            break;
-        case LevelEditor:
-            DrawText("- EDITOR DE NIVEL -",
-                     (SCREEN_WIDTH / 2 - MeasureText("- EDITOR DE NIVEL -", MENU_FONT_SIZE) / 2),
-                     527, MENU_FONT_SIZE, RAYWHITE);
-            break;
-        case Exit:
-            DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2),
-                     593, MENU_FONT_SIZE, RAYWHITE);
-            break;
-        }
+        drawGameOverScreen(level, player, selected);
 
         EndDrawing();
     }
 
     // Retornar opção selecionada se confirmado
-    return confirmed ? selected : Exit;
+    return confirmed ? selected : ExitGame;
+
+/*    // Verificar se arquivo de ranking existe
+    FILE *rankingFile = fopen("ranking/ranking.bin", "rb+");
+    if (rankingFile == NULL)
+        rankingFile = createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE);
+
+    fclose(rankingFile);
+*/
 }
 
 void startGame(player_t *player)
@@ -207,22 +174,26 @@ void startGame(player_t *player)
     }
 }
 
-gameover_option_t gameOver(level_t *level, player_t *player)
+menu_option_t startMenu(void)
 {
-    gameover_option_t selected = ResetGame;
-    
+    // Carregar sprites
+    Texture2D menuTexture = LoadTexture("backgrounds/menu.png");
+
+    // Selecionar primeira opção do menu
+    static menu_option_t selected = StartGame;
+
     bool confirmed = false;
-    while (!confirmed)
+    while (!(WindowShouldClose() || confirmed))
     {
         // Verificar navegação de seleção
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
-            if (selected < ExitGame)
+            if (selected < Exit)
                 selected++;
         }
         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
         {
-            if (selected > ResetGame)
+            if (selected > StartGame)
                 selected--;
         }
 
@@ -236,65 +207,47 @@ gameover_option_t gameOver(level_t *level, player_t *player)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // Desenhar o nível no fundo com um nível de transparência
-        drawLevel(level, player, 0.25f);
-
-        // Desenhar o título da tela
-        if(!player->health)
-        {
-            DrawText("FIM DE JOGO",
-                    (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", 100) / 2), 300,
-                    100, RED);
-            DrawText("Vidas Esgotadas",
-                    (SCREEN_WIDTH / 2 - MeasureText("Vidas Esgotadas", MENU_FONT_SIZE) / 2), 450,
-                    MENU_FONT_SIZE, RAYWHITE);
-        }
-        else
-        {
-            DrawText("FIM DE JOGO",
-                    (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", 100) / 2), 300,
-                    100, DARKBLUE);
-            DrawText("Impossível Continuar",
-                    (SCREEN_WIDTH / 2 - MeasureText("Impossível Continuar", MENU_FONT_SIZE) / 2), 450,
-                    MENU_FONT_SIZE, RAYWHITE);
-        }
-
-        // Desenhar opções
-        DrawText("REINICIAR JOGO",
-                 (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 526,
-                 MENU_FONT_SIZE, RAYWHITE);
-        DrawText("SAIR DO JOGO",
-                 (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2), 592,
-                 MENU_FONT_SIZE, RAYWHITE);
-
-        // Desenhar opção selecionada
-        switch (selected)
-        {
-        case ResetGame:
-            DrawText("- REINICIAR JOGO -",
-                     (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 
-                     527, MENU_FONT_SIZE, RAYWHITE);
-            break;
-        case ExitGame:
-            DrawText("- SAIR DO JOGO -",
-                     (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2),
-                     593, MENU_FONT_SIZE, RAYWHITE);
-            break;
-        }
+        drawMenuScreen(menuTexture, selected);
 
         EndDrawing();
     }
 
     // Retornar opção selecionada se confirmado
-    return confirmed ? selected : ExitGame;
+    return confirmed ? selected : Exit;
+}
 
-/*    // Verificar se arquivo de ranking existe
-    FILE *rankingFile = fopen("ranking/ranking.bin", "rb+");
-    if (rankingFile == NULL)
-        rankingFile = createRankingFile(MAX_RANKING_SIZE);
+ranking_option_t startRanking(void)
+{
+    // Tentar abrir o arquivo de ranking existente
+    ranking_t players[MAX_RANKING_SIZE];
+    if (!readRankingFile("ranking/ranking.bin", players))
+    {
+        // Verificar criação do arquivo com sucesso
+        if(!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
+            readRankingFile("ranking/ranking.bin", players);
+    }
 
-    fclose(rankingFile);
-*/
+    ranking_option_t selected = ExitRanking;
+
+    bool confirmed = false;
+    while (!confirmed)
+    {
+        // Verificar confirmação de seleção
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
+        {
+            // Confirmar seleção
+            confirmed = true;
+        }
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawRankingScreen(players, MAX_RANKING_SIZE, selected);
+
+        EndDrawing();
+    }
+
+    return selected;
 }
 
 #endif
