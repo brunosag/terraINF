@@ -133,4 +133,26 @@ int readRankingFile(const char *rankingFile, ranking_t *players)
     return entriesRead;
 }
 
+int writeRankingPosition(const char *rankingFile, ranking_t *player)
+{
+    int errorNumber = 0;
+
+    // Verificar abertura de arquivo para leitura/escrita
+    FILE *file = fopen(rankingFile, "rb+");
+    if(file != NULL)
+    {
+        // Pular para a posição de escrita do jogador a ser alterado
+        fseek(file, sizeof(int) + (player->position - 1) * sizeof(*player), SEEK_SET);
+        
+        // Verificar a efetiva escrita do novo jogador no ranking
+        if(fwrite(player, sizeof(*player), 1, file) != 1)
+            errorNumber = 2;
+    }
+    else
+        errorNumber = 1;
+
+    fclose(file);
+    return errorNumber;
+}
+
 #endif

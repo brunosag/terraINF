@@ -30,5 +30,6 @@ typedef enum fade
 
 float fadeTimer(bool reset, float fadeInTime, float fadeOffTime, float fadeOutTime);
 void generateRandomName(char *name, int nameLength);
+bool UninterruptTimer(bool reset, float time);
 
 #endif

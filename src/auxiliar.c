@@ -82,4 +82,36 @@ void generateRandomName(char *name, int nameLength)
         name[i] = ASCII_MIN + (rand() % (ASCII_MAX - ASCII_MIN + 1));
 }
 
+bool UninterruptTimer(bool reset, float time)
+{
+    static bool timeOver = false;
+    static float timeCounter = 0.0f;
+    static float timeSample = 0.0f;
+
+    // Caso não queira-se reiniciar a contagem do timer
+    if(!reset)
+    {
+        // Cronometrar o tempo passado a cada frame desenhado
+        timeCounter += GetFrameTime();
+        if (timeCounter >= TIMING_SAMPLE)
+        {
+            timeCounter = 0.0f;
+            timeSample += TIMING_SAMPLE;
+
+            // Após passarem 'time' segundos, a flag de tempo decorrido se torna verdadeira
+            if(timeSample == time)
+                timeOver = true;
+        }
+    }
+    else
+    {
+        timeOver = false;
+        timeCounter = 0.0f;
+        timeSample = 0.0f;
+    }
+    
+    // Retornar uma flag de tempo finalizado
+    return timeOver;
+}
+
 #endif
