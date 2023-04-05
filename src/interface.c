@@ -49,7 +49,7 @@ void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t sele
     }
 }
 
-void drawHighscoreTextBox(player_t *player, int nameSize, int maxNameSize)
+void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore)
 {
 
 }

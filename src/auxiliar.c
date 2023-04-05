@@ -100,7 +100,10 @@ bool uninterruptTimer(bool reset, float time)
 
             // Após passarem 'time' segundos, a flag de tempo decorrido se torna verdadeira
             if(timeSample >= time)
+            {
                 timeOver = true;
+                timeSample = time;
+            }
         }
     }
     else

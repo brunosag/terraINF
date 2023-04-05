@@ -27,7 +27,7 @@
 #define ELEMENT_SIZE 40
 
 void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha);
-void drawHighscoreTextBox(player_t *player, int nameSize, int maxNameSize);
+void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore);
 void drawHUD(player_t *player, float alpha);
 void drawLevel(level_t *level, player_t *player, float alpha);
 void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption);

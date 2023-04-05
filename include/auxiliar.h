@@ -19,6 +19,7 @@
 #define ALPHA_DISABLE 100.0f
 #define ASCII_MIN 65
 #define ASCII_MAX 90
+#define BLINK_TIME 0.5f
 
 typedef enum fade
 {

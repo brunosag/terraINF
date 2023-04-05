@@ -99,19 +99,69 @@ gameover_option_t gameOver(level_t *level, player_t *player)
 
     // Caso haja alterações nas posições do ranking
     if(firstAlteredPosition > 0 && firstAlteredPosition <= rankingSize)
+    {
         for(int i = (firstAlteredPosition - 1); i < MAX_RANKING_SIZE; i++)
             writeRankingPosition("ranking/ranking.bin", &players[i]);
+        firstAlteredPosition = 0;
+    }
 
     // Retornar opção selecionada se confirmado
     return confirmed ? selected : ExitGame;
 }
 
-void highscore(player_t *player)
+void highScore(player_t *player)
 {
+    int letterCount = 0;
+    float frameCounter = 0;
+    bool blinkUnderscore = false;
+
     bool nameConfirmed = false;
     while(!nameConfirmed)
     {
-        nameConfirmed = true;
+        // Ler caractere do teclado (Unicode)
+        int key = GetCharPressed();
+
+        // Checar se foram pressionadas mais de uma tecla
+        while (key > 0)
+        {
+            // Ler apenas letras do alfabeto (maiúsculas e minúsculas)
+            if (((key >= 65 && key <= 90) || (key >= 122 && key <= 90)) && (letterCount < MAX_PLAYER_NAME))
+            {
+                // Converte as letras para maiúsculas
+                player->name[letterCount] = toupper((char)key);
+                player->name[letterCount + 1] = '\0';
+                letterCount++;
+            }
+
+            // Checar próximo caractere do buffer
+            key = GetCharPressed();
+        }
+
+        if (IsKeyPressed(KEY_BACKSPACE))
+        {
+            letterCount--;
+            if (letterCount < 0)
+                letterCount = 0;
+            players->name[letterCount] = '\0';
+        }
+
+        if((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && letterCount == MAX_PLAYER_NAME)
+            nameConfirmed = true;
+
+        frameCounter++;
+        if (frameCounter == GAME_FRAMERATE * BLINK_TIME)
+        {
+            blinkUnderscore = !blinkUnderscore;
+            frameCounter = 0;
+        }
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawGameOverScreen(level, player, selected, ALPHA_DISABLE);
+
+        EndDrawing();
+
     }
 }
 
