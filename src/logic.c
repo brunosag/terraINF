@@ -184,12 +184,14 @@ void updateRankingPositions(player_t *player, ranking_t *players, int rankingSiz
         // Alterar de forma decrescente as posições dos jogadores já existentes
         int i;
         for(i = rankingSize - 1; i > (firstAlteredPosition - 1); i--)
-            players[i] = players[i - 1];
+        {
+            strcpy(players[i].name, players[i - 1].name);
+            players[i].score = players[i - 1].score;
+        }
     
         // Colocar o novo jogador na sua posição do ranking
         strcpy(players[i].name, player->name);
         players[i].score = player->score;
-        players[i].position = firstAlteredPosition;
     }
 }
 

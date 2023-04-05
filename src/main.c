@@ -56,14 +56,17 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             firstAlteredPosition = players[i].position;
 
     bool confirmed = false;
+    bool nameConfirmed = false;
     // Reiniciar temporização
     uninterruptTimer(true, 0.0f);
     while (!confirmed)
     {
         // Se passaram GAMEOVER_NAME_DELAY segundos e houve alguma posição alterada no ranking
-        if(uninterruptTimer(false, GAMEOVER_NAME_DELAY) && firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE)
+        if(uninterruptTimer(false, GAMEOVER_NAME_DELAY)
+            && firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE
+            && !nameConfirmed)
         {
-            highscore(player);
+            nameConfirmed = highScore(level, player, selected);
         }
         else
         {
@@ -90,6 +93,7 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             ClearBackground(BLACK);
 
             drawGameOverScreen(level, player, selected, ALPHA_DISABLE);
+
             EndDrawing();
         }
     }
@@ -98,18 +102,22 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     updateRankingPositions(player, players, MAX_RANKING_SIZE, firstAlteredPosition);
 
     // Caso haja alterações nas posições do ranking
-    if(firstAlteredPosition > 0 && firstAlteredPosition <= rankingSize)
+    if(firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE)
     {
+        // Modificar posições no arquivo de ranking
         for(int i = (firstAlteredPosition - 1); i < MAX_RANKING_SIZE; i++)
             writeRankingPosition("ranking/ranking.bin", &players[i]);
-        firstAlteredPosition = 0;
+
+        // Reiniciar o nome do jogador
+        for(int i = 0; i < MAX_PLAYER_NAME; i++)
+            player->name[i] = '\0';
     }
 
     // Retornar opção selecionada se confirmado
     return confirmed ? selected : ExitGame;
 }
 
-void highScore(player_t *player)
+bool highScore(level_t *level, player_t *player, gameover_option_t selected)
 {
     int letterCount = 0;
     float frameCounter = 0;
@@ -125,10 +133,10 @@ void highScore(player_t *player)
         while (key > 0)
         {
             // Ler apenas letras do alfabeto (maiúsculas e minúsculas)
-            if (((key >= 65 && key <= 90) || (key >= 122 && key <= 90)) && (letterCount < MAX_PLAYER_NAME))
+            if (((key >= 65 && key <= 90) || (key >= 97 && key <= 122)) && (letterCount < MAX_PLAYER_NAME))
             {
                 // Converte as letras para maiúsculas
-                player->name[letterCount] = toupper((char)key);
+                player->name[letterCount] = (char) toupper(key);
                 player->name[letterCount + 1] = '\0';
                 letterCount++;
             }
@@ -142,7 +150,7 @@ void highScore(player_t *player)
             letterCount--;
             if (letterCount < 0)
                 letterCount = 0;
-            players->name[letterCount] = '\0';
+            player->name[letterCount] = '\0';
         }
 
         if((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && letterCount == MAX_PLAYER_NAME)
@@ -158,11 +166,13 @@ void highScore(player_t *player)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawGameOverScreen(level, player, selected, ALPHA_DISABLE);
+        drawGameOverScreen(level, player, selected, 0.15f);
+        drawHighScoreTextBox(player, letterCount, MAX_PLAYER_NAME, blinkUnderscore);
 
         EndDrawing();
-
     }
+
+    return nameConfirmed;
 }
 
 void startGame(player_t *player)

@@ -6,32 +6,35 @@
 void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha)
 {
     // Desenhar o nível no fundo com um nível de transparência
-    drawLevel(level, player, 0.25f);
+    if(alpha == ALPHA_DISABLE)
+        drawLevel(level, player, 0.25f);
+    else
+        drawLevel(level, player, 0.5 * alpha);
 
     // Desenhar o título da tela
     if (!player->health)
     {
         DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", GAMEOVER_TITLE_FONT_SIZE) / 2), 300,
-                GAMEOVER_TITLE_FONT_SIZE, FadeColor(RED, alpha));
+                GAMEOVER_TITLE_FONT_SIZE, Fade(RED, alpha));
         DrawText("Vidas Esgotadas",
                  (SCREEN_WIDTH / 2 - MeasureText("Vidas Esgotadas", MENU_FONT_SIZE) / 2), 450,
-                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
+                 MENU_FONT_SIZE, Fade(RAYWHITE, alpha));
     }
     else
     {
         DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", GAMEOVER_TITLE_FONT_SIZE) / 2), 300,
-                GAMEOVER_TITLE_FONT_SIZE, FadeColor(DARKBLUE, alpha));
+                GAMEOVER_TITLE_FONT_SIZE, Fade(DARKBLUE, alpha));
         DrawText("Impossível Continuar",
                  (SCREEN_WIDTH / 2 - MeasureText("Impossível Continuar", MENU_FONT_SIZE) / 2), 450,
-                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
+                 MENU_FONT_SIZE, Fade(RAYWHITE, alpha));
     }
 
     // Desenhar opções
     DrawText("REINICIAR JOGO",
              (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 526,
-             MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
+             MENU_FONT_SIZE, Fade(RAYWHITE, alpha));
     DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2),
-             592, MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
+             592, MENU_FONT_SIZE, Fade(RAYWHITE, alpha));
 
     // Desenhar opção selecionada
     switch (selectedOption)
@@ -39,19 +42,59 @@ void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t sele
     case ResetGame:
         DrawText("- REINICIAR JOGO -",
                  (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 527,
-                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
+                 MENU_FONT_SIZE, Fade(RAYWHITE, alpha));
         break;
     case ExitGame:
         DrawText("- SAIR DO JOGO -",
                  (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 593,
-                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
+                 MENU_FONT_SIZE, Fade(RAYWHITE, alpha));
         break;
     }
 }
 
 void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore)
 {
+    Rectangle backgroundBox = {(SCREEN_WIDTH / 6), (SCREEN_HEIGHT / 6), (2 * SCREEN_WIDTH / 3), (2 * SCREEN_HEIGHT / 3)};
+    Rectangle textBox = {(backgroundBox.x + backgroundBox.width / 2 - (MENU_FONT_SIZE * maxNameSize) / 2),
+                        (backgroundBox.y + backgroundBox.height / 2 - (MENU_FONT_SIZE + 10) / 2),
+                        (MENU_FONT_SIZE * maxNameSize), (MENU_FONT_SIZE + 10)};
 
+    // Desenhar fundo com transparência da tela de High Score
+    DrawRectangleRec(backgroundBox, Fade(BLACK, 0.5f));
+    DrawRectangleLines((int) backgroundBox.x, (int) backgroundBox.y, (int) backgroundBox.width, (int) backgroundBox.height,
+                       DARKGRAY);
+
+    DrawText("Novo Record Atingido!", (SCREEN_WIDTH / 2 - MeasureText("Novo Record Atingido!", MENU_FONT_SIZE) / 2),
+            220, MENU_FONT_SIZE, GREEN);
+    DrawText("Digite seu nome:", (SCREEN_WIDTH / 2 - MeasureText("Digite seu nome:", MENU_FONT_SIZE) / 2),
+            270, MENU_FONT_SIZE, RAYWHITE);
+
+    // Desenhar caixa de texto no meio da tela de High Score
+    DrawRectangleRec(textBox, DARKGRAY);
+    DrawRectangleLines((int) textBox.x, (int) textBox.y, (int) textBox.width, (int) textBox.height,
+                       RAYWHITE);
+
+    // Desenhar cada caractere digitado para o nome do jogador
+    DrawText(player->name, (int) textBox.x + 5, (int) textBox.y + 8, MENU_FONT_SIZE, RAYWHITE);
+
+    if (nameSize < maxNameSize)
+    {
+        // Desenhar undescore piscante
+        if (blinkUnderscore)
+            DrawText("_", (int) textBox.x + 8 + MeasureText(player->name, MENU_FONT_SIZE),
+                    (int) textBox.y + 12, MENU_FONT_SIZE, RAYWHITE);
+        // Desenhar opção de confirmar em cinza
+        DrawText("- ENTER -", (SCREEN_WIDTH / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
+                500, MENU_FONT_SIZE, DARKGRAY);
+    }
+    else
+    {
+        // Desenhar opção de confirmar em branco
+        DrawText("- ENTER -", (SCREEN_WIDTH / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
+                500, MENU_FONT_SIZE, DARKGRAY);
+        DrawText("- ENTER -", (SCREEN_WIDTH / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
+                501, MENU_FONT_SIZE, RAYWHITE);
+    }
 }
 
 void drawHUD(player_t *player, float alpha)
