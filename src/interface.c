@@ -3,7 +3,7 @@
 
 #include "../include/interface.h"
 
-void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption)
+void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha)
 {
     // Desenhar o nível no fundo com um nível de transparência
     drawLevel(level, player, 0.25f);
@@ -12,26 +12,26 @@ void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t sele
     if (!player->health)
     {
         DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", GAMEOVER_TITLE_FONT_SIZE) / 2), 300,
-                GAMEOVER_TITLE_FONT_SIZE, RED);
+                GAMEOVER_TITLE_FONT_SIZE, FadeColor(RED, alpha));
         DrawText("Vidas Esgotadas",
                  (SCREEN_WIDTH / 2 - MeasureText("Vidas Esgotadas", MENU_FONT_SIZE) / 2), 450,
-                 MENU_FONT_SIZE, RAYWHITE);
+                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
     }
     else
     {
         DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", GAMEOVER_TITLE_FONT_SIZE) / 2), 300,
-                GAMEOVER_TITLE_FONT_SIZE, DARKBLUE);
+                GAMEOVER_TITLE_FONT_SIZE, FadeColor(DARKBLUE, alpha));
         DrawText("Impossível Continuar",
                  (SCREEN_WIDTH / 2 - MeasureText("Impossível Continuar", MENU_FONT_SIZE) / 2), 450,
-                 MENU_FONT_SIZE, RAYWHITE);
+                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
     }
 
     // Desenhar opções
     DrawText("REINICIAR JOGO",
              (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 526,
-             MENU_FONT_SIZE, RAYWHITE);
+             MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
     DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2),
-             592, MENU_FONT_SIZE, RAYWHITE);
+             592, MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
 
     // Desenhar opção selecionada
     switch (selectedOption)
@@ -39,14 +39,19 @@ void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t sele
     case ResetGame:
         DrawText("- REINICIAR JOGO -",
                  (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 527,
-                 MENU_FONT_SIZE, RAYWHITE);
+                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
         break;
     case ExitGame:
         DrawText("- SAIR DO JOGO -",
                  (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 593,
-                 MENU_FONT_SIZE, RAYWHITE);
+                 MENU_FONT_SIZE, FadeColor(RAYWHITE, alpha));
         break;
     }
+}
+
+void drawHighscoreTextBox(player_t *player, int nameSize, int maxNameSize)
+{
+
 }
 
 void drawHUD(player_t *player, float alpha)

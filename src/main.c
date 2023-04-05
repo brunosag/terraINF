@@ -39,47 +39,80 @@ int main()
 gameover_option_t gameOver(level_t *level, player_t *player)
 {
     gameover_option_t selected = ResetGame;
-    
+
+    // Tentar abrir o arquivo de ranking existente
+    ranking_t players[MAX_RANKING_SIZE];
+    if (!readRankingFile("ranking/ranking.bin", players))
+    {
+        // Verificar criação do arquivo com sucesso
+        if(!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
+            readRankingFile("ranking/ranking.bin", players);
+    }
+
+    // Verificar se a pontuação do jogador é maior que alguma já existente
+    int firstAlteredPosition = 0; // Nula para indicar nenhuma alteração
+    for(int i = MAX_RANKING_SIZE - 1; i >= 0; i--)
+        if(player->score > players[i].score)
+            firstAlteredPosition = players[i].position;
+
     bool confirmed = false;
+    // Reiniciar temporização
+    uninterruptTimer(true, 0.0f);
     while (!confirmed)
     {
-        // Verificar navegação de seleção
-        if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+        // Se passaram GAMEOVER_NAME_DELAY segundos e houve alguma posição alterada no ranking
+        if(uninterruptTimer(false, GAMEOVER_NAME_DELAY) && firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE)
         {
-            if (selected < ExitGame)
-                selected++;
+            highscore(player);
         }
-        if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+        else
         {
-            if (selected > ResetGame)
-                selected--;
+            // Verificar navegação de seleção
+            if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+            {
+                if (selected < ExitGame)
+                    selected++;
+            }
+            if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+            {
+                if (selected > ResetGame)
+                    selected--;
+            }
+
+            // Verificar confirmação de seleção
+            if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
+            {
+                // Confirmar seleção
+                confirmed = true;
+            }
+
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            drawGameOverScreen(level, player, selected, ALPHA_DISABLE);
+            EndDrawing();
         }
-
-        // Verificar confirmação de seleção
-        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
-        {
-            // Confirmar seleção
-            confirmed = true;
-        }
-
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        drawGameOverScreen(level, player, selected);
-
-        EndDrawing();
     }
+
+    // Atualizar as posições do vetor local de ranking
+    updateRankingPositions(player, players, MAX_RANKING_SIZE, firstAlteredPosition);
+
+    // Caso haja alterações nas posições do ranking
+    if(firstAlteredPosition > 0 && firstAlteredPosition <= rankingSize)
+        for(int i = (firstAlteredPosition - 1); i < MAX_RANKING_SIZE; i++)
+            writeRankingPosition("ranking/ranking.bin", &players[i]);
 
     // Retornar opção selecionada se confirmado
     return confirmed ? selected : ExitGame;
+}
 
-/*    // Verificar se arquivo de ranking existe
-    FILE *rankingFile = fopen("ranking/ranking.bin", "rb+");
-    if (rankingFile == NULL)
-        rankingFile = createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE);
-
-    fclose(rankingFile);
-*/
+void highscore(player_t *player)
+{
+    bool nameConfirmed = false;
+    while(!nameConfirmed)
+    {
+        nameConfirmed = true;
+    }
 }
 
 void startGame(player_t *player)

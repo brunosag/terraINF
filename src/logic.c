@@ -176,21 +176,13 @@ void updateEnergy(player_t *player, int offset)
     }
 }
 
-// LÓGICA, A PRINCÍPIO, OK. PRECISA-SE SEPARÁ-LA DE FORMA DIFERENTE DEVIDO A LEITURA DO NOME DO JOGADOR
-int updateRankingPositions(player_t *player, ranking_t *players, int rankingSize)
-{
-    int i;
-    int firstAlteredPosition = 0;
-    
-    // Verificar se a pontuação do jogador é maior que alguma já existente
-    for(i = rankingSize - 1; i >= 0; i--)
-        if(player->score > players[i].score)
-            firstAlteredPosition = players[i].position;
-
-    // Se o jogador tiver uma pontuação melhor do que alguma já existente
-    if(firstAlteredPosition)
+void updateRankingPositions(player_t *player, ranking_t *players, int rankingSize, int firstAlteredPosition)
+{   
+    // Se o argumento de primeira posição alterada for uma posição válida (não nula)
+    if(firstAlteredPosition > 0 && firstAlteredPosition <= rankingSize)
     {
         // Alterar de forma decrescente as posições dos jogadores já existentes
+        int i;
         for(i = rankingSize - 1; i > (firstAlteredPosition - 1); i--)
             players[i] = players[i - 1];
     
@@ -199,8 +191,6 @@ int updateRankingPositions(player_t *player, ranking_t *players, int rankingSize
         players[i].score = player->score;
         players[i].position = firstAlteredPosition;
     }
-
-    return firstAlteredPosition;
 }
 
 void updateScore(player_t *player, int offset)

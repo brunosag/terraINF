@@ -16,6 +16,7 @@
 #include "logic.h"
 
 gameover_option_t gameOver(level_t *level, player_t *player);
+void highscore(player_t *player);
 void startGame(player_t *player);
 menu_option_t startMenu(void);
 ranking_option_t startRanking(void);

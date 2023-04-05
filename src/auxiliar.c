@@ -99,7 +99,7 @@ bool uninterruptTimer(bool reset, float time)
             timeSample += TIMING_SAMPLE;
 
             // Após passarem 'time' segundos, a flag de tempo decorrido se torna verdadeira
-            if(timeSample == time)
+            if(timeSample >= time)
                 timeOver = true;
         }
     }

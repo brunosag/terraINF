@@ -47,6 +47,7 @@
 
 #define MENU_FONT_SIZE 22
 #define GAMEOVER_TITLE_FONT_SIZE 100
+#define GAMEOVER_NAME_DELAY 1.0f // em segundos
 
 #define MAX_RANKING_SIZE 5
 

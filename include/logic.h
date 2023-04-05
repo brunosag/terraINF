@@ -20,10 +20,7 @@ void moveHorizontal(level_t *level, player_t *player, int offset);
 void moveVertical(level_t *level, player_t *player, int offset);
 void placeLadder(level_t *level, player_t *player);
 void updateEnergy(player_t *player, int offset);
-
-// Retornar a partir de qual posição houve alterações (0 se não houve alterações)
-int updateRankingPositions(player_t *player, ranking_t *players, int rankingSize);
-
+void updateRankingPositions(player_t *player, ranking_t *players, int rankingSize, int firstAlteredPosition);
 void updateScore(player_t *player, int offset);
 
 #endif
