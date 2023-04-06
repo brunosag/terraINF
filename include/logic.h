@@ -11,13 +11,14 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
-#include <string.h>
 #include "common.h"
+#include <string.h>
 
-int getFallSize(level_t *level, int x, int y);
 bool mine(level_t *level, player_t *player, int direction);
+int getFallSize(level_t *level, int x, int y);
 void moveHorizontal(level_t *level, player_t *player, int offset);
 void moveVertical(level_t *level, player_t *player, int offset);
+void placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected);
 void placeLadder(level_t *level, player_t *player);
 void updateEnergy(player_t *player, int offset);
 void updateRankingPositions(player_t *player, ranking_t *players, int rankingSize, int firstAlteredPosition);

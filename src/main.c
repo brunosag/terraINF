@@ -414,12 +414,12 @@ void startLevelEditor()
     // Carregar template de nível
     level_t level;
     player_t player;
-    player.miningMode = false;
-    loadEditorLevel(&level);
-
-    // Selecionar primeiro slot
     editor_option_t selected = PlayerSlot;
     bool save = false;
+    player.miningMode = false;
+    player.position.x = 11;
+    player.position.y = 2;
+    loadEditorLevel(&level);
 
     while (!(WindowShouldClose() || save))
     {
@@ -440,6 +440,21 @@ void startLevelEditor()
         {
             // Confirmar salvamento
             save = true;
+        }
+
+        // Verificar posicionamento de bloco
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            // Obter posição do mouse
+            position_t mousePosition = {(GetMouseX() / 40), (GetMouseY() / 40)};
+
+            // Verificar borda
+            if (mousePosition.x > 0 && mousePosition.x < LVL_WIDTH - 1 && mousePosition.y > 0 &&
+                mousePosition.y < LVL_HEIGHT - 1)
+            {
+                // Posicionar bloco
+                placeBlock(&level, &player, mousePosition, selected);
+            }
         }
 
         BeginDrawing();
