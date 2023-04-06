@@ -16,8 +16,10 @@ int getFallSize(level_t *level, int x, int y)
     return fallSize;
 }
 
-void mine(level_t *level, player_t *player, int direction)
+bool mine(level_t *level, player_t *player, int direction)
 {
+    bool blockMined = false;
+
     // Verificar bloco alvo
     char *block = NULL;
     switch (direction)
@@ -85,7 +87,12 @@ void mine(level_t *level, player_t *player, int direction)
 
         // Lidar com queda se houver
         moveHorizontal(level, player, 0);
+
+        // Indicar que houve mineração
+        blockMined = true;
     }
+
+    return blockMined;
 }
 
 void moveHorizontal(level_t *level, player_t *player, int offset)

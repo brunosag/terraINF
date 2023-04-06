@@ -23,6 +23,7 @@
 #define MAX_LVL_NAME 30
 #define LVL_WIDTH 30
 #define LVL_HEIGHT 20
+#define LAST_LVL 3
 
 #define ELEMENT_COUNT 10
 #define CHAR_PLAYER 'J'

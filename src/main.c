@@ -12,6 +12,9 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TerraINF");
     SetTargetFPS(GAME_FRAMERATE);
 
+    // Inicializar dispositivo de áudio
+    InitAudioDevice();
+
     menu_option_t selected;
     while (!WindowShouldClose())
     {
@@ -33,12 +36,17 @@ int main()
         }
     }
 
+    CloseAudioDevice();
     return 0;
 }
 
 gameover_option_t gameOver(level_t *level, player_t *player)
 {
     gameover_option_t selected = ResetGame;
+
+    // Carregar efeito de Game Over
+    Sound gameOverEffect = LoadSound("resources/sound_effects/gameover.wav");
+    PlaySound(gameOverEffect);
 
     // Tentar abrir o arquivo de ranking existente
     ranking_t players[MAX_RANKING_SIZE];
@@ -113,6 +121,8 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             player->name[i] = '\0';
     }
 
+    UnloadSound(gameOverEffect);
+
     // Retornar opção selecionada se confirmado
     return confirmed ? selected : ExitGame;
 }
@@ -122,6 +132,9 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected)
     int letterCount = 0;
     float frameCounter = 0;
     bool blinkUnderscore = false;
+
+    Sound highScoreEffect = LoadSound("resources/sound_effects/highscore.wav");
+    PlaySound(highScoreEffect);
 
     bool nameConfirmed = false;
     while(!nameConfirmed)
@@ -172,6 +185,7 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected)
         EndDrawing();
     }
 
+    UnloadSound(highScoreEffect);
     return nameConfirmed;
 }
 
@@ -186,11 +200,18 @@ void startGame(player_t *player)
     player->currentLevel = 1;
     KeyboardKey direction = KEY_S;
 
+    // Carregar todos os áudios do jogo
+    Sound blockMinedEffect = LoadSound("resources/sound_effects/block_mined.wav");
+    Music firstLevelsMusic = LoadMusicStream("resources/music/first_levels.mp3");
+    Music lastLevelMusic = LoadMusicStream("resources/music/last_level.mp3");
+
     // Carregar nível inicial
     level_t level;
+    Music *currentMusic = &firstLevelsMusic;
+    PlayMusicStream(*currentMusic);
     int currentLevel = player->currentLevel;
     loadLevel(&level, player);
-    drawSplashScreen(player);
+    drawSplashScreen(player, currentMusic);
     gameover_option_t gameOverOption = ResetGame;
     while (!(WindowShouldClose() || gameOverOption == ExitGame))
     {
@@ -198,17 +219,21 @@ void startGame(player_t *player)
         // Update                                                                               //
         // ------------------------------------------------------------------------------------ //
 
+        UpdateMusicStream(*currentMusic);
+
         // Verificar se as condições de gameover ocorreram
         if(!player->health || !level.oreCount)
         {
+            StopMusicStream(*currentMusic);
             gameOverOption = gameOver(&level, player);
             if (gameOverOption == ResetGame)
             {
                 player->health = 3;
                 player->currentLevel = 1;
+                PlayMusicStream(*currentMusic);
                 currentLevel = player->currentLevel;
                 loadLevel(&level, player);
-                drawSplashScreen(player);
+                drawSplashScreen(player, currentMusic);
             }
         }
 
@@ -216,8 +241,14 @@ void startGame(player_t *player)
         if (currentLevel != player->currentLevel)
         {
             currentLevel = player->currentLevel;
+            if(currentLevel == LAST_LVL)
+            {
+                StopMusicStream(*currentMusic);
+                currentMusic = &lastLevelMusic;
+                PlayMusicStream(*currentMusic);
+            }
             loadLevel(&level, player);
-            drawSplashScreen(player);
+            drawSplashScreen(player, currentMusic);
         }
 
         // Verificar movimentação
@@ -248,7 +279,9 @@ void startGame(player_t *player)
 
         // Verificar mineração
         if (IsKeyPressed(KEY_SPACE) && player->miningMode)
-            mine(&level, player, direction);
+            // Se houver bloco minerado
+            if(mine(&level, player, direction))
+                PlaySound(blockMinedEffect);
 
         // Verificar posicionamento de escada
         if (IsKeyPressed(KEY_LEFT_SHIFT))
@@ -265,15 +298,26 @@ void startGame(player_t *player)
 
         EndDrawing();
     }
+
+    UnloadSound(blockMinedEffect);
+    UnloadMusicStream(firstLevelsMusic);
+    UnloadMusicStream(lastLevelMusic);
 }
 
 menu_option_t startMenu(void)
 {
     // Carregar sprites
-    Texture2D menuTexture = LoadTexture("backgrounds/menu.png");
+    Texture2D menuTexture = LoadTexture("resources/backgrounds/menu.png");
 
     // Selecionar primeira opção do menu
     static menu_option_t selected = StartGame;
+
+    // Carregar e tocar música de menu
+    Music menuMusic = LoadMusicStream("resources/music/menu.xm");
+    PlayMusicStream(menuMusic);
+
+    // Carregar efeito de seleção do menu
+    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
 
     bool confirmed = false;
     while (!(WindowShouldClose() || confirmed))
@@ -282,12 +326,18 @@ menu_option_t startMenu(void)
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
             if (selected < Exit)
+            {
                 selected++;
+                PlaySound(menuSelectionEffect);
+            }
         }
         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
         {
             if (selected > StartGame)
+            {
                 selected--;
+                PlaySound(menuSelectionEffect);
+            }
         }
 
         // Verificar confirmação de seleção
@@ -297,6 +347,8 @@ menu_option_t startMenu(void)
             confirmed = true;
         }
 
+        UpdateMusicStream(menuMusic);
+
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -304,6 +356,10 @@ menu_option_t startMenu(void)
 
         EndDrawing();
     }
+
+    // Descarregar todos áudios
+    UnloadSound(menuSelectionEffect);
+    UnloadMusicStream(menuMusic);
 
     // Retornar opção selecionada se confirmado
     return confirmed ? selected : Exit;

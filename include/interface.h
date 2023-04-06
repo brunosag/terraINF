@@ -32,6 +32,6 @@ void drawHUD(player_t *player, float alpha);
 void drawLevel(level_t *level, player_t *player, float alpha);
 void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption);
 void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t selectedOption);
-void drawSplashScreen(player_t *player);
+void drawSplashScreen(player_t *player, Music *music);
 
 #endif

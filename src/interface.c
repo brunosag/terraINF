@@ -57,16 +57,16 @@ void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool 
     Rectangle backgroundBox = {(SCREEN_WIDTH / 6), (SCREEN_HEIGHT / 6), (2 * SCREEN_WIDTH / 3), (2 * SCREEN_HEIGHT / 3)};
     Rectangle textBox = {(backgroundBox.x + backgroundBox.width / 2 - (MENU_FONT_SIZE * maxNameSize) / 2),
                         (backgroundBox.y + backgroundBox.height / 2 - (MENU_FONT_SIZE + 10) / 2),
-                        (MENU_FONT_SIZE * maxNameSize), (MENU_FONT_SIZE + 10)};
+                        ((MENU_FONT_SIZE - 4) * maxNameSize), (MENU_FONT_SIZE + 10)};
 
     // Desenhar fundo com transparência da tela de High Score
     DrawRectangleRec(backgroundBox, Fade(BLACK, 0.5f));
     DrawRectangleLines((int) backgroundBox.x, (int) backgroundBox.y, (int) backgroundBox.width, (int) backgroundBox.height,
                        DARKGRAY);
 
-    DrawText("Novo Record Atingido!", (SCREEN_WIDTH / 2 - MeasureText("Novo Record Atingido!", MENU_FONT_SIZE) / 2),
+    DrawText("Novo Record Atingido!", (backgroundBox.x + backgroundBox.width / 2 - MeasureText("Novo Record Atingido!", MENU_FONT_SIZE) / 2),
             220, MENU_FONT_SIZE, GREEN);
-    DrawText("Digite seu nome:", (SCREEN_WIDTH / 2 - MeasureText("Digite seu nome:", MENU_FONT_SIZE) / 2),
+    DrawText("Digite seu nome:", (backgroundBox.x + backgroundBox.width / 2 - MeasureText("Digite seu nome:", MENU_FONT_SIZE) / 2),
             270, MENU_FONT_SIZE, RAYWHITE);
 
     // Desenhar caixa de texto no meio da tela de High Score
@@ -84,15 +84,15 @@ void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool 
             DrawText("_", (int) textBox.x + 8 + MeasureText(player->name, MENU_FONT_SIZE),
                     (int) textBox.y + 12, MENU_FONT_SIZE, RAYWHITE);
         // Desenhar opção de confirmar em cinza
-        DrawText("- ENTER -", (SCREEN_WIDTH / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
+        DrawText("- ENTER -", (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
                 500, MENU_FONT_SIZE, DARKGRAY);
     }
     else
     {
         // Desenhar opção de confirmar em branco
-        DrawText("- ENTER -", (SCREEN_WIDTH / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
+        DrawText("- ENTER -", (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
                 500, MENU_FONT_SIZE, DARKGRAY);
-        DrawText("- ENTER -", (SCREEN_WIDTH / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
+        DrawText("- ENTER -", (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2),
                 501, MENU_FONT_SIZE, RAYWHITE);
     }
 }
@@ -168,7 +168,7 @@ void drawLevel(level_t *level, player_t *player, float alpha)
                 if (player->miningMode)
                     currentTexture = level->textures[PlayerLadderPickaxe];
                 else
-                    currentTexture = level->textures[Ladder];
+                    currentTexture = level->textures[PlayerLadder];
                 break;
             case CHAR_PLAYER:
                 if (player->miningMode)
@@ -269,14 +269,15 @@ void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t sel
     }
 }
 
-void drawSplashScreen(player_t *player)
+void drawSplashScreen(player_t *player, Music *music)
 {
     // Desenhar splash screen
-    Texture2D splashTexture = LoadTexture("backgrounds/splash.png");
+    Texture2D splashTexture = LoadTexture("resources/backgrounds/splash.png");
     float alphaIntensity = 0.0f;
     alphaIntensity = fadeTimer(true, 0.0f, 0.0f, 0.0f);
     while(alphaIntensity != FADE_OVER)
     {
+        UpdateMusicStream(*music);
         BeginDrawing();
         ClearBackground(BLACK);
         DrawTexture(splashTexture, 0, 0, Fade(WHITE, alphaIntensity));

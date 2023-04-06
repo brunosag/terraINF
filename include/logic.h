@@ -15,7 +15,7 @@
 #include "common.h"
 
 int getFallSize(level_t *level, int x, int y);
-void mine(level_t *level, player_t *player, int direction);
+bool mine(level_t *level, player_t *player, int direction);
 void moveHorizontal(level_t *level, player_t *player, int offset);
 void moveVertical(level_t *level, player_t *player, int offset);
 void placeLadder(level_t *level, player_t *player);

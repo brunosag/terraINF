@@ -55,21 +55,21 @@ void loadLevel(level_t *level, player_t *player)
     snprintf(level->ores[Uranium].name, MAX_ORE_NAME, "Urânio");
     
     // Carregar sprites
-    level->textures[Background] = LoadTexture("sprites/background.png");
-    level->textures[Dirt] = LoadTexture("sprites/dirt.png");
-    level->textures[Edge] = LoadTexture("sprites/edge.png");
-    level->textures[HUD] = LoadTexture("sprites/hud.png");
-    level->textures[Ladder] = LoadTexture("sprites/ladder.png");
-    level->textures[Ore] = LoadTexture("sprites/ore.png");
-    level->textures[PlayerLadderPickaxe] = LoadTexture("sprites/player_ladder_pickaxe.png");
-    level->textures[PlayerLadder] = LoadTexture("sprites/player_ladder.png");
-    level->textures[PlayerPickaxe] = LoadTexture("sprites/player_pickaxe.png");
-    level->textures[Player] = LoadTexture("sprites/player.png");
-    level->ores[Caesium].texture = LoadTexture("sprites/caesium_ore.png");
-    level->ores[Gold].texture = LoadTexture("sprites/gold_ore.png");
-    level->ores[Silver].texture = LoadTexture("sprites/silver_ore.png");
-    level->ores[Titanium].texture = LoadTexture("sprites/titanium_ore.png");
-    level->ores[Uranium].texture = LoadTexture("sprites/uranium_ore.png");
+    level->textures[Background] = LoadTexture("resources/sprites/background.png");
+    level->textures[Dirt] = LoadTexture("resources/sprites/dirt.png");
+    level->textures[Edge] = LoadTexture("resources/sprites/edge.png");
+    level->textures[HUD] = LoadTexture("resources/sprites/hud.png");
+    level->textures[Ladder] = LoadTexture("resources/sprites/ladder.png");
+    level->textures[Ore] = LoadTexture("resources/sprites/ore.png");
+    level->textures[PlayerLadderPickaxe] = LoadTexture("resources/sprites/player_ladder_pickaxe.png");
+    level->textures[PlayerLadder] = LoadTexture("resources/sprites/player_ladder.png");
+    level->textures[PlayerPickaxe] = LoadTexture("resources/sprites/player_pickaxe.png");
+    level->textures[Player] = LoadTexture("resources/sprites/player.png");
+    level->ores[Caesium].texture = LoadTexture("resources/sprites/caesium_ore.png");
+    level->ores[Gold].texture = LoadTexture("resources/sprites/gold_ore.png");
+    level->ores[Silver].texture = LoadTexture("resources/sprites/silver_ore.png");
+    level->ores[Titanium].texture = LoadTexture("resources/sprites/titanium_ore.png");
+    level->ores[Uranium].texture = LoadTexture("resources/sprites/uranium_ore.png");
 
     // Ajustar nome do arquivo
     char filename[MAX_LVL_NAME + 1] = {'\0'};
