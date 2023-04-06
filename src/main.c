@@ -44,7 +44,8 @@ gameover_option_t gameOver(level_t *level, player_t *player)
 {
     gameover_option_t selected = ResetGame;
 
-    // Carregar efeito de Game Over
+    // Carregar efeitos de Game Over
+    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
     Sound gameOverEffect = LoadSound("resources/sound_effects/gameover.wav");
     PlaySound(gameOverEffect);
 
@@ -74,7 +75,7 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             && firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE
             && !nameConfirmed)
         {
-            nameConfirmed = highScore(level, player, selected);
+            nameConfirmed = highScore(level, player, selected, menuSelectionEffect);
         }
         else
         {
@@ -82,12 +83,18 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
             {
                 if (selected < ExitGame)
+                {
                     selected++;
+                    PlaySound(menuSelectionEffect);
+                }
             }
             if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
             {
                 if (selected > ResetGame)
+                {
                     selected--;
+                    PlaySound(menuSelectionEffect);
+                }
             }
 
             // Verificar confirmação de seleção
@@ -95,6 +102,7 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             {
                 // Confirmar seleção
                 confirmed = true;
+                PlaySound(menuSelectionEffect);
             }
 
             BeginDrawing();
@@ -121,13 +129,14 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             player->name[i] = '\0';
     }
 
+    UnloadSound(menuSelectionEffect);
     UnloadSound(gameOverEffect);
 
     // Retornar opção selecionada se confirmado
     return confirmed ? selected : ExitGame;
 }
 
-bool highScore(level_t *level, player_t *player, gameover_option_t selected)
+bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sound menuSelectionEffect)
 {
     int letterCount = 0;
     float frameCounter = 0;
@@ -167,7 +176,10 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected)
         }
 
         if((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && letterCount == MAX_PLAYER_NAME)
+        {
             nameConfirmed = true;
+            PlaySound(menuSelectionEffect);
+        }
 
         frameCounter++;
         if (frameCounter == GAME_FRAMERATE * BLINK_TIME)
@@ -345,6 +357,7 @@ menu_option_t startMenu(void)
         {
             // Confirmar seleção
             confirmed = true;
+            PlaySound(menuSelectionEffect);
         }
 
         UpdateMusicStream(menuMusic);
@@ -367,6 +380,11 @@ menu_option_t startMenu(void)
 
 ranking_option_t startRanking(void)
 {
+    ranking_option_t selected = ExitRanking;
+
+    // Carregar efeitos sonoros do ranking
+    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
+
     // Tentar abrir o arquivo de ranking existente
     ranking_t players[MAX_RANKING_SIZE];
     if (!readRankingFile("ranking/ranking.bin", players))
@@ -376,8 +394,6 @@ ranking_option_t startRanking(void)
             readRankingFile("ranking/ranking.bin", players);
     }
 
-    ranking_option_t selected = ExitRanking;
-
     bool confirmed = false;
     while (!confirmed)
     {
@@ -386,6 +402,7 @@ ranking_option_t startRanking(void)
         {
             // Confirmar seleção
             confirmed = true;
+            PlaySound(menuSelectionEffect);
         }
 
         BeginDrawing();
@@ -396,6 +413,7 @@ ranking_option_t startRanking(void)
         EndDrawing();
     }
 
+    UnloadSound(menuSelectionEffect);
     return selected;
 }
 
