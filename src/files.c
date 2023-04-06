@@ -7,6 +7,25 @@ int createRankingFile(const char *rankingFile, int rankingSize)
 {
     int errorNumber = 0;
 
+    // Ajeitar nome do diretório a ser criado
+    int rankingFilePathLength = strlen(rankingFile);
+    int lastSlash = rankingFilePathLength;
+    char rankingDirectory[MAX_FILE_NAME + 1] = {0};
+    for(int i = 0; i < rankingFilePathLength; i++)
+    {
+        rankingDirectory[i] = rankingFile[i];
+        if(rankingDirectory[i] == '/')
+            lastSlash = i;
+    }
+
+    // Preencher o resto do nome do diretório com caracteres nulos
+    if(lastSlash != rankingFilePathLength)
+        for(int i = lastSlash; i < rankingFilePathLength; i++)
+            rankingDirectory[i] = '\0';
+
+    // Tentar criar diretório para o arquivo
+    mkdir(rankingDirectory);
+
     // Verificar a abertura do arquivo
     FILE *file = fopen(rankingFile, "wb");
     if (file != NULL)
@@ -27,7 +46,6 @@ int createRankingFile(const char *rankingFile, int rankingSize)
         errorNumber = 1;
 
     fclose(file);
-
     return errorNumber;
 }
 

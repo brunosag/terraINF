@@ -12,6 +12,7 @@
 
 #include "auxiliar.h"
 #include <string.h>
+#include <sys/stat.h>
 
 int createRankingFile(const char *rankingFile, int rankingSize);
 int readRankingFile(const char *rankingFile, ranking_t *players);

@@ -19,6 +19,8 @@
 #define SCREEN_HEIGHT 800
 #define GAME_FRAMERATE 60
 
+#define MAX_FILE_NAME 100
+
 #define MAX_PLAYER_NAME 3
 #define MAX_LVL_NAME 30
 #define LVL_WIDTH 30
