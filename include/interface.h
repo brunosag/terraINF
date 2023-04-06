@@ -13,6 +13,7 @@
 
 #include "auxiliar.h"
 
+#define EDITOR_FONT_SIZE 20
 #define HUD_FONT_SIZE 26
 #define HUD_ORE_SIZE 8
 #define LAST_MINED_FADEIN_TIME 0.5f
@@ -26,9 +27,10 @@
 
 #define ELEMENT_SIZE 40
 
+void drawEditorHUD(level_t *level, editor_option_t selected);
 void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha);
 void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore);
-void drawHUD(player_t *player, float alpha);
+void drawHUD(level_t *level, player_t *player, float alpha);
 void drawLevel(level_t *level, player_t *player, float alpha);
 void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption);
 void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t selectedOption);

@@ -29,6 +29,7 @@ int main()
             startRanking();
             break;
         case LevelEditor:
+            startLevelEditor();
             break;
         case Exit:
             CloseWindow();
@@ -54,14 +55,14 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     if (!readRankingFile("ranking/ranking.bin", players))
     {
         // Verificar criação do arquivo com sucesso
-        if(!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
+        if (!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
             readRankingFile("ranking/ranking.bin", players);
     }
 
     // Verificar se a pontuação do jogador é maior que alguma já existente
     int firstAlteredPosition = 0; // Nula para indicar nenhuma alteração
-    for(int i = MAX_RANKING_SIZE - 1; i >= 0; i--)
-        if(player->score > players[i].score)
+    for (int i = MAX_RANKING_SIZE - 1; i >= 0; i--)
+        if (player->score > players[i].score)
             firstAlteredPosition = players[i].position;
 
     bool confirmed = false;
@@ -71,9 +72,8 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     while (!confirmed)
     {
         // Se passaram GAMEOVER_NAME_DELAY segundos e houve alguma posição alterada no ranking
-        if(uninterruptTimer(false, GAMEOVER_NAME_DELAY)
-            && firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE
-            && !nameConfirmed)
+        if (uninterruptTimer(false, GAMEOVER_NAME_DELAY) && firstAlteredPosition > 0 &&
+            firstAlteredPosition <= MAX_RANKING_SIZE && !nameConfirmed)
         {
             nameConfirmed = highScore(level, player, selected, menuSelectionEffect);
         }
@@ -118,14 +118,14 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     updateRankingPositions(player, players, MAX_RANKING_SIZE, firstAlteredPosition);
 
     // Caso haja alterações nas posições do ranking
-    if(firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE)
+    if (firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE)
     {
         // Modificar posições no arquivo de ranking
-        for(int i = (firstAlteredPosition - 1); i < MAX_RANKING_SIZE; i++)
+        for (int i = (firstAlteredPosition - 1); i < MAX_RANKING_SIZE; i++)
             writeRankingPosition("ranking/ranking.bin", &players[i]);
 
         // Reiniciar o nome do jogador
-        for(int i = 0; i < MAX_PLAYER_NAME; i++)
+        for (int i = 0; i < MAX_PLAYER_NAME; i++)
             player->name[i] = '\0';
     }
 
@@ -146,7 +146,7 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
     PlaySound(highScoreEffect);
 
     bool nameConfirmed = false;
-    while(!nameConfirmed)
+    while (!nameConfirmed)
     {
         // Ler caractere do teclado (Unicode)
         int key = GetCharPressed();
@@ -158,7 +158,7 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
             if (((key >= 65 && key <= 90) || (key >= 97 && key <= 122)) && (letterCount < MAX_PLAYER_NAME))
             {
                 // Converte as letras para maiúsculas
-                player->name[letterCount] = (char) toupper(key);
+                player->name[letterCount] = (char)toupper(key);
                 player->name[letterCount + 1] = '\0';
                 letterCount++;
             }
@@ -175,7 +175,7 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
             player->name[letterCount] = '\0';
         }
 
-        if((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && letterCount == MAX_PLAYER_NAME)
+        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && letterCount == MAX_PLAYER_NAME)
         {
             nameConfirmed = true;
             PlaySound(menuSelectionEffect);
@@ -203,10 +203,6 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
 
 void startGame(player_t *player)
 {
-    // ---------------------------------------------------------------------------------------- //
-    // Initialize                                                                               //
-    // ---------------------------------------------------------------------------------------- //
-
     // Inicializar a vida do jogador e a tecla pressionada por esse
     player->health = 3;
     player->currentLevel = 1;
@@ -227,14 +223,10 @@ void startGame(player_t *player)
     gameover_option_t gameOverOption = ResetGame;
     while (!(WindowShouldClose() || gameOverOption == ExitGame))
     {
-        // ------------------------------------------------------------------------------------ //
-        // Update                                                                               //
-        // ------------------------------------------------------------------------------------ //
-
         UpdateMusicStream(*currentMusic);
 
         // Verificar se as condições de gameover ocorreram
-        if(!player->health || !level.oreCount)
+        if (!player->health || !level.oreCount)
         {
             StopMusicStream(*currentMusic);
             gameOverOption = gameOver(&level, player);
@@ -253,7 +245,7 @@ void startGame(player_t *player)
         if (currentLevel != player->currentLevel)
         {
             currentLevel = player->currentLevel;
-            if(currentLevel == LAST_LVL)
+            if (currentLevel == LAST_LVL)
             {
                 StopMusicStream(*currentMusic);
                 currentMusic = &lastLevelMusic;
@@ -292,21 +284,21 @@ void startGame(player_t *player)
         // Verificar mineração
         if (IsKeyPressed(KEY_SPACE) && player->miningMode)
             // Se houver bloco minerado
-            if(mine(&level, player, direction))
+            if (mine(&level, player, direction))
                 PlaySound(blockMinedEffect);
 
         // Verificar posicionamento de escada
         if (IsKeyPressed(KEY_LEFT_SHIFT))
             placeLadder(&level, player);
 
-        // ------------------------------------------------------------------------------------ //
-        // Draw                                                                                 //
-        // ------------------------------------------------------------------------------------ //
         BeginDrawing();
         ClearBackground(BLACK);
 
         // Desenhar texturas do nível
         drawLevel(&level, player, ALPHA_DISABLE);
+
+        // Desenhar HUD
+        drawHUD(&level, player, ALPHA_DISABLE);
 
         EndDrawing();
     }
@@ -390,7 +382,7 @@ ranking_option_t startRanking(void)
     if (!readRankingFile("ranking/ranking.bin", players))
     {
         // Verificar criação do arquivo com sucesso
-        if(!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
+        if (!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
             readRankingFile("ranking/ranking.bin", players);
     }
 
@@ -415,6 +407,52 @@ ranking_option_t startRanking(void)
 
     UnloadSound(menuSelectionEffect);
     return selected;
+}
+
+void startLevelEditor()
+{
+    // Carregar template de nível
+    level_t level;
+    player_t player;
+    player.miningMode = false;
+    loadEditorLevel(&level);
+
+    // Selecionar primeiro slot
+    editor_option_t selected = PlayerSlot;
+    bool save = false;
+
+    while (!(WindowShouldClose() || save))
+    {
+        // Verificar navegação de seleção
+        if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
+        {
+            if (selected < Save)
+                selected++;
+        }
+        if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
+        {
+            if (selected > PlayerSlot)
+                selected--;
+        }
+
+        // Verificar salvamento do nível
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
+        {
+            // Confirmar salvamento
+            save = true;
+        }
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        // Desenhar nível
+        drawLevel(&level, &player, ALPHA_DISABLE);
+
+        // Desenhar HUD
+        drawEditorHUD(&level, selected);
+
+        EndDrawing();
+    }
 }
 
 #endif
