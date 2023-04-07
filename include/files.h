@@ -19,5 +19,6 @@ int readRankingFile(const char *rankingFile, ranking_t *players);
 int writeRankingPosition(const char *rankingFile, ranking_t *player);
 void loadEditorLevel(level_t *level);
 void loadLevel(level_t *level, player_t *player);
+void saveCustomLevel(level_t *level);
 
 #endif

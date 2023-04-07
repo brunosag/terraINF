@@ -438,8 +438,12 @@ void startLevelEditor()
         // Verificar salvamento do nível
         if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
         {
-            // Confirmar salvamento
-            save = true;
+            if (isPlayerPlaced(&level))
+            {
+                // Salvar nível
+                saveCustomLevel(&level);
+                save = true;                
+            }
         }
 
         // Verificar posicionamento de bloco
@@ -460,10 +464,7 @@ void startLevelEditor()
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // Desenhar nível
         drawEditorLevel(&level);
-
-        // Desenhar HUD
         drawEditorHUD(&level, selected);
 
         EndDrawing();
