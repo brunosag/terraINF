@@ -207,8 +207,15 @@ void startGame(void)
     // Carregar todos os áudios do jogo
     Music firstLevelsMusic = LoadMusicStream("resources/music/first_levels.mp3");
     Music lastLevelMusic = LoadMusicStream("resources/music/last_level.mp3");
+    Sound blockSteppedEffect = LoadSound("resources/sound_effects/block_stepped.ogg");
+    Sound dirtMinedEffect = LoadSound("resources/sound_effects/dirt_mined.ogg");
+    Sound fallEffect = LoadSound("resources/sound_effects/fall.ogg");
+    Sound healthLostEffect = LoadSound("resources/sound_effects/health_lost.ogg");
+    Sound ladderClimbedEffect = LoadSound("resources/sound_effects/ladder_climbed.ogg");
+    Sound ladderPlacedEffect = LoadSound("resources/sound_effects/ladder_placed.ogg");
     Sound levelUpEffect = LoadSound("resources/sound_effects/level_up.ogg");
-    Sound blockMinedEffect = LoadSound("resources/sound_effects/block_mined.ogg");
+    Sound oreMinedEffect = LoadSound("resources/sound_effects/ore_mined.ogg");
+    Sound pickaxeEquippedEffect = LoadSound("resources/sound_effects/pickaxe_equipped.ogg");
 
     // Carregar nível inicial
     level_t level;
@@ -256,38 +263,85 @@ void startGame(void)
         // Verificar movimentação
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
         {
-            moveHorizontal(&level, &player, 1);
+            switch (moveHorizontal(&level, &player, 1))
+            {
+            case PlayerMoved:
+                PlaySound(blockSteppedEffect);
+                break;
+            case PlayerFell:
+                PlaySound(fallEffect);
+                break;
+            case PlayerDamaged:
+                PlaySound(healthLostEffect);
+                break;
+            default:
+                break;
+            }
             direction = KEY_D;
         }
         if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
         {
-            moveHorizontal(&level, &player, -1);
+            switch (moveHorizontal(&level, &player, -1))
+            {
+            case PlayerMoved:
+                PlaySound(blockSteppedEffect);
+                break;
+            case PlayerFell:
+                PlaySound(fallEffect);
+                break;
+            case PlayerDamaged:
+                PlaySound(healthLostEffect);
+                break;
+            default:
+                break;
+            }
             direction = KEY_A;
         }
         if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
         {
-            moveVertical(&level, &player, -1);
+            if (moveVertical(&level, &player, -1))
+                PlaySound (ladderClimbedEffect);
             direction = KEY_W;
         }
         if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
         {
-            moveVertical(&level, &player, 1);
+            if (moveVertical(&level, &player, 1))
+                PlaySound(ladderClimbedEffect);
             direction = KEY_S;
         }
 
         // Verificar modo mineração
         if (IsKeyPressed(KEY_ONE))
+        {
             player.miningMode = !player.miningMode;
+            PlaySound(pickaxeEquippedEffect);
+        }
 
         // Verificar mineração
         if (IsKeyPressed(KEY_SPACE) && player.miningMode)
             // Se houver bloco minerado
-            if (mine(&level, &player, direction))
-                PlaySound(blockMinedEffect);
+            switch (mine(&level, &player, direction))
+            {
+            case DirtMined:
+                PlaySound(dirtMinedEffect);
+                break;
+            case OreMined:
+                PlaySound(oreMinedEffect);
+                break;
+            case PlayerFell:
+                PlaySound(fallEffect);
+                break;
+            case PlayerDamaged:
+                PlaySound(healthLostEffect);
+                break;
+            default:
+                break;
+            }
 
         // Verificar posicionamento de escada
         if (IsKeyPressed(KEY_LEFT_SHIFT))
-            placeLadder(&level, &player);
+            if (placeLadder(&level, &player))
+                PlaySound(ladderPlacedEffect);
 
         BeginDrawing();
         ClearBackground(BLACK);
@@ -301,8 +355,16 @@ void startGame(void)
         EndDrawing();
     }
 
+    // Descarregar todos os áudios do jogo
+    UnloadSound(blockSteppedEffect);
+    UnloadSound(dirtMinedEffect);
+    UnloadSound(fallEffect);
+    UnloadSound(healthLostEffect);
+    UnloadSound(ladderClimbedEffect);
+    UnloadSound(ladderPlacedEffect);
     UnloadSound(levelUpEffect);
-    UnloadSound(blockMinedEffect);
+    UnloadSound(oreMinedEffect);
+    UnloadSound(pickaxeEquippedEffect);
     UnloadMusicStream(firstLevelsMusic);
     UnloadMusicStream(lastLevelMusic);
 }

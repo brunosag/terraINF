@@ -29,9 +29,9 @@ bool isPlayerPlaced(level_t *level)
     return playerPlaced;
 }
 
-bool mine(level_t *level, player_t *player, int direction)
+action_effects_t mine(level_t *level, player_t *player, int direction)
 {
-    bool blockMined = false;
+    action_effects_t actionEffect = None;
 
     // Verificar bloco alvo
     char *block = NULL;
@@ -63,33 +63,45 @@ bool mine(level_t *level, player_t *player, int direction)
         switch (*block)
         {
         case CHAR_DIRT:
-            updateEnergy(player, -3);
+            actionEffect = DirtMined;
+            if (updateEnergy(player, -3))
+                actionEffect = PlayerDamaged;
             break;
         case CHAR_TITANIUM:
-            updateEnergy(player, 30);
+            actionEffect = OreMined;
+            if (updateEnergy(player, 30))
+                actionEffect = PlayerDamaged;
             updateScore(player, 150);
             player->lastMined = level->ores[Titanium];
             level->oreCount--;
             break;
         case CHAR_GOLD:
-            updateEnergy(player, 20);
+            actionEffect = OreMined;
+            if (updateEnergy(player, 20))
+                actionEffect = PlayerDamaged;
             updateScore(player, 100);
             player->lastMined = level->ores[Gold];
             level->oreCount--;
             break;
         case CHAR_SILVER:
-            updateEnergy(player, 10);
+            actionEffect = OreMined;
+            if (updateEnergy(player, 10))
+                actionEffect = PlayerDamaged;
             updateScore(player, 50);
             player->lastMined = level->ores[Silver];
             level->oreCount--;
             break;
         case CHAR_CAESIUM:
-            updateEnergy(player, -20);
+            actionEffect = OreMined;
+            if (updateEnergy(player, -20))
+                actionEffect = PlayerDamaged;
             player->lastMined = level->ores[Caesium];
             level->oreCount--;
             break;
         case CHAR_URANIUM:
-            updateEnergy(player, -30);
+            actionEffect = OreMined;
+            if (updateEnergy(player, -30))
+                actionEffect = PlayerDamaged;
             player->lastMined = level->ores[Uranium];
             level->oreCount--;
             break;
@@ -99,17 +111,27 @@ bool mine(level_t *level, player_t *player, int direction)
         *block = CHAR_EMPTY;
 
         // Lidar com queda se houver
-        moveHorizontal(level, player, 0);
-
-        // Indicar que houve mineração
-        blockMined = true;
+        switch (moveHorizontal(level, player, 0))
+        {
+        case PlayerFell:
+            if (actionEffect != PlayerDamaged)
+                actionEffect = PlayerFell;
+            break;
+        case PlayerDamaged:
+            actionEffect = PlayerDamaged;
+            break;
+        default:
+            break;
+        }
     }
 
-    return blockMined;
+    return actionEffect;
 }
 
-void moveHorizontal(level_t *level, player_t *player, int offset)
+action_effects_t moveHorizontal(level_t *level, player_t *player, int offset)
 {
+    action_effects_t actionEffect = None;
+
     // Verificar se bloco destino livre
     char *target = &level->elements[player->position.y][player->position.x + offset];
     if (*target == CHAR_EMPTY || *target == CHAR_PLAYER || *target == CHAR_LADDER || *target == CHAR_PLAYER_LADDER)
@@ -133,14 +155,27 @@ void moveHorizontal(level_t *level, player_t *player, int offset)
         player->position.x += offset;
         player->position.y += fallSize;
 
+        // Se não houver queda
+        if(fallSize <= 1)
+            actionEffect = PlayerMoved;
+        else
+            actionEffect = PlayerFell;
+
         // Retirar vida se queda maior que 3 blocos
         if (fallSize > 3)
+        {
             player->health--;
+            actionEffect = PlayerDamaged;
+        }
     }
+
+    return actionEffect;
 }
 
-void moveVertical(level_t *level, player_t *player, int offset)
+bool moveVertical(level_t *level, player_t *player, int offset)
 {
+    bool movedVertical = false;
+
     // Verificar se bloco atual e destino possuem escadas
     if (level->elements[player->position.y][player->position.x] == CHAR_PLAYER_LADDER &&
         level->elements[player->position.y + offset][player->position.x] == CHAR_LADDER)
@@ -151,7 +186,12 @@ void moveVertical(level_t *level, player_t *player, int offset)
 
         // Alterar valores posição do jogador
         player->position.y += offset;
+
+        // Atualizar valor de retorno
+        movedVertical = true;
     }
+
+    return movedVertical;
 }
 
 void placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected)
@@ -193,8 +233,10 @@ void placeBlock(level_t *level, player_t *player, position_t mousePosition, edit
     }
 }
 
-void placeLadder(level_t *level, player_t *player)
+bool placeLadder(level_t *level, player_t *player)
 {
+    bool ladderPlaced = false;
+
     if (player->ladders > 0)
     {
         int distance = 0;
@@ -207,31 +249,40 @@ void placeLadder(level_t *level, player_t *player)
         }
         char *target = &level->elements[player->position.y - distance][player->position.x];
 
-        // Verificar se alvo é jogador
+        // Verificar se alvo é vazio
         if (*target == CHAR_EMPTY)
         {
             *target = CHAR_LADDER;
             player->ladders--;
+            ladderPlaced = true;
         }
 
-        // Verificar se alvo é vazio
+        // Verificar se alvo é jogador
         if (*target == CHAR_PLAYER)
         {
             *target = CHAR_PLAYER_LADDER;
             player->ladders--;
+            ladderPlaced = true;
         }
     }
+
+    return ladderPlaced;
 }
 
-void updateEnergy(player_t *player, int offset)
+bool updateEnergy(player_t *player, int offset)
 {
+    bool energyDrained = false;
+
     player->energy += offset;
     if (player->energy <= 20)
     {
         // Retirar vida e restaurar energia
         player->health--;
         player->energy = 100;
+        energyDrained = true;
     }
+
+    return energyDrained;
 }
 
 void updateRankingPositions(player_t *player, ranking_t *players, int rankingSize, int firstAlteredPosition)

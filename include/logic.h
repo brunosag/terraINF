@@ -15,12 +15,12 @@
 
 int getFallSize(level_t *level, int x, int y);
 bool isPlayerPlaced(level_t *level);
-bool mine(level_t *level, player_t *player, int direction);
-void moveHorizontal(level_t *level, player_t *player, int offset);
-void moveVertical(level_t *level, player_t *player, int offset);
+action_effects_t mine(level_t *level, player_t *player, int direction);
+action_effects_t moveHorizontal(level_t *level, player_t *player, int offset);
+bool moveVertical(level_t *level, player_t *player, int offset);
 void placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected);
-void placeLadder(level_t *level, player_t *player);
-void updateEnergy(player_t *player, int offset);
+bool placeLadder(level_t *level, player_t *player);
+bool updateEnergy(player_t *player, int offset);
 void updateRankingPositions(player_t *player, ranking_t *players, int rankingSize, int firstAlteredPosition);
 void updateScore(player_t *player, int offset);
 

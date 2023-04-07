@@ -86,6 +86,16 @@ typedef enum ore_number
     Uranium
 } ore_number_t;
 
+typedef enum action_effects
+{
+    None,
+    DirtMined,
+    OreMined,
+    PlayerMoved,
+    PlayerFell,
+    PlayerDamaged
+} action_effects_t;
+
 typedef enum menu_option
 {
     StartGame = 1,
