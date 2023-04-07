@@ -16,6 +16,19 @@ int getFallSize(level_t *level, int x, int y)
     return fallSize;
 }
 
+bool isPlayerPlaced(level_t *level)
+{
+    bool playerPlaced = false;
+
+    // Ler toda a matriz do nível para ver se há um jogador
+    for (int i = 0; i < LVL_HEIGHT; i++)
+        for (int j = 0; j < LVL_WIDTH; j++)
+            if(level->elements[i][j] == CHAR_PLAYER)
+                playerPlaced = true;
+
+    return playerPlaced;
+}
+
 bool mine(level_t *level, player_t *player, int direction)
 {
     bool blockMined = false;

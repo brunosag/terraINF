@@ -5,9 +5,6 @@
 
 int main()
 {
-    // Inicializar jogador
-    player_t player = {{0}, {1, 2}, {'\0'}, 0, 3, 100, 20, 1, false};
-
     // Inicializar janela do jogo
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "TerraINF");
     SetTargetFPS(GAME_FRAMERATE);
@@ -23,7 +20,7 @@ int main()
         switch (selected)
         {
         case StartGame:
-            startGame(&player);
+            startGame();
             break;
         case Ranking:
             startRanking();
@@ -201,11 +198,10 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
     return nameConfirmed;
 }
 
-void startGame(player_t *player)
+void startGame(void)
 {
-    // Inicializar a vida do jogador e a tecla pressionada por esse
-    player->health = 3;
-    player->currentLevel = 1;
+    // Inicializar jogador e a tecla pressionada por esse
+    player_t player = {{0}, {1, 2}, {'\0'}, 0, 3, 100, 20, 1, false};
     KeyboardKey direction = KEY_S;
 
     // Carregar todos os áudios do jogo
@@ -217,88 +213,88 @@ void startGame(player_t *player)
     level_t level;
     Music *currentMusic = &firstLevelsMusic;
     PlayMusicStream(*currentMusic);
-    int currentLevel = player->currentLevel;
-    loadLevel(&level, player);
-    drawSplashScreen(player, currentMusic);
+    int currentLevel = player.currentLevel;
+    loadLevel(&level, &player);
+    drawSplashScreen(&player, currentMusic);
     gameover_option_t gameOverOption = ResetGame;
     while (!(WindowShouldClose() || gameOverOption == ExitGame))
     {
         UpdateMusicStream(*currentMusic);
 
         // Verificar se as condições de gameover ocorreram
-        if (!player->health || !level.oreCount)
+        if (!player.health || !level.oreCount)
         {
             StopMusicStream(*currentMusic);
-            gameOverOption = gameOver(&level, player);
+            gameOverOption = gameOver(&level, &player);
             if (gameOverOption == ResetGame)
             {
-                player->health = 3;
-                player->currentLevel = 1;
+                player.health = 3;
+                player.currentLevel = 1;
                 PlayMusicStream(*currentMusic);
-                currentLevel = player->currentLevel;
-                loadLevel(&level, player);
-                drawSplashScreen(player, currentMusic);
+                currentLevel = player.currentLevel;
+                loadLevel(&level, &player);
+                drawSplashScreen(&player, currentMusic);
             }
         }
 
         // Verificar troca de nível
-        if (currentLevel != player->currentLevel)
+        if (currentLevel != player.currentLevel)
         {
-            currentLevel = player->currentLevel;
+            currentLevel = player.currentLevel;
             if (currentLevel == LAST_LVL)
             {
                 StopMusicStream(*currentMusic);
                 currentMusic = &lastLevelMusic;
                 PlayMusicStream(*currentMusic);
             }
-            loadLevel(&level, player);
-            drawSplashScreen(player, currentMusic);
+            loadLevel(&level, &player);
+            drawSplashScreen(&player, currentMusic);
         }
 
         // Verificar movimentação
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
         {
-            moveHorizontal(&level, player, 1);
+            moveHorizontal(&level, &player, 1);
             direction = KEY_D;
         }
         if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
         {
-            moveHorizontal(&level, player, -1);
+            moveHorizontal(&level, &player, -1);
             direction = KEY_A;
         }
         if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
         {
-            moveVertical(&level, player, -1);
+            moveVertical(&level, &player, -1);
             direction = KEY_W;
         }
         if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
         {
-            moveVertical(&level, player, 1);
+            moveVertical(&level, &player, 1);
             direction = KEY_S;
         }
 
         // Verificar modo mineração
         if (IsKeyPressed(KEY_ONE))
-            player->miningMode = !player->miningMode;
+            player.miningMode = !player.miningMode;
 
         // Verificar mineração
-        if (IsKeyPressed(KEY_SPACE) && player->miningMode)
+        if (IsKeyPressed(KEY_SPACE) && player.miningMode)
             // Se houver bloco minerado
-            if (mine(&level, player, direction))
+            if (mine(&level, &player, direction))
                 PlaySound(blockMinedEffect);
 
         // Verificar posicionamento de escada
         if (IsKeyPressed(KEY_LEFT_SHIFT))
-            placeLadder(&level, player);
+            placeLadder(&level, &player);
 
         BeginDrawing();
         ClearBackground(BLACK);
 
         // Desenhar texturas do nível
-        drawLevel(&level, player, ALPHA_DISABLE);
+        drawLevel(&level, &player, ALPHA_DISABLE);
 
         // Desenhar HUD
-        drawHUD(&level, player, ALPHA_DISABLE);
+        drawHUD(&level, &player, ALPHA_DISABLE);
 
         EndDrawing();
     }
@@ -409,7 +405,7 @@ ranking_option_t startRanking(void)
     return selected;
 }
 
-void startLevelEditor()
+void startLevelEditor(void)
 {
     // Carregar template de nível
     level_t level;
@@ -441,7 +437,7 @@ void startLevelEditor()
             if (isPlayerPlaced(&level))
             {
                 // Salvar nível
-                saveCustomLevel(&level);
+                saveCustomLevel("custom_levels/nivel1", &level);
                 save = true;                
             }
         }

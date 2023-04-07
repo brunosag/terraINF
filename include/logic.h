@@ -12,10 +12,10 @@
 #define LOGIC_H
 
 #include "common.h"
-#include <string.h>
 
-bool mine(level_t *level, player_t *player, int direction);
 int getFallSize(level_t *level, int x, int y);
+bool isPlayerPlaced(level_t *level);
+bool mine(level_t *level, player_t *player, int direction);
 void moveHorizontal(level_t *level, player_t *player, int offset);
 void moveVertical(level_t *level, player_t *player, int offset);
 void placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected);

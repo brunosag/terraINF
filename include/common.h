@@ -10,10 +10,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <stdio.h>
-#include <stdbool.h>
 #include <math.h>
 #include "raylib.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800

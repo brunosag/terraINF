@@ -20,7 +20,7 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
 gameover_option_t gameOver(level_t *level, player_t *player);
 menu_option_t startMenu(void);
 ranking_option_t startRanking(void);
-void startGame(player_t *player);
-void startLevelEditor();
+void startGame(void);
+void startLevelEditor(void);
 
 #endif

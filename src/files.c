@@ -215,18 +215,23 @@ int writeRankingPosition(const char *rankingFile, ranking_t *player)
     return errorNumber;
 }
 
-void saveCustomLevel(level_t *level)
+void saveCustomLevel(const char* levelFile, level_t *level)
 {
     // Criar ou substituir arquivo de nível customizado
-    FILE *file = fopen("levels/custom.txt", "w");
+    FILE *file = fopen(levelFile, "w");
 
-    // Ler caracteres da matriz e transferir para arquivo
-    for (int i = 0; i < LVL_HEIGHT; i++)
+    // Verificar se arquivo foi criado
+    if(file != NULL)
     {
-        for (int j = 0; j < LVL_WIDTH; j++)
-            fprintf(file, "%c", level->elements[i][j]);
-        fprintf(file, "\n");
+        // Ler caracteres da matriz e transferir para arquivo
+        for (int i = 0; i < LVL_HEIGHT; i++)
+        {
+            for (int j = 0; j < LVL_WIDTH; j++)
+                fprintf(file, "%c", level->elements[i][j]);
+            fprintf(file, "\n");
+        }
     }
+
     fclose(file);
 }
 
