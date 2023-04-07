@@ -11,16 +11,16 @@ int createRankingFile(const char *rankingFile, int rankingSize)
     int rankingFilePathLength = strlen(rankingFile);
     int lastSlash = rankingFilePathLength;
     char rankingDirectory[MAX_FILE_NAME + 1] = {0};
-    for(int i = 0; i < rankingFilePathLength; i++)
+    for (int i = 0; i < rankingFilePathLength; i++)
     {
         rankingDirectory[i] = rankingFile[i];
-        if(rankingDirectory[i] == '/')
+        if (rankingDirectory[i] == '/')
             lastSlash = i;
     }
 
     // Preencher o resto do nome do diretório com caracteres nulos
-    if(lastSlash != rankingFilePathLength)
-        for(int i = lastSlash; i < rankingFilePathLength; i++)
+    if (lastSlash != rankingFilePathLength)
+        for (int i = lastSlash; i < rankingFilePathLength; i++)
             rankingDirectory[i] = '\0';
 
     // Tentar criar diretório para o arquivo
@@ -53,13 +53,18 @@ void loadEditorLevel(level_t *level)
 {
     // Carregar sprites
     level->textures[Background] = LoadTexture("resources/sprites/background.png");
+    level->textures[CaesiumOre] = LoadTexture("resources/sprites/caesium_ore.png");
     level->textures[Dirt] = LoadTexture("resources/sprites/dirt.png");
     level->textures[Edge] = LoadTexture("resources/sprites/edge.png");
     level->textures[EditorHUD] = LoadTexture("resources/sprites/editor_hud.png");
+    level->textures[GoldOre] = LoadTexture("resources/sprites/gold_ore.png");
     level->textures[Ore] = LoadTexture("resources/sprites/ore.png");
     level->textures[Player] = LoadTexture("resources/sprites/player.png");
+    level->textures[SilverOre] = LoadTexture("resources/sprites/silver_ore.png");
     level->textures[SlotSelected] = LoadTexture("resources/sprites/slot_selected.png");
     level->textures[SlotUnselected] = LoadTexture("resources/sprites/slot_unselected.png");
+    level->textures[TitaniumOre] = LoadTexture("resources/sprites/titanium_ore.png");
+    level->textures[UraniumOre] = LoadTexture("resources/sprites/uranium_ore.png");
 
     // Ajustar nome do arquivo
     char filename[MAX_LVL_NAME + 1] = {'\0'};
@@ -120,11 +125,11 @@ void loadLevel(level_t *level, player_t *player)
     level->textures[PlayerLadder] = LoadTexture("resources/sprites/player_ladder.png");
     level->textures[PlayerLadderPickaxe] = LoadTexture("resources/sprites/player_ladder_pickaxe.png");
     level->textures[PlayerPickaxe] = LoadTexture("resources/sprites/player_pickaxe.png");
-    level->ores[Caesium].texture = LoadTexture("resources/sprites/caesium_ore.png");
-    level->ores[Gold].texture = LoadTexture("resources/sprites/gold_ore.png");
-    level->ores[Silver].texture = LoadTexture("resources/sprites/silver_ore.png");
-    level->ores[Titanium].texture = LoadTexture("resources/sprites/titanium_ore.png");
-    level->ores[Uranium].texture = LoadTexture("resources/sprites/uranium_ore.png");
+    level->ores[Caesium].texture = LoadTexture("resources/sprites/caesium.png");
+    level->ores[Gold].texture = LoadTexture("resources/sprites/gold.png");
+    level->ores[Silver].texture = LoadTexture("resources/sprites/silver.png");
+    level->ores[Titanium].texture = LoadTexture("resources/sprites/titanium.png");
+    level->ores[Uranium].texture = LoadTexture("resources/sprites/uranium.png");
 
     // Ajustar nome do arquivo
     char filename[MAX_LVL_NAME + 1] = {'\0'};

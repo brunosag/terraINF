@@ -154,14 +154,26 @@ void placeBlock(level_t *level, player_t *player, position_t mousePosition, edit
             player->position.y = mousePosition.y;
         }
         break;
-    case OreSlot:
-        level->elements[mousePosition.y][mousePosition.x] = CHAR_GOLD;
+    case BackgroundSlot:
+        level->elements[mousePosition.y][mousePosition.x] = CHAR_EMPTY;
         break;
     case DirtSlot:
         level->elements[mousePosition.y][mousePosition.x] = CHAR_DIRT;
         break;
-    case BackgroundSlot:
-        level->elements[mousePosition.y][mousePosition.x] = CHAR_EMPTY;
+    case SilverSlot:
+        level->elements[mousePosition.y][mousePosition.x] = CHAR_SILVER;
+        break;
+    case GoldSlot:
+        level->elements[mousePosition.y][mousePosition.x] = CHAR_GOLD;
+        break;
+    case TitaniumSlot:
+        level->elements[mousePosition.y][mousePosition.x] = CHAR_TITANIUM;
+        break;
+    case CaesiumSlot:
+        level->elements[mousePosition.y][mousePosition.x] = CHAR_CAESIUM;
+        break;
+    case UraniumSlot:
+        level->elements[mousePosition.y][mousePosition.x] = CHAR_URANIUM;
         break;
     case Save:
         break;

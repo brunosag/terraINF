@@ -11,9 +11,55 @@ void drawEditorHUD(level_t *level, editor_option_t selected)
 
     // Desenhar slot selecionado
     if (selected == Save)
-        DrawText("-SALVAR-", 1072, 10, EDITOR_FONT_SIZE, RAYWHITE);
+        DrawText("- SALVAR -", 1064, 10, EDITOR_FONT_SIZE, RAYWHITE);
     else
-        DrawTexture(level->textures[SlotSelected], 526 + (37 * selected), 2, WHITE);
+        DrawTexture(level->textures[SlotSelected], 453 + (37 * selected), 2, WHITE);
+}
+
+void drawEditorLevel(level_t *level)
+{
+    // Desenhar texturas com base na matriz
+    Texture2D currentTexture;
+    for (int i = 0; i < LVL_HEIGHT; i++)
+    {
+        for (int j = 0; j < LVL_WIDTH; j++)
+        {
+            // Verificar elemento atual na matriz
+            switch (level->elements[i][j])
+            {
+            case CHAR_SILVER:
+                currentTexture = level->textures[SilverOre];
+                break;
+            case CHAR_GOLD:
+                currentTexture = level->textures[GoldOre];
+                break;
+            case CHAR_TITANIUM:
+                currentTexture = level->textures[TitaniumOre];
+                break;
+            case CHAR_CAESIUM:
+                currentTexture = level->textures[CaesiumOre];
+                break;
+            case CHAR_URANIUM:
+                currentTexture = level->textures[UraniumOre];
+                break;
+            case CHAR_DIRT:
+                currentTexture = level->textures[Dirt];
+                break;
+            case CHAR_EMPTY:
+                currentTexture = level->textures[Background];
+                break;
+            case CHAR_EDGE:
+                currentTexture = level->textures[Edge];
+                break;
+            case CHAR_PLAYER:
+                currentTexture = level->textures[Player];
+                break;
+            }
+
+            // Desenhar elemento
+            DrawTexture(currentTexture, (j * ELEMENT_SIZE), (i * ELEMENT_SIZE), WHITE);
+        }
+    }
 }
 
 void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha)

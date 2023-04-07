@@ -27,7 +27,7 @@
 #define LVL_HEIGHT 20
 #define LAST_LVL 3
 
-#define ELEMENT_COUNT 13
+#define ELEMENT_COUNT 18
 #define CHAR_PLAYER 'J'
 #define CHAR_GOLD 'G'
 #define CHAR_TITANIUM 'T'
@@ -57,9 +57,11 @@
 typedef enum element_number
 {
     Background,
+    CaesiumOre,
     Dirt,
     Edge,
     EditorHUD,
+    GoldOre,
     HUD,
     Ladder,
     Ore,
@@ -67,8 +69,11 @@ typedef enum element_number
     PlayerLadder,
     PlayerLadderPickaxe,
     PlayerPickaxe,
+    SilverOre,
     SlotSelected,
     SlotUnselected,
+    TitaniumOre,
+    UraniumOre
 } element_number_t;
 
 typedef enum ore_number
@@ -102,9 +107,13 @@ typedef enum gameover_option
 typedef enum editor_option
 {
     PlayerSlot,
-    OreSlot,
-    DirtSlot,
     BackgroundSlot,
+    DirtSlot,
+    SilverSlot,
+    GoldSlot,
+    TitaniumSlot,
+    CaesiumSlot,
+    UraniumSlot,
     Save
 } editor_option_t;
 

@@ -461,7 +461,7 @@ void startLevelEditor()
         ClearBackground(BLACK);
 
         // Desenhar nível
-        drawLevel(&level, &player, ALPHA_DISABLE);
+        drawEditorLevel(&level);
 
         // Desenhar HUD
         drawEditorHUD(&level, selected);
