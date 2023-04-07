@@ -205,9 +205,10 @@ void startGame(void)
     KeyboardKey direction = KEY_S;
 
     // Carregar todos os áudios do jogo
-    Sound blockMinedEffect = LoadSound("resources/sound_effects/block_mined.ogg");
     Music firstLevelsMusic = LoadMusicStream("resources/music/first_levels.mp3");
     Music lastLevelMusic = LoadMusicStream("resources/music/last_level.mp3");
+    Sound levelUpEffect = LoadSound("resources/sound_effects/level_up.ogg");
+    Sound blockMinedEffect = LoadSound("resources/sound_effects/block_mined.ogg");
 
     // Carregar nível inicial
     level_t level;
@@ -248,6 +249,7 @@ void startGame(void)
                 PlayMusicStream(*currentMusic);
             }
             loadLevel(&level, &player);
+            PlaySound(levelUpEffect);
             drawSplashScreen(&player, currentMusic);
         }
 
@@ -299,6 +301,7 @@ void startGame(void)
         EndDrawing();
     }
 
+    UnloadSound(levelUpEffect);
     UnloadSound(blockMinedEffect);
     UnloadMusicStream(firstLevelsMusic);
     UnloadMusicStream(lastLevelMusic);
@@ -370,6 +373,9 @@ ranking_option_t startRanking(void)
 {
     ranking_option_t selected = ExitRanking;
 
+    Music rankingMusic = LoadMusicStream("resources/music/ranking.mp3");
+    PlayMusicStream(rankingMusic);
+
     // Carregar efeitos sonoros do ranking
     Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
 
@@ -393,6 +399,8 @@ ranking_option_t startRanking(void)
             PlaySound(menuSelectionEffect);
         }
 
+        UpdateMusicStream(rankingMusic);
+
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -402,6 +410,7 @@ ranking_option_t startRanking(void)
     }
 
     UnloadSound(menuSelectionEffect);
+    UnloadMusicStream(rankingMusic);
     return selected;
 }
 
