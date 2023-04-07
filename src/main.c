@@ -205,7 +205,7 @@ void startGame(void)
     KeyboardKey direction = KEY_S;
 
     // Carregar todos os áudios do jogo
-    Sound blockMinedEffect = LoadSound("resources/sound_effects/block_mined.wav");
+    Sound blockMinedEffect = LoadSound("resources/sound_effects/block_mined.ogg");
     Music firstLevelsMusic = LoadMusicStream("resources/music/first_levels.mp3");
     Music lastLevelMusic = LoadMusicStream("resources/music/last_level.mp3");
 
