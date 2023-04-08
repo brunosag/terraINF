@@ -3,6 +3,14 @@
 
 #include "../include/interface.h"
 
+void drawCustomLevelsMenu(Texture2D background)
+{
+    DrawTexture(background, 0, 0, WHITE);
+    DrawText("NIVEIS CUSTOMIZADOS", (SCREEN_WIDTH / 2 - MeasureText("NIVEIS CUSTOMIZADOS", MENU_FONT_SIZE) / 2), 26, 32,
+             RAYWHITE);
+    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE, RAYWHITE);
+}
+
 void drawEditorHUD(level_t *level, editor_option_t selected)
 {
     DrawTexture(level->textures[EditorHUD], 0, 0, WHITE);
@@ -250,31 +258,38 @@ void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption)
     DrawTexture(menuTexture, 0, 0, WHITE);
 
     // Desenhar opções
-    DrawText("INICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("INICIAR JOGO", MENU_FONT_SIZE) / 2), 394, MENU_FONT_SIZE,
+    DrawText("INICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("INICIAR JOGO", MENU_FONT_SIZE) / 2), 354, MENU_FONT_SIZE,
              RAYWHITE);
-    DrawText("RANKING DE PONTOS", (SCREEN_WIDTH / 2 - MeasureText("RANKING DE PONTOS", MENU_FONT_SIZE) / 2), 460,
+    DrawText("EDITOR DE NIVEL", (SCREEN_WIDTH / 2 - MeasureText("EDITOR DE NIVEL", MENU_FONT_SIZE) / 2), 416,
              MENU_FONT_SIZE, RAYWHITE);
-    DrawText("EDITOR DE NIVEL", (SCREEN_WIDTH / 2 - MeasureText("EDITOR DE NIVEL", MENU_FONT_SIZE) / 2), 526,
+    DrawText("NIVEIS CUSTOMIZADOS", (SCREEN_WIDTH / 2 - MeasureText("NIVEIS CUSTOMIZADOS", MENU_FONT_SIZE) / 2), 478,
              MENU_FONT_SIZE, RAYWHITE);
-    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 592, MENU_FONT_SIZE, RAYWHITE);
+    DrawText("RANKING DE PONTOS", (SCREEN_WIDTH / 2 - MeasureText("RANKING DE PONTOS", MENU_FONT_SIZE) / 2), 540,
+             MENU_FONT_SIZE, RAYWHITE);
+    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 602, MENU_FONT_SIZE, RAYWHITE);
 
     // Desenhar opção selecionada
     switch (selectedOption)
     {
     case StartGame:
-        DrawText("- INICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- INICIAR JOGO -", MENU_FONT_SIZE) / 2), 395,
+        DrawText("- INICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- INICIAR JOGO -", MENU_FONT_SIZE) / 2), 353,
                  MENU_FONT_SIZE, RAYWHITE);
-        break;
-    case Ranking:
-        DrawText("- RANKING DE PONTOS -", (SCREEN_WIDTH / 2 - MeasureText("- RANKING DE PONTOS -", MENU_FONT_SIZE) / 2),
-                 461, MENU_FONT_SIZE, RAYWHITE);
         break;
     case LevelEditor:
         DrawText("- EDITOR DE NIVEL -", (SCREEN_WIDTH / 2 - MeasureText("- EDITOR DE NIVEL -", MENU_FONT_SIZE) / 2),
-                 527, MENU_FONT_SIZE, RAYWHITE);
+                 415, MENU_FONT_SIZE, RAYWHITE);
+        break;
+    case CustomLevels:
+        DrawText("- NIVEIS CUSTOMIZADOS -",
+                 (SCREEN_WIDTH / 2 - MeasureText("- NIVEIS CUSTOMIZADOS -", MENU_FONT_SIZE) / 2), 477, MENU_FONT_SIZE,
+                 RAYWHITE);
+        break;
+    case Ranking:
+        DrawText("- RANKING DE PONTOS -", (SCREEN_WIDTH / 2 - MeasureText("- RANKING DE PONTOS -", MENU_FONT_SIZE) / 2),
+                 539, MENU_FONT_SIZE, RAYWHITE);
         break;
     case Exit:
-        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 593, MENU_FONT_SIZE,
+        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 601, MENU_FONT_SIZE,
                  RAYWHITE);
         break;
     }

@@ -99,8 +99,9 @@ typedef enum action_effects
 typedef enum menu_option
 {
     StartGame = 1,
-    Ranking,
     LevelEditor,
+    CustomLevels,
+    Ranking,
     Exit
 } menu_option_t;
 

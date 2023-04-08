@@ -27,6 +27,7 @@
 
 #define ELEMENT_SIZE 40
 
+void drawCustomLevelsMenu(Texture2D background);
 void drawEditorHUD(level_t *level, editor_option_t selected);
 void drawEditorLevel(level_t *level);
 void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha);
