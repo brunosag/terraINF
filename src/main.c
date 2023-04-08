@@ -69,7 +69,7 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     bool nameConfirmed = false;
     // Reiniciar temporização
     uninterruptTimer(true, 0.0f);
-    while (!confirmed)
+    while (!(WindowShouldClose() || confirmed))
     {
         // Se passaram GAMEOVER_NAME_DELAY segundos e houve alguma posição alterada no ranking
         if (uninterruptTimer(false, GAMEOVER_NAME_DELAY) && firstAlteredPosition > 0 &&
@@ -470,7 +470,7 @@ ranking_option_t startRanking(void)
     }
 
     bool confirmed = false;
-    while (!confirmed)
+    while (!(WindowShouldClose() || confirmed))
     {
         // Verificar confirmação de seleção
         if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
@@ -492,11 +492,15 @@ ranking_option_t startRanking(void)
 
     UnloadSound(menuSelectionEffect);
     UnloadMusicStream(rankingMusic);
-    return selected;
+    return confirmed ? selected : ExitRanking;
 }
 
 void startLevelEditor(void)
 {
+    // Carregar áudios
+    Music levelEditorMusic = LoadMusicStream("resources/music/level_editor.mp3");
+    PlayMusicStream(levelEditorMusic);
+
     // Carregar template de nível
     level_t level;
     player_t player;
@@ -547,6 +551,8 @@ void startLevelEditor(void)
             }
         }
 
+        UpdateMusicStream(levelEditorMusic);
+
         BeginDrawing();
         ClearBackground(BLACK);
 
@@ -555,6 +561,8 @@ void startLevelEditor(void)
 
         EndDrawing();
     }
+
+    UnloadMusicStream(levelEditorMusic);
 }
 
 #endif
