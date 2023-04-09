@@ -269,6 +269,64 @@ bool placeLadder(level_t *level, player_t *player)
     return ladderPlaced;
 }
 
+int updateCustomLevelsMetadata(custom_level_metadata_t *metadata, custom_level_metadata_t *metadataStored, int *customLevelsStored, int maxCustomLevelsAmount)
+{
+    int duplicateNumber = 0;
+
+    // Caso o haja menos que o número máximo de níveis customizados
+    int duplicateNumbers[*customLevelsStored];
+    bool duplicateExists = false;
+    if (*customLevelsStored < maxCustomLevelsAmount)
+    {
+        // Verificar se o nome da fase customizada já existe
+        for (int i = 0; i < *customLevelsStored; i++)
+        {
+            duplicateNumbers[i] = compareFileNames(metadata->name, metadataStored[i].name);
+            if (duplicateNumbers[i])
+                duplicateExists = true;
+        }
+
+        // Se houver duplicata
+        if (duplicateExists)
+        {
+            // Modificar o nome do arquivo para evitar conflitos
+            duplicateNumber = findLowestIntervalValue(duplicateNumbers, *customLevelsStored, 1, 3);
+            if (duplicateNumber > 1)
+                updateDuplicateFileName(metadata->name, duplicateNumber);
+        }
+
+        metadataStored[*customLevelsStored] = *metadata;
+        (*customLevelsStored)++;
+    }
+    else
+    {
+        // Verificar se o nome da fase customizada já existe (excluindo o mais antigo)
+        for (int i = 1; i < *customLevelsStored; i++)
+        {
+            duplicateNumbers[i - 1] = compareFileNames(metadata->name, metadataStored[i].name);
+            if (duplicateNumbers[i - 1])
+                duplicateExists = true;
+        }
+
+        // Se houver duplicata
+        if (duplicateExists)
+        {
+            // Modificar o nome do arquivo para evitar conflitos
+            duplicateNumber = findLowestIntervalValue(duplicateNumbers, *customLevelsStored - 1, 1, 3);
+            if (duplicateNumber > 1)
+                updateDuplicateFileName(metadata->name, duplicateNumber);
+        }
+
+        // Substituir os dados do mais antigo pelo mais novo, reorganizando todos os dados
+        int i;
+        for (i = 0; i < (*customLevelsStored - 1); i++)
+            metadataStored[i] = metadataStored[i + 1];
+        metadataStored[i] = *metadata;
+    }
+
+    return duplicateNumber;
+}
+
 bool updateEnergy(player_t *player, int offset)
 {
     bool energyDrained = false;

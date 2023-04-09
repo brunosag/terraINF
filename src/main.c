@@ -198,6 +198,64 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
     return nameConfirmed;
 }
 
+bool saveCustomLevel(char *levelFile, level_t *level, player_t *player)
+{
+    bool levelSaved = false;
+
+    // Ajeitar nome do diretório do nível customizado
+    int metadataFilePathLength = strlen(levelFile);
+    int lastSlash = metadataFilePathLength;
+    char metadataDirectory[MAX_FILE_NAME + 1] = {0};
+    for (int i = 0; i < metadataFilePathLength; i++)
+    {
+        metadataDirectory[i] = levelFile[i];
+        if (metadataDirectory[i] == '/')
+            lastSlash = i;
+    }
+
+    // Criar nome do arquivo de metadados
+    char metadataFile[MAX_FILE_NAME + 1];
+
+    // Preencher o resto do nome do diretório com caracteres nulos
+    if (lastSlash != metadataFilePathLength)
+    {
+        for (int i = lastSlash; i < metadataFilePathLength; i++)
+            metadataDirectory[i] = '\0';
+
+        // Colocar diretório no arquivo de metadados
+        snprintf(metadataFile, sizeof(metadataFile) - 1, "%s/metadata.bin", metadataDirectory);
+    }
+    else
+        snprintf(metadataFile, sizeof(metadataFile) - 1, "metadata.bin");
+
+    // Tentar abrir arquivo de metadados dos níveis para leitura/escrita
+    int customLevelsStored = 0;
+    int maxCustomLevelsAmount = 0;
+    custom_level_metadata_t metadataStored[MAX_CUSTOM_LEVELS_AMOUNT];
+    if (!readCustomLevelsMetadataFile(metadataFile, metadataStored, &customLevelsStored, &maxCustomLevelsAmount))
+    {
+        // Verificar criação do arquivo com sucesso
+        if (!createCustomLevelsMetadataFile(metadataFile, MAX_CUSTOM_LEVELS_AMOUNT))
+            readCustomLevelsMetadataFile(metadataFile, metadataStored, &customLevelsStored, &maxCustomLevelsAmount);
+    }
+
+    // Guardar as meta-informações do nível atual
+    int duplicateLevelName = 0;
+    custom_level_metadata_t metadata;
+    metadata.dateCreated = time(NULL);
+    strncpy(metadata.name, levelFile, sizeof(metadata.name) - 1);
+    metadata.miniature = createLevelMiniature(level, player);
+
+    // Atualizar metadados (descobrir nomes duplicados)
+    duplicateLevelName = updateCustomLevelsMetadata(&metadata, metadataStored, &customLevelsStored, maxCustomLevelsAmount);
+
+    // Se o nível customizado e metadados foram salvos com sucesso, retornar sucesso
+    if (!(saveCustomLevelFile(levelFile, level, duplicateLevelName) || writeCustomLevelsMetadata(metadataFile, metadataStored, customLevelsStored)))
+        levelSaved = true;
+
+    return levelSaved;
+}
+
 void startGame(void)
 {
     // Inicializar jogador e a tecla pressionada por esse
@@ -486,13 +544,13 @@ void startLevelEditor(void)
     level_t level;
     player_t player;
     editor_option_t selected = PlayerSlot;
-    bool save = false;
+    bool levelSaved = false;
     player.miningMode = false;
     player.position.x = 11;
     player.position.y = 2;
     loadEditorLevel(&level);
 
-    while (!(WindowShouldClose() || save))
+    while (!(WindowShouldClose() || levelSaved))
     {
         // Verificar navegação de seleção
         if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
@@ -512,8 +570,18 @@ void startLevelEditor(void)
             if (isPlayerPlaced(&level))
             {
                 // Salvar nível
-                saveCustomLevel("custom_levels/nivel1", &level);
-                save = true;                
+                char levelFile[MAX_FILE_NAME + 1] = "custom_levels/nivel1.txt";
+                levelSaved = saveCustomLevel(levelFile, &level, &player);
+
+NÃO ESCLUIR, FALTA TESTAR ESTA PARTE
+/*                int customLevelsAmount = 0;
+                int maxCustomLevelsAmount = 0;
+                custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
+                readCustomLevelsMetadataFile();
+                while(!WindowShouldClose())
+                {
+                    
+                }*/
             }
         }
 
@@ -521,7 +589,7 @@ void startLevelEditor(void)
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         {
             // Obter posição do mouse
-            position_t mousePosition = {(GetMouseX() / 40), (GetMouseY() / 40)};
+            position_t mousePosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
 
             // Verificar borda
             if (mousePosition.x > 0 && mousePosition.x < LVL_WIDTH - 1 && mousePosition.y > 0 &&

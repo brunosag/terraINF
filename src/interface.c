@@ -3,6 +3,28 @@
 
 #include "../include/interface.h"
 
+Image createLevelMiniature(level_t *level, player_t *player)
+{
+    Image miniature;
+
+    // Desenhar nível sem HUD para salvar miniatura
+    BeginDrawing();
+    ClearBackground(BLACK);
+    drawLevel(level, player, ALPHA_DISABLE);
+    EndDrawing();
+
+    // Salvar miniatura no tamanho adequado
+    miniature = LoadImageFromScreen();
+    ImageResize(&miniature, 120, 80);
+
+    // Limpar tela depois de tirar screenshot
+    BeginDrawing();
+    ClearBackground(BLACK);
+    EndDrawing();
+
+    return miniature;
+}
+
 void drawEditorHUD(level_t *level, editor_option_t selected)
 {
     DrawTexture(level->textures[EditorHUD], 0, 0, WHITE);

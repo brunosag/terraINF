@@ -18,6 +18,7 @@
 
 bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sound menuSelectionEffect);
 gameover_option_t gameOver(level_t *level, player_t *player);
+bool saveCustomLevel(char *levelFile, level_t *level, player_t *player);
 menu_option_t startMenu(void);
 ranking_option_t startRanking(void);
 void startGame(void);

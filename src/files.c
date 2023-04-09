@@ -3,6 +3,47 @@
 
 #include "../include/files.h"
 
+int createCustomLevelsMetadataFile(const char *metadataFile, int maxCustomLevelsAmount)
+{
+    int errorNumber = 0;
+
+    // Ajeitar nome do diretório a ser criado
+    int metadataFilePathLength = strlen(metadataFile);
+    int lastSlash = metadataFilePathLength;
+    char metadataDirectory[MAX_FILE_NAME + 1] = {0};
+    for (int i = 0; i < metadataFilePathLength; i++)
+    {
+        metadataDirectory[i] = metadataFile[i];
+        if (metadataDirectory[i] == '/')
+            lastSlash = i;
+    }
+
+    // Preencher o resto do nome do diretório com caracteres nulos
+    if (lastSlash != metadataFilePathLength)
+    {
+        for (int i = lastSlash; i < metadataFilePathLength; i++)
+            metadataDirectory[i] = '\0';
+        // Tentar criar diretório para o arquivo
+        mkdir(metadataDirectory);
+    }
+
+    // Verificar a abertura do arquivo
+    FILE *file = fopen(metadataFile, "wb");
+    if (file != NULL)
+    {
+        int customLevelsAmount = 0;
+
+        // Guardar quantidade de níveis customizados nos primeiros bytes
+        fwrite(&customLevelsAmount, sizeof(customLevelsAmount), 1, file);
+        fwrite(&maxCustomLevelsAmount, sizeof(maxCustomLevelsAmount), 1, file);
+    }
+    else
+        errorNumber = 1;
+
+    fclose(file);
+    return errorNumber;
+}
+
 int createRankingFile(const char *rankingFile, int rankingSize)
 {
     int errorNumber = 0;
@@ -20,11 +61,12 @@ int createRankingFile(const char *rankingFile, int rankingSize)
 
     // Preencher o resto do nome do diretório com caracteres nulos
     if (lastSlash != rankingFilePathLength)
+    {
         for (int i = lastSlash; i < rankingFilePathLength; i++)
             rankingDirectory[i] = '\0';
-
-    // Tentar criar diretório para o arquivo
-    mkdir(rankingDirectory);
+        // Tentar criar diretório para o arquivo
+        mkdir(rankingDirectory);
+    }
 
     // Verificar a abertura do arquivo
     FILE *file = fopen(rankingFile, "wb");
@@ -33,13 +75,15 @@ int createRankingFile(const char *rankingFile, int rankingSize)
         ranking_t rankingPlaceholder = {{0}, 0, 0};
 
         // Guardar no primeiro byte do arquivo a quantidade de jogadores no ranking
-        fwrite(&rankingSize, sizeof(rankingSize), 1, file);
+        if (fwrite(&rankingSize, sizeof(rankingSize), 1, file) != 1)
+            errorNumber = 2;
 
         for (int i = 0; i < rankingSize; i++)
         {
             rankingPlaceholder.position = i + 1;
             generateRandomName(rankingPlaceholder.name, MAX_PLAYER_NAME);
-            fwrite(&rankingPlaceholder, sizeof(rankingPlaceholder), 1, file);
+            if (fwrite(&rankingPlaceholder, sizeof(rankingPlaceholder), 1, file) != 1)
+                errorNumber = 2;
         }
     }
     else
@@ -172,6 +216,24 @@ void loadLevel(level_t *level, player_t *player)
         printf("Erro ao ler o arquivo da matriz do nivel.");
 }
 
+int readCustomLevelsMetadataFile(const char *metadataFile, custom_level_metadata_t *metadata, int *customLevelsAmount, int *maxCustomLevelsAmount)
+{
+    int entriesRead = 0;
+
+    // Verificar abertura de arquivo
+    FILE *file = fopen(metadataFile, "rb");
+    if (file != NULL)
+        if (fread(customLevelsAmount, sizeof(*customLevelsAmount), 1, file) == 1)
+            // Pular número máximo de níveis customizados
+            if (fread(maxCustomLevelsAmount, sizeof(*maxCustomLevelsAmount), 1, file) == 1)
+                for (int i = 0; i < *customLevelsAmount; i++)
+                    // Verificar leitura de cada item do arquivo e contabilizar
+                    if (fread(&metadata[i], sizeof(metadata[i]), 1, file) == 1)
+                        entriesRead++;
+    fclose(file);
+    return entriesRead;
+}
+
 int readRankingFile(const char *rankingFile, ranking_t *players)
 {
     int entriesRead = 0;
@@ -191,6 +253,57 @@ int readRankingFile(const char *rankingFile, ranking_t *players)
 
     fclose(file);
     return entriesRead;
+}
+
+int saveCustomLevelFile(char *levelFile, level_t *level, int duplicateNumber)
+{
+    int errorNumber = 0;
+
+    // Caso haja nome de arquivo de nível repetido
+    if (duplicateNumber > 1)
+        updateDuplicateFileName(levelFile, duplicateNumber);
+
+    // Verificar se arquivo foi criado
+    FILE *file = fopen(levelFile, "w");
+    if(file != NULL)
+    {
+        // Ler caracteres da matriz e transferir para arquivo
+        for (int i = 0; i < LVL_HEIGHT; i++)
+        {
+            for (int j = 0; j < LVL_WIDTH; j++)
+                fprintf(file, "%c", level->elements[i][j]);
+            fprintf(file, "\n");
+        }
+    }
+    else
+        errorNumber = 1;
+
+    fclose(file);
+    return errorNumber;
+}
+
+int writeCustomLevelsMetadata(const char *metadataFile, custom_level_metadata_t *metadata, int customLevelsAmount)
+{
+    int errorNumber = 0;
+
+    // Verificar abertura de arquivo para leitura/escrita
+    FILE *file = fopen(metadataFile, "rb+");
+    if (file != NULL)
+    {
+        // Atualizar número de níveis customizados
+        fwrite(&customLevelsAmount, sizeof(customLevelsAmount), 1, file);
+        // Pular o número máximo de níveis customizados
+        fseek(file, sizeof(customLevelsAmount), SEEK_CUR);
+
+        // Verificar a efetiva escrita dos novos metadados
+        if (fwrite(metadata, sizeof(*metadata), customLevelsAmount, file) != customLevelsAmount)
+            errorNumber = 2;
+    }
+    else
+        errorNumber = 1;
+
+    fclose(file);
+    return errorNumber;
 }
 
 int writeRankingPosition(const char *rankingFile, ranking_t *player)
@@ -213,26 +326,6 @@ int writeRankingPosition(const char *rankingFile, ranking_t *player)
 
     fclose(file);
     return errorNumber;
-}
-
-void saveCustomLevel(const char* levelFile, level_t *level)
-{
-    // Criar ou substituir arquivo de nível customizado
-    FILE *file = fopen(levelFile, "w");
-
-    // Verificar se arquivo foi criado
-    if(file != NULL)
-    {
-        // Ler caracteres da matriz e transferir para arquivo
-        for (int i = 0; i < LVL_HEIGHT; i++)
-        {
-            for (int j = 0; j < LVL_WIDTH; j++)
-                fprintf(file, "%c", level->elements[i][j]);
-            fprintf(file, "\n");
-        }
-    }
-
-    fclose(file);
 }
 
 #endif

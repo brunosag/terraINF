@@ -10,14 +10,17 @@
 #ifndef FILES_H
 #define FILES_H
 
-#include "auxiliar.h"
+#include "common.h"
 #include <sys/stat.h>
 
+int createCustomLevelsMetadataFile(const char *metadataFile, int maxCustomLevelsAmount);
 int createRankingFile(const char *rankingFile, int rankingSize);
-int readRankingFile(const char *rankingFile, ranking_t *players);
-int writeRankingPosition(const char *rankingFile, ranking_t *player);
 void loadEditorLevel(level_t *level);
 void loadLevel(level_t *level, player_t *player);
-void saveCustomLevel(const char *levelFile, level_t *level);
+int readCustomLevelsMetadataFile(const char *metadataFile, custom_level_metadata_t *metadata, int *customLevelsAmount, int *maxCustomLevelsAmount);
+int readRankingFile(const char *rankingFile, ranking_t *players);
+int saveCustomLevelFile(char *levelFile, level_t *level, int duplicateNumber);
+int writeCustomLevelsMetadata(const char *metadataFile, custom_level_metadata_t *metadata, int customLevelsAmount);
+int writeRankingPosition(const char *rankingFile, ranking_t *player);
 
 #endif

@@ -3,8 +3,8 @@
  * Authors:      Ana Rodrigues, Bruno Samuel e Pedro Lima
  * Date Created: 28/03/2023
  *
- * Description:  Arquivo com definições comuns a todo o 
- *               projeto.
+ * Description:  Arquivo com definições e funções comuns a todo
+ *               o projeto.
  */
 
 #ifndef COMMON_H
@@ -12,13 +12,22 @@
 
 #include <math.h>
 #include "raylib.h"
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800
 #define GAME_FRAMERATE 60
+
+#define TIMING_SAMPLE 0.05f
+#define FADE_OVER -1.0f
+#define ALPHA_DISABLE 100.0f
+#define ASCII_MIN 65
+#define ASCII_MAX 90
+#define BLINK_TIME 0.5f
 
 #define MAX_FILE_NAME 100
 
@@ -54,6 +63,16 @@
 #define GAMEOVER_NAME_DELAY 1.0f // em segundos
 
 #define MAX_RANKING_SIZE 5
+
+#define MAX_CUSTOM_LEVELS_AMOUNT 3
+
+typedef enum fade
+{
+    FadeReset,
+    FadeIn,
+    FadeOff,
+    FadeOut
+} fade_t;
 
 typedef enum element_number
 {
@@ -162,11 +181,25 @@ typedef struct level
     int oreCount;
 } level_t;
 
+typedef struct custom_level_metadata
+{
+    Image miniature;
+    char name[MAX_FILE_NAME + 1];
+    time_t dateCreated;
+} custom_level_metadata_t;
+
 typedef struct ranking
 {
     char name[MAX_PLAYER_NAME + 1];
     int position;
     int score;
 } ranking_t;
+
+int compareFileNames(const char* fileName1, const char* fileName2);
+float fadeTimer(bool reset, float fadeInTime, float fadeOffTime, float fadeOutTime);
+int findLowestIntervalValue(int *values, int valuesAmount, int firstValue, int lastValue);
+void generateRandomName(char *name, int nameLength);
+bool uninterruptTimer(bool reset, float time);
+void updateDuplicateFileName(char *duplicateFileName, int lastDuplicateNumber);
 
 #endif

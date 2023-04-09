@@ -11,7 +11,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include "auxiliar.h"
+#include "common.h"
 
 #define EDITOR_FONT_SIZE 20
 #define HUD_FONT_SIZE 26
@@ -27,6 +27,7 @@
 
 #define ELEMENT_SIZE 40
 
+Image createLevelMiniature(level_t *level, player_t *player);
 void drawEditorHUD(level_t *level, editor_option_t selected);
 void drawEditorLevel(level_t *level);
 void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha);
