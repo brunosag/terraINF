@@ -22,11 +22,14 @@ int main()
         case StartGame:
             startGame();
             break;
-        case Ranking:
-            startRanking();
-            break;
         case LevelEditor:
             startLevelEditor();
+            break;
+        case CustomLevels:
+            startCustomLevelsMenu();
+            break;
+        case Ranking:
+            startRanking();
             break;
         case Exit:
             CloseWindow();
@@ -198,6 +201,22 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
     return nameConfirmed;
 }
 
+void startCustomLevelsMenu(void)
+{
+    // Carregar fundo
+    Texture2D customLevelsBackground = LoadTexture("resources/backgrounds/custom_levels.png");
+
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawCustomLevelsMenu(customLevelsBackground);
+
+        EndDrawing();
+    }
+}
+
 bool saveCustomLevel(char *levelFile, level_t *level, player_t *player)
 {
     bool levelSaved = false;
@@ -358,7 +377,7 @@ void startGame(void)
         if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
         {
             if (moveVertical(&level, &player, -1))
-                PlaySound (ladderClimbedEffect);
+                PlaySound(ladderClimbedEffect);
             direction = KEY_W;
         }
         if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
