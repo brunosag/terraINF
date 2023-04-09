@@ -592,7 +592,7 @@ void startLevelEditor(void)
                 char levelFile[MAX_FILE_NAME + 1] = "custom_levels/nivel1.txt";
                 levelSaved = saveCustomLevel(levelFile, &level, &player);
 
-NÃO ESCLUIR, FALTA TESTAR ESTA PARTE
+//NÃO ESCLUIR, FALTA TESTAR ESTA PARTE
 /*                int customLevelsAmount = 0;
                 int maxCustomLevelsAmount = 0;
                 custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
