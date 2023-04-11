@@ -3,6 +3,28 @@
 
 #include "../include/logic.h"
 
+void createLevelFilePath(const char *folder, const char *fileName, int nameSize, char *filePath)
+{   
+    // Garantir que o nome do arquivo terá apenas caracteres minúsculos
+    char correctedFileName[MAX_FILE_NAME + 1] = {0};
+    for (int i = 0; i < nameSize; i++)
+        correctedFileName[i] = (char)tolower(fileName[i]);
+
+    char correctedFolder[MAX_FILE_NAME + 1] = {0};
+    if (folder != FOLDER_NONE)
+    {
+        // Garantir que o caminho do arquivo terá apenas caracteres minúsculos
+        for (int i = 0; folder[i] != '\0'; i++)
+            correctedFolder[i] = (char)tolower(folder[i]);
+
+        // Armazenar o caminho do arquivo dentro de uma só variável
+        snprintf(filePath, MAX_FILE_NAME, "%s/%s.txt", correctedFolder, correctedFileName);
+    }
+    else
+        snprintf(filePath, MAX_FILE_NAME, "%s.txt", correctedFileName);
+
+}
+
 int getFallSize(level_t *level, int x, int y)
 {
     int fallSize = 0;
@@ -269,13 +291,14 @@ bool placeLadder(level_t *level, player_t *player)
     return ladderPlaced;
 }
 
-int updateCustomLevelsMetadata(custom_level_metadata_t *metadata, custom_level_metadata_t *metadataStored, int *customLevelsStored, int maxCustomLevelsAmount)
+int updateCustomLevelsMetadata(custom_level_metadata_t *oldMetadata, custom_level_metadata_t *metadata, custom_level_metadata_t *metadataStored, int *customLevelsStored, int maxCustomLevelsAmount)
 {
     int duplicateNumber = 0;
 
     // Caso o haja menos que o número máximo de níveis customizados
     int duplicateNumbers[*customLevelsStored];
     bool duplicateExists = false;
+    char miniaturePath[MAX_FILE_NAME + 1] = {0};
     if (*customLevelsStored < maxCustomLevelsAmount)
     {
         // Verificar se o nome da fase customizada já existe
@@ -294,6 +317,14 @@ int updateCustomLevelsMetadata(custom_level_metadata_t *metadata, custom_level_m
             if (duplicateNumber > 1)
                 updateDuplicateFileName(metadata->name, duplicateNumber);
         }
+
+        // Atualizar caminho da miniatura do nível
+        strncpy(miniaturePath, metadata->name, sizeof(miniaturePath) - 1);
+        removeFileExtension(miniaturePath);
+        snprintf(metadata->miniatureFile, sizeof(metadata->miniatureFile) - 1, "%s.png", miniaturePath);
+
+        // Guardar conteúdo antigo da estrutura para lidar com remoção de arquivos antigos
+        *oldMetadata = *metadataStored;
 
         metadataStored[*customLevelsStored] = *metadata;
         (*customLevelsStored)++;
@@ -316,6 +347,14 @@ int updateCustomLevelsMetadata(custom_level_metadata_t *metadata, custom_level_m
             if (duplicateNumber > 1)
                 updateDuplicateFileName(metadata->name, duplicateNumber);
         }
+
+        // Atualizar caminho da miniatura do nível
+        strncpy(miniaturePath, metadata->name, sizeof(miniaturePath) - 1);
+        removeFileExtension(miniaturePath);
+        snprintf(metadata->miniatureFile, sizeof(metadata->miniatureFile) - 1, "%s.png", miniaturePath);
+
+        // Guardar conteúdo antigo da estrutura para lidar com remoção de arquivos antigos
+        *oldMetadata = *metadataStored;
 
         // Substituir os dados do mais antigo pelo mais novo, reorganizando todos os dados
         int i;

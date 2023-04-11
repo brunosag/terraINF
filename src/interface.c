@@ -12,7 +12,8 @@ Image createLevelMiniature(level_t *level, player_t *player)
     ClearBackground(BLACK);
     drawLevel(level, player, ALPHA_DISABLE);
     EndDrawing();
-
+    SwapScreenBuffer();
+    
     // Salvar miniatura no tamanho adequado
     miniature = LoadImageFromScreen();
     ImageResize(&miniature, 120, 80);
@@ -28,25 +29,89 @@ Image createLevelMiniature(level_t *level, player_t *player)
 void drawCustomLevelsMenu(Texture2D background)
 {
     DrawTexture(background, 0, 0, WHITE);
-    DrawText("NIVEIS CUSTOMIZADOS", (SCREEN_WIDTH / 2 - MeasureText("NIVEIS CUSTOMIZADOS", MENU_FONT_SIZE) / 2), 26, 32,
+    DrawText("NIVEIS CUSTOMIZADOS", (SCREEN_WIDTH / 2 - MeasureText("NIVEIS CUSTOMIZADOS", 32) / 2), 26, 32,
              RAYWHITE);
     DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE, RAYWHITE);
 }
 
-void drawEditorHUD(level_t *level, editor_option_t selected)
+void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSize, bool blinkUnderscore)
 {
-    DrawTexture(level->textures[EditorHUD], 0, 0, WHITE);
-    DrawText("Editor de Nível", 22, 11, EDITOR_FONT_SIZE, RAYWHITE);
-    DrawText("SALVAR", 1082, 11, EDITOR_FONT_SIZE, RAYWHITE);
+    Rectangle backgroundBox = {(SCREEN_WIDTH / 6), (SCREEN_HEIGHT / 6), (2 * SCREEN_WIDTH / 3),
+                               (2 * SCREEN_HEIGHT / 3)};
+    Rectangle textBox = {(backgroundBox.x + backgroundBox.width / 2 - ((MENU_FONT_SIZE - 6) * maxNameSize) / 2),
+                         (backgroundBox.y + backgroundBox.height / 2 - (MENU_FONT_SIZE + 10) / 2),
+                         ((MENU_FONT_SIZE - 6) * maxNameSize), (MENU_FONT_SIZE + 10)};
+
+    // Desenhar fundo com transparência da tela de High Score
+    DrawRectangleRec(backgroundBox, Fade(BLACK, 0.5f));
+    DrawRectangleLines((int)backgroundBox.x, (int)backgroundBox.y, (int)backgroundBox.width, (int)backgroundBox.height,
+                       DARKGRAY);
+
+    DrawText("Salvar Novo Nível",
+             (backgroundBox.x + backgroundBox.width / 2 - MeasureText("Salvar Novo Nível", 30) / 2),
+             220, 30, RAYWHITE);
+    DrawText("Digite o nome do nível:",
+             (backgroundBox.x + backgroundBox.width / 2 - MeasureText("Digite o nome do nível:", MENU_FONT_SIZE) / 2), 290,
+             MENU_FONT_SIZE, RAYWHITE);
+
+    // Desenhar caixa de texto no meio da tela de High Score
+    DrawRectangleRec(textBox, DARKGRAY);
+    DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RAYWHITE);
+
+    // Desenhar cada caractere digitado para o nome do jogador
+    DrawText(levelName, (int)textBox.x + 5, (int)textBox.y + 8, MENU_FONT_SIZE, RAYWHITE);
+
+    if (!nameSize)
+    {
+        // Desenhar undescore piscante
+        if (blinkUnderscore)
+            DrawText("_", (int)textBox.x + 8 + MeasureText(levelName, MENU_FONT_SIZE), (int)textBox.y + 12,
+                     MENU_FONT_SIZE, RAYWHITE);
+        // Desenhar opção de confirmar em cinza
+        DrawText("- ENTER -",
+                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2), 500,
+                 MENU_FONT_SIZE, DARKGRAY);
+    }
+    else if (nameSize > 0 && nameSize < maxNameSize)
+    {
+        // Desenhar undescore piscante
+        if (blinkUnderscore)
+            DrawText("_", (int)textBox.x + 8 + MeasureText(levelName, MENU_FONT_SIZE), (int)textBox.y + 12,
+                     MENU_FONT_SIZE, RAYWHITE);
+        // Desenhar opção de confirmar em branco
+        DrawText("- ENTER -",
+                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2), 500,
+                 MENU_FONT_SIZE, DARKGRAY);
+        DrawText("- ENTER -",
+                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2), 501,
+                 MENU_FONT_SIZE, RAYWHITE);
+    }
+    else if (nameSize == maxNameSize)
+    {
+        // Desenhar opção de confirmar em branco
+        DrawText("- ENTER -",
+                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2), 500,
+                 MENU_FONT_SIZE, DARKGRAY);
+        DrawText("- ENTER -",
+                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- ENTER -", MENU_FONT_SIZE) / 2), 501,
+                 MENU_FONT_SIZE, RAYWHITE);
+    }
+}
+
+void drawEditorHUD(level_t *level, editor_option_t selected, float alpha)
+{
+    DrawTexture(level->textures[EditorHUD], 0, 0, Fade(WHITE, alpha));
+    DrawText("Editor de Nível", 22, 11, EDITOR_FONT_SIZE, Fade(RAYWHITE, alpha));
+    DrawText("SALVAR", 1082, 11, EDITOR_FONT_SIZE, Fade(RAYWHITE, alpha));
 
     // Desenhar slot selecionado
     if (selected == Save)
-        DrawText("- SALVAR -", 1064, 10, EDITOR_FONT_SIZE, RAYWHITE);
+        DrawText("- SALVAR -", 1064, 10, EDITOR_FONT_SIZE, Fade(RAYWHITE, alpha));
     else
-        DrawTexture(level->textures[SlotSelected], 453 + (37 * selected), 2, WHITE);
+        DrawTexture(level->textures[SlotSelected], 453 + (37 * selected), 2, Fade(WHITE, alpha));
 }
 
-void drawEditorLevel(level_t *level)
+void drawEditorLevel(level_t *level, float alpha)
 {
     // Desenhar texturas com base na matriz
     Texture2D currentTexture;
@@ -87,7 +152,7 @@ void drawEditorLevel(level_t *level)
             }
 
             // Desenhar elemento
-            DrawTexture(currentTexture, (j * ELEMENT_SIZE), (i * ELEMENT_SIZE), WHITE);
+            DrawTexture(currentTexture, (j * ELEMENT_SIZE), (i * ELEMENT_SIZE), Fade(WHITE, alpha));
         }
     }
 }
@@ -144,9 +209,9 @@ void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool 
 {
     Rectangle backgroundBox = {(SCREEN_WIDTH / 6), (SCREEN_HEIGHT / 6), (2 * SCREEN_WIDTH / 3),
                                (2 * SCREEN_HEIGHT / 3)};
-    Rectangle textBox = {(backgroundBox.x + backgroundBox.width / 2 - (MENU_FONT_SIZE * maxNameSize) / 2),
+    Rectangle textBox = {(backgroundBox.x + backgroundBox.width / 2 - ((MENU_FONT_SIZE - 3) * maxNameSize) / 2),
                          (backgroundBox.y + backgroundBox.height / 2 - (MENU_FONT_SIZE + 10) / 2),
-                         ((MENU_FONT_SIZE - 4) * maxNameSize), (MENU_FONT_SIZE + 10)};
+                         ((MENU_FONT_SIZE - 3) * maxNameSize), (MENU_FONT_SIZE + 10)};
 
     // Desenhar fundo com transparência da tela de High Score
     DrawRectangleRec(backgroundBox, Fade(BLACK, 0.5f));

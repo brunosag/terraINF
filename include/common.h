@@ -10,6 +10,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <ctype.h>
 #include <math.h>
 #include "raylib.h"
 #include <stdbool.h>
@@ -30,6 +31,7 @@
 #define BLINK_TIME 0.5f
 
 #define MAX_FILE_NAME 100
+#define FOLDER_NONE 0
 
 #define MAX_PLAYER_NAME 3
 #define MAX_LVL_NAME 30
@@ -64,8 +66,9 @@
 
 #define MAX_RANKING_SIZE 5
 
+#define MAX_PNG_MINIATURE 80000
 #define MAX_CUSTOM_LEVELS_AMOUNT 3
-
+#define MAX_CUSTOM_LEVEL_NAME 20
 typedef enum fade
 {
     FadeReset,
@@ -184,7 +187,7 @@ typedef struct level
 
 typedef struct custom_level_metadata
 {
-    Image miniature;
+    char miniatureFile[MAX_FILE_NAME + 1];
     char name[MAX_FILE_NAME + 1];
     time_t dateCreated;
 } custom_level_metadata_t;
@@ -200,6 +203,7 @@ int compareFileNames(const char* fileName1, const char* fileName2);
 float fadeTimer(bool reset, float fadeInTime, float fadeOffTime, float fadeOutTime);
 int findLowestIntervalValue(int *values, int valuesAmount, int firstValue, int lastValue);
 void generateRandomName(char *name, int nameLength);
+void removeFileExtension(char *fileName);
 bool uninterruptTimer(bool reset, float time);
 void updateDuplicateFileName(char *duplicateFileName, int lastDuplicateNumber);
 

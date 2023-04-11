@@ -162,6 +162,20 @@ void generateRandomName(char *name, int nameLength)
         name[i] = ASCII_MIN + (rand() % (ASCII_MAX - ASCII_MIN + 1));
 }
 
+void removeFileExtension(char *fileName)
+{
+    // Procurar início da extensão do arquivo
+    int fileNameSize = strlen(fileName);
+    int fileExtStart = fileNameSize;
+    for (int i = 0; i < fileNameSize; i++)
+        if (fileName[i] == '.')
+            fileExtStart = i;
+
+    // Guardar apenas nome do arquivo, sem extensão
+    for (int i = fileExtStart; i < fileNameSize; i++)
+        fileName[i] = '\0';
+}
+
 bool uninterruptTimer(bool reset, float time)
 {
     static bool timeOver = false;
@@ -199,19 +213,11 @@ bool uninterruptTimer(bool reset, float time)
 
 void updateDuplicateFileName(char *duplicateFileName, int duplicateNumber)
 {
-    // Procurar início da extensão do arquivo
-    int fileNameSize = strlen(duplicateFileName);
+    // Remover extensão do arquivo
     char fileName[MAX_FILE_NAME + 1] = {0};
-    int fileExtensionStart = fileNameSize;
-    for (int i = 0; i < fileNameSize; i++)
-    {
-        fileName[i] = duplicateFileName[i];
-        if (duplicateFileName[i] == '.')
-            fileExtensionStart = i;
-    }
-    // Guardar apenas nome do arquivo
-    for (int i = fileExtensionStart; i < fileNameSize; i++)
-        fileName[i] = '\0';
+    strncpy(fileName, duplicateFileName, sizeof(fileName));
+    removeFileExtension(fileName);
+
     // Remontar nome do arquivo corretamente
     snprintf(duplicateFileName, MAX_FILE_NAME, "%s_%d.txt", fileName, duplicateNumber);
 }

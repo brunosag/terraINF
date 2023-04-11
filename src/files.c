@@ -23,8 +23,12 @@ int createCustomLevelsMetadataFile(const char *metadataFile, int maxCustomLevels
     {
         for (int i = lastSlash; i < metadataFilePathLength; i++)
             metadataDirectory[i] = '\0';
-        // Tentar criar diretório para o arquivo
-        mkdir(metadataDirectory);
+        // Tentar criar diretório para o arquivo (adaptado para a devida plataforma)
+        #ifdef _WIN32
+            _mkdir(metadataDirectory);
+        #else
+            mkdir(metadataDirectory, 0777);
+        #endif
     }
 
     // Verificar a abertura do arquivo
@@ -64,8 +68,12 @@ int createRankingFile(const char *rankingFile, int rankingSize)
     {
         for (int i = lastSlash; i < rankingFilePathLength; i++)
             rankingDirectory[i] = '\0';
-        // Tentar criar diretório para o arquivo
-        mkdir(rankingDirectory);
+        // Tentar criar diretório para o arquivo (adaptado para a devida plataforma)
+        #ifdef _WIN32
+            _mkdir(rankingDirectory);
+        #else
+            mkdir(rankingDirectory, 0777);
+        #endif
     }
 
     // Verificar a abertura do arquivo
@@ -255,13 +263,9 @@ int readRankingFile(const char *rankingFile, ranking_t *players)
     return entriesRead;
 }
 
-int saveCustomLevelFile(char *levelFile, level_t *level, int duplicateNumber)
+int saveCustomLevelFile(char *levelFile, level_t *level)
 {
     int errorNumber = 0;
-
-    // Caso haja nome de arquivo de nível repetido
-    if (duplicateNumber > 1)
-        updateDuplicateFileName(levelFile, duplicateNumber);
 
     // Verificar se arquivo foi criado
     FILE *file = fopen(levelFile, "w");

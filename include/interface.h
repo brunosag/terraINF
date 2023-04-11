@@ -29,8 +29,9 @@
 
 Image createLevelMiniature(level_t *level, player_t *player);
 void drawCustomLevelsMenu(Texture2D background);
-void drawEditorHUD(level_t *level, editor_option_t selected);
-void drawEditorLevel(level_t *level);
+void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSize, bool blinkUnderscore);
+void drawEditorHUD(level_t *level, editor_option_t selected, float alpha);
+void drawEditorLevel(level_t *level, float alpha);
 void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha);
 void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore);
 void drawHUD(level_t *level, player_t *player, float alpha);

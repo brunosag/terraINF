@@ -2,6 +2,7 @@
 #define MAIN_C
 
 #include "../include/main.h"
+#include <errno.h>
 
 int main()
 {
@@ -136,6 +137,68 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     return confirmed ? selected : ExitGame;
 }
 
+void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected, Sound menuSelectionEffect)
+{
+    float frameCounter = 0;
+    bool blinkUnderscore = false;
+
+    bool levelNameConfirmed = false;
+    while (!levelNameConfirmed)
+    {
+        // Ler caractere do teclado (Unicode)
+        int key = GetCharPressed();
+
+        // Checar se foram pressionadas mais de uma tecla
+        while (key > 0)
+        {
+            // Ler apenas caracteres válidos
+            if (((key >= 65 && key <= 90) || (key >= 97 && key <= 122) || (key >= 48 && key <= 57) || key == '_' ||
+                key == ';' || key == '(' || key == ')' || key == '[' ||
+                key == ']') && (*nameSize < MAX_CUSTOM_LEVEL_NAME))
+            {
+                // Converte as letras para maiúsculas
+                levelName[*nameSize] = (char)toupper(key);
+                levelName[*nameSize + 1] = '\0';
+                (*nameSize)++;
+            }
+
+            // Checar próximo caractere do buffer
+            key = GetCharPressed();
+        }
+
+        if (IsKeyPressed(KEY_BACKSPACE))
+        {
+            (*nameSize)--;
+            if (*nameSize < 0)
+                *nameSize = 0;
+            levelName[*nameSize] = '\0';
+        }
+
+        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) &&
+            (*nameSize > 0 && *nameSize <= MAX_CUSTOM_LEVEL_NAME))
+        {
+            levelNameConfirmed = true;
+            PlaySound(menuSelectionEffect);
+        }
+
+        frameCounter++;
+        if (frameCounter == GAME_FRAMERATE * BLINK_TIME)
+        {
+            blinkUnderscore = !blinkUnderscore;
+            frameCounter = 0;
+        }
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawEditorLevel(level, 0.15f);
+        drawEditorHUD(level, selected, 0.15f);
+        drawCustomLevelsTextBox(levelName, *nameSize, MAX_CUSTOM_LEVEL_NAME, blinkUnderscore);
+
+        EndDrawing();
+    }
+}
+
 bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sound menuSelectionEffect)
 {
     int letterCount = 0;
@@ -217,17 +280,17 @@ void startCustomLevelsMenu(void)
     }
 }
 
-bool saveCustomLevel(char *levelFile, level_t *level, player_t *player)
+bool saveCustomLevel(char *levelPath, level_t *level, player_t *player)
 {
     bool levelSaved = false;
 
     // Ajeitar nome do diretório do nível customizado
-    int metadataFilePathLength = strlen(levelFile);
+    int metadataFilePathLength = strlen(levelPath);
     int lastSlash = metadataFilePathLength;
     char metadataDirectory[MAX_FILE_NAME + 1] = {0};
     for (int i = 0; i < metadataFilePathLength; i++)
     {
-        metadataDirectory[i] = levelFile[i];
+        metadataDirectory[i] = levelPath[i];
         if (metadataDirectory[i] == '/')
             lastSlash = i;
     }
@@ -258,18 +321,34 @@ bool saveCustomLevel(char *levelFile, level_t *level, player_t *player)
             readCustomLevelsMetadataFile(metadataFile, metadataStored, &customLevelsStored, &maxCustomLevelsAmount);
     }
 
-    // Guardar as meta-informações do nível atual
-    int duplicateLevelName = 0;
+    // Guardar as meta-informações do nível atual (nome e data criados)
     custom_level_metadata_t metadata;
     metadata.dateCreated = time(NULL);
-    strncpy(metadata.name, levelFile, sizeof(metadata.name) - 1);
-    metadata.miniature = createLevelMiniature(level, player);
+    strncpy(metadata.name, levelPath, sizeof(metadata.name) - 1);
+
+    // Verificar se é necessário remover algum arquivo antigo
+    custom_level_metadata_t oldMetadata;
+    bool removeOldestFile = false;
+    if (customLevelsStored == maxCustomLevelsAmount)
+        removeOldestFile = true;
 
     // Atualizar metadados (descobrir nomes duplicados)
-    duplicateLevelName = updateCustomLevelsMetadata(&metadata, metadataStored, &customLevelsStored, maxCustomLevelsAmount);
+    updateCustomLevelsMetadata(&oldMetadata, &metadata, metadataStored, &customLevelsStored, maxCustomLevelsAmount);
+
+    // Processar e guardar miniatura do nível atual
+    Image miniature;
+    miniature = createLevelMiniature(level, player);
+    ExportImage(miniature, metadata.miniatureFile);
+
+    // Se for necessário, remover arquivos mais antigos
+    if (removeOldestFile)
+    {
+        remove(oldMetadata.name);
+        remove(oldMetadata.miniatureFile);
+    }
 
     // Se o nível customizado e metadados foram salvos com sucesso, retornar sucesso
-    if (!(saveCustomLevelFile(levelFile, level, duplicateLevelName) || writeCustomLevelsMetadata(metadataFile, metadataStored, customLevelsStored)))
+    if (!(saveCustomLevelFile(metadata.name, level) || writeCustomLevelsMetadata(metadataFile, metadataStored, customLevelsStored)))
         levelSaved = true;
 
     return levelSaved;
@@ -446,6 +525,124 @@ void startGame(void)
     UnloadMusicStream(lastLevelMusic);
 }
 
+void startLevelEditor(void)
+{
+    // Carregar áudios
+    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
+    Music levelEditorMusic = LoadMusicStream("resources/music/level_editor.mp3");
+    PlayMusicStream(levelEditorMusic);
+
+    // Carregar template de nível
+    level_t level;
+    player_t player;
+    editor_option_t selected = PlayerSlot;
+    bool levelSaved = false;
+    player.miningMode = false;
+    player.position.x = 11;
+    player.position.y = 2;
+    loadEditorLevel(&level);
+
+    while (!(WindowShouldClose() || levelSaved))
+    {
+        // Verificar salvamento do nível
+        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
+            && selected == Save && isPlayerPlaced(&level))
+        {
+            // Pedir nome do nível criado para usuário
+            char levelName[MAX_CUSTOM_LEVEL_NAME + 1] = {0};
+            int nameSize = 0;
+            getCustomLevelName(levelName, &nameSize, MAX_CUSTOM_LEVEL_NAME, &level, selected, menuSelectionEffect);
+
+            // Adaptar e gerar caminho do arquivo
+            char levelPath[MAX_FILE_NAME + 1] = {0};
+            createLevelFilePath("custom_levels", levelName, nameSize, levelPath);
+
+            // Salvar nível
+            levelSaved = saveCustomLevel(levelPath, &level, &player);
+
+            // METADADOS 100 % VALIDADOS. UTILIZAR TRECHO COMENTADO PARA CRIAR FUNÇÕES GRÁFICAS DE MENU DE NÍVEIS CUSTOMIZADOS
+/*
+            int customLevelsAmount = 0;
+            int maxCustomLevelsAmount = 0;
+            custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
+
+            readCustomLevelsMetadataFile("custom_levels/metadata.bin", metadata, &customLevelsAmount, &maxCustomLevelsAmount);
+
+            Image miniatures[MAX_CUSTOM_LEVELS_AMOUNT];
+            Texture2D miniaturesTextures[MAX_CUSTOM_LEVELS_AMOUNT];
+            struct tm *metadataDates[MAX_CUSTOM_LEVELS_AMOUNT];
+            char metadataDatesStrings[MAX_CUSTOM_LEVELS_AMOUNT][200] = {0};
+            for (int i = 0; i < customLevelsAmount; i++)
+            {
+                miniatures[i] = LoadImage(metadata[i].miniatureFile);
+                miniaturesTextures[i] = LoadTextureFromImage(miniatures[i]);
+
+                metadataDates[i] = localtime(&metadata[i].dateCreated);
+                snprintf(metadataDatesStrings[i], sizeof(metadataDatesStrings[i]), "Data Criado: %d-%d-%d %d:%d:%d",
+                        (metadataDates[i])->tm_year + 1900, (metadataDates[i])->tm_mon, (metadataDates[i])->tm_mday,
+                        (metadataDates[i])->tm_hour, (metadataDates[i])->tm_min, (metadataDates[i])->tm_sec);
+            }
+
+            while(!WindowShouldClose())
+            {
+                BeginDrawing();
+                ClearBackground(BLACK);
+                
+                for (int i = 0; i < customLevelsAmount; i++)
+                {
+                    DrawTexture(miniaturesTextures[i], 0, 85 * i, WHITE);
+                    DrawText(metadata[i].name, 125, 85 * i, MENU_FONT_SIZE, RAYWHITE);
+                    DrawText(metadataDatesStrings[i], 125, 85 * i + 40, MENU_FONT_SIZE, RAYWHITE);
+                }
+
+                EndDrawing();
+            }*/
+        }
+        else
+        {
+            // Verificar navegação de seleção
+            if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
+            {
+                if (selected < Save)
+                    selected++;
+            }
+            if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
+            {
+                if (selected > PlayerSlot)
+                    selected--;
+            }
+
+            // Verificar posicionamento de bloco
+            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            {
+                // Obter posição do mouse
+                position_t mousePosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
+
+                // Verificar borda
+                if (mousePosition.x > 0 && mousePosition.x < LVL_WIDTH - 1 && mousePosition.y > 0 &&
+                    mousePosition.y < LVL_HEIGHT - 1)
+                {
+                    // Posicionar bloco
+                    placeBlock(&level, &player, mousePosition, selected);
+                }
+            }
+
+            UpdateMusicStream(levelEditorMusic);
+
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            drawEditorLevel(&level, ALPHA_DISABLE);
+            drawEditorHUD(&level, selected, ALPHA_DISABLE);
+
+            EndDrawing();
+        }
+    }
+
+    UnloadSound(menuSelectionEffect);
+    UnloadMusicStream(levelEditorMusic);
+}
+
 menu_option_t startMenu(void)
 {
     // Carregar sprites
@@ -551,86 +748,6 @@ ranking_option_t startRanking(void)
     UnloadSound(menuSelectionEffect);
     UnloadMusicStream(rankingMusic);
     return confirmed ? selected : ExitRanking;
-}
-
-void startLevelEditor(void)
-{
-    // Carregar áudios
-    Music levelEditorMusic = LoadMusicStream("resources/music/level_editor.mp3");
-    PlayMusicStream(levelEditorMusic);
-
-    // Carregar template de nível
-    level_t level;
-    player_t player;
-    editor_option_t selected = PlayerSlot;
-    bool levelSaved = false;
-    player.miningMode = false;
-    player.position.x = 11;
-    player.position.y = 2;
-    loadEditorLevel(&level);
-
-    while (!(WindowShouldClose() || levelSaved))
-    {
-        // Verificar navegação de seleção
-        if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
-        {
-            if (selected < Save)
-                selected++;
-        }
-        if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
-        {
-            if (selected > PlayerSlot)
-                selected--;
-        }
-
-        // Verificar salvamento do nível
-        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
-        {
-            if (isPlayerPlaced(&level))
-            {
-                // Salvar nível
-                char levelFile[MAX_FILE_NAME + 1] = "custom_levels/nivel1.txt";
-                levelSaved = saveCustomLevel(levelFile, &level, &player);
-
-//NÃO ESCLUIR, FALTA TESTAR ESTA PARTE
-/*                int customLevelsAmount = 0;
-                int maxCustomLevelsAmount = 0;
-                custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
-                readCustomLevelsMetadataFile();
-                while(!WindowShouldClose())
-                {
-                    
-                }*/
-            }
-        }
-
-        // Verificar posicionamento de bloco
-        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
-        {
-            // Obter posição do mouse
-            position_t mousePosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
-
-            // Verificar borda
-            if (mousePosition.x > 0 && mousePosition.x < LVL_WIDTH - 1 && mousePosition.y > 0 &&
-                mousePosition.y < LVL_HEIGHT - 1)
-            {
-                // Posicionar bloco
-                placeBlock(&level, &player, mousePosition, selected);
-            }
-        }
-
-        UpdateMusicStream(levelEditorMusic);
-
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        drawEditorLevel(&level);
-        drawEditorHUD(&level, selected);
-
-        EndDrawing();
-    }
-
-    UnloadMusicStream(levelEditorMusic);
 }
 
 #endif
