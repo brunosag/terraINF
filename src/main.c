@@ -2,7 +2,6 @@
 #define MAIN_C
 
 #include "../include/main.h"
-#include <errno.h>
 
 int main()
 {
