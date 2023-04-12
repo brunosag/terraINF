@@ -51,6 +51,7 @@ endgame_option_t gameOver(level_t *level, player_t *player, bool rankingOn)
     PlaySound(gameOverEffect);
 
     // Tentar abrir o arquivo de ranking existente
+    int totalScore = player->score;
     int firstAlteredPosition = 0; // Nula para indicar nenhuma alteração
     ranking_t players[MAX_RANKING_SIZE];
     if (rankingOn)
@@ -62,9 +63,13 @@ endgame_option_t gameOver(level_t *level, player_t *player, bool rankingOn)
                 readRankingFile("ranking/ranking.bin", players);
         }
 
+        // Calcular pontuação total do jogador
+        for (int i = 1; i < player->currentLevel; i++)
+            totalScore += (int)(1000 * pow(2, i - 1));
+
         // Verificar se a pontuação do jogador é maior que alguma já existente
         for (int i = MAX_RANKING_SIZE - 1; i >= 0; i--)
-            if (player->score > players[i].score)
+            if (totalScore > players[i].score)
                 firstAlteredPosition = players[i].position;
     }
 
@@ -121,7 +126,7 @@ endgame_option_t gameOver(level_t *level, player_t *player, bool rankingOn)
     }
 
     // Atualizar as posições do vetor local de ranking
-    updateRankingPositions(player, players, MAX_RANKING_SIZE, firstAlteredPosition);
+    updateRankingPositions(totalScore, player, players, MAX_RANKING_SIZE, firstAlteredPosition);
 
     // Caso haja alterações nas posições do ranking
     if (firstAlteredPosition > 0 && firstAlteredPosition <= MAX_RANKING_SIZE)

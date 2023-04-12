@@ -434,7 +434,8 @@ int customLevelMaxScore(level_t *level)
     return score;
 }
 
-void updateRankingPositions(player_t *player, ranking_t *players, int rankingSize, int firstAlteredPosition)
+void updateRankingPositions(int totalScore, player_t *player, ranking_t *players, int rankingSize,
+                            int firstAlteredPosition)
 {
     // Se o argumento de primeira posição alterada for uma posição válida (não nula)
     if (firstAlteredPosition > 0 && firstAlteredPosition <= rankingSize)
@@ -449,7 +450,7 @@ void updateRankingPositions(player_t *player, ranking_t *players, int rankingSiz
 
         // Colocar o novo jogador na sua posição do ranking
         strcpy(players[i].name, player->name);
-        players[i].score = player->score;
+        players[i].score = totalScore;
     }
 }
 
