@@ -213,34 +213,33 @@ void drawGameOverScreen(level_t *level, player_t *player, endgame_option_t selec
     // Desenhar o título da tela
     if (!player->health)
     {
-        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", ENDGAME_TITLE_FONT_SIZE) / 2), 300,
+        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", ENDGAME_TITLE_FONT_SIZE) / 2), 233,
                  ENDGAME_TITLE_FONT_SIZE, RED);
-        DrawText("Vidas esgotadas.", (SCREEN_WIDTH / 2 - MeasureText("Vidas Esgotadas", MENU_FONT_SIZE) / 2), 450,
-                 MENU_FONT_SIZE, RAYWHITE);
+        DrawText("VIDAS ESGOTADAS", (SCREEN_WIDTH / 2 - MeasureText("VIDAS ESGOTADAS", 26) / 2), 360, 26, GRAY);
     }
     else
     {
-        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", ENDGAME_TITLE_FONT_SIZE) / 2), 300,
+        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", ENDGAME_TITLE_FONT_SIZE) / 2), 233,
                  ENDGAME_TITLE_FONT_SIZE, DARKBLUE);
-        DrawText("Impossível continuar.", (SCREEN_WIDTH / 2 - MeasureText("Impossível Continuar", MENU_FONT_SIZE) / 2),
-                 450, MENU_FONT_SIZE, RAYWHITE);
+        DrawText("IMPOSSÍVEL CONTINUAR", (SCREEN_WIDTH / 2 - MeasureText("IMPOSSÍVEL CONTINUAR", 26) / 2), 360, 26,
+                 GRAY);
     }
 
     // Desenhar opções
-    DrawText("REINICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 526,
+    DrawText("REINICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 475,
              MENU_FONT_SIZE, RAYWHITE);
-    DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2), 592, MENU_FONT_SIZE,
+    DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2), 541, MENU_FONT_SIZE,
              RAYWHITE);
 
     // Desenhar opção selecionada
     switch (selectedOption)
     {
     case ResetGame:
-        DrawText("- REINICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 525,
+        DrawText("- REINICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 474,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     case ExitGame:
-        DrawText("- SAIR DO JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 591,
+        DrawText("- SAIR DO JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 540,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     }
@@ -474,24 +473,24 @@ void drawWinScreen(endgame_option_t selectedOption)
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.75f));
 
     // Desenhar título da tela
-    DrawText("VOCÊ VENCEU!", (SCREEN_WIDTH / 2 - MeasureText("VOCÊ VENCEU!", ENDGAME_TITLE_FONT_SIZE) / 2), 300,
+    DrawText("VOCÊ VENCEU!", (SCREEN_WIDTH / 2 - MeasureText("VOCÊ VENCEU!", ENDGAME_TITLE_FONT_SIZE) / 2), 273,
              ENDGAME_TITLE_FONT_SIZE, GREEN);
 
     // Desenhar opções
-    DrawText("REINICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 526,
+    DrawText("REINICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 436,
              MENU_FONT_SIZE, RAYWHITE);
-    DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2), 592, MENU_FONT_SIZE,
+    DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2), 502, MENU_FONT_SIZE,
              RAYWHITE);
 
     // Desenhar opção selecionada
     switch (selectedOption)
     {
     case ResetGame:
-        DrawText("- REINICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 525,
+        DrawText("- REINICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 435,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     case ExitGame:
-        DrawText("- SAIR DO JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 591,
+        DrawText("- SAIR DO JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 501,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     }

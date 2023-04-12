@@ -54,35 +54,15 @@
 
 #define MAX_ORE_NAME 20
 #define ORE_COUNT 5
-#define CAESIUM_COLOR                                                                                                  \
-    (Color)                                                                                                            \
-    {                                                                                                                  \
-        226, 156, 100, 255                                                                                             \
-    }
-#define GOLD_COLOR                                                                                                     \
-    (Color)                                                                                                            \
-    {                                                                                                                  \
-        226, 209, 126, 255                                                                                             \
-    }
-#define SILVER_COLOR                                                                                                   \
-    (Color)                                                                                                            \
-    {                                                                                                                  \
-        190, 190, 190, 255                                                                                             \
-    }
-#define TITANIUM_COLOR                                                                                                 \
-    (Color)                                                                                                            \
-    {                                                                                                                  \
-        192, 219, 196, 255                                                                                             \
-    }
-#define URANIUM_COLOR                                                                                                  \
-    (Color)                                                                                                            \
-    {                                                                                                                  \
-        119, 193, 111, 255                                                                                             \
-    }
+#define CAESIUM_COLOR (Color){226, 156, 100, 255}
+#define GOLD_COLOR (Color){226, 209, 126, 255 }
+#define SILVER_COLOR (Color) {190, 190, 190, 255}
+#define TITANIUM_COLOR (Color){192, 219, 196, 255}
+#define URANIUM_COLOR (Color){119, 193, 111, 255}
 
 #define MENU_FONT_SIZE 22
 #define ENDGAME_TITLE_FONT_SIZE 100
-#define GAMEOVER_NAME_DELAY 1.0f // em segundos
+#define GAMEOVER_NAME_DELAY 1.0f
 
 #define MAX_RANKING_SIZE 5
 
