@@ -96,8 +96,8 @@ typedef enum element_number
     PlayerLadderPickaxe,
     PlayerPickaxe,
     SilverOre,
+    SlotHovered,
     SlotSelected,
-    SlotUnselected,
     TitaniumOre,
     UraniumOre
 } element_number_t;

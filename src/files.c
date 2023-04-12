@@ -113,8 +113,8 @@ void loadEditorLevel(level_t *level)
     level->textures[Ore] = LoadTexture("resources/sprites/ore.png");
     level->textures[Player] = LoadTexture("resources/sprites/player.png");
     level->textures[SilverOre] = LoadTexture("resources/sprites/silver_ore.png");
+    level->textures[SlotHovered] = LoadTexture("resources/sprites/slot_hovered.png");
     level->textures[SlotSelected] = LoadTexture("resources/sprites/slot_selected.png");
-    level->textures[SlotUnselected] = LoadTexture("resources/sprites/slot_unselected.png");
     level->textures[TitaniumOre] = LoadTexture("resources/sprites/titanium_ore.png");
     level->textures[UraniumOre] = LoadTexture("resources/sprites/uranium_ore.png");
 

@@ -203,7 +203,7 @@ endgame_option_t win(level_t *level, player_t *player)
 }
 
 void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected,
-                        Sound menuSelectionEffect)
+                        editor_option_t hovered, Sound menuSelectionEffect)
 {
     float frameCounter = 0;
     bool blinkUnderscore = false;
@@ -258,7 +258,7 @@ void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t
         ClearBackground(BLACK);
 
         drawEditorLevel(level);
-        drawEditorHUD(level, selected);
+        drawEditorHUD(level, selected, hovered);
         drawCustomLevelsTextBox(levelName, *nameSize, MAX_CUSTOM_LEVEL_NAME, blinkUnderscore);
 
         EndDrawing();
@@ -609,7 +609,7 @@ void startCustomLevelsMenu(void)
     while (!(WindowShouldClose() || confirmed))
     {
         UpdateMusicStream(customLevelsMenuMusic);
-        
+
         // Verificar navegação de seleção
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
@@ -849,7 +849,9 @@ void startLevelEditor(void)
     level_t level;
     player_t player;
     editor_option_t selected = PlayerSlot;
+    editor_option_t hovered = selected;
     bool levelSaved = false;
+    bool confirmed = false;
     player.miningMode = false;
     player.position.x = 11;
     player.position.y = 2;
@@ -858,14 +860,16 @@ void startLevelEditor(void)
     while (!(WindowShouldClose() || levelSaved))
     {
         // Verificar salvamento do nível
-        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && (selected == Save) && isOrePlaced(&level))
+        if ((((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && (selected == Save)) && isOrePlaced(&level)) ||
+            confirmed)
         {
             PlaySound(menuSelectionEffect);
 
             // Pedir nome do nível criado para usuário
             char levelName[MAX_CUSTOM_LEVEL_NAME + 1] = {0};
             int nameSize = 0;
-            getCustomLevelName(levelName, &nameSize, MAX_CUSTOM_LEVEL_NAME, &level, selected, menuSelectionEffect);
+            getCustomLevelName(levelName, &nameSize, MAX_CUSTOM_LEVEL_NAME, &level, selected, hovered,
+                               menuSelectionEffect);
 
             // Adaptar e gerar caminho do arquivo
             char levelPath[MAX_FILE_NAME + 1] = {0};
@@ -898,18 +902,52 @@ void startLevelEditor(void)
             }
         }
 
+        // Verificar hover
+        Vector2 mousePosition = GetMousePosition();
+        if ((mousePosition.y < ELEMENT_SIZE) && mousePosition.x > 453)
+        {
+            // Verificar hover nos slots
+            if (mousePosition.x < (453 + (UraniumSlot + 1) * 37))
+            {
+                hovered = (mousePosition.x - 453) / 37;
+                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            }
+
+            // Verificar hover na opção de salvar
+            else if (mousePosition.x > 1060 && mousePosition.x < 1182)
+            {
+                hovered = Save;
+                SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+            }
+            else
+            {
+                hovered = selected;
+                SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+            }
+        }
+        else
+        {
+            hovered = selected;
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+        }
+
         // Verificar posicionamento de bloco
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         {
+            if (hovered == Save && isOrePlaced(&level))
+                confirmed = true;
+            selected = hovered;
+
             // Obter posição do mouse
-            position_t mousePosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
+            position_t mouseLevelPosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
 
             // Verificar borda e player
-            if ((mousePosition.x > 0) && (mousePosition.x < LVL_WIDTH - 1) && (mousePosition.y > 0) &&
-                (mousePosition.y < LVL_HEIGHT - 1) && (level.elements[mousePosition.y][mousePosition.x] != CHAR_PLAYER))
+            if ((mouseLevelPosition.x > 0) && (mouseLevelPosition.x < LVL_WIDTH - 1) && (mouseLevelPosition.y > 0) &&
+                (mouseLevelPosition.y < LVL_HEIGHT - 1) &&
+                (level.elements[mouseLevelPosition.y][mouseLevelPosition.x] != CHAR_PLAYER))
             {
                 // Posicionar bloco e emitir respectivo efeito sonoro
-                switch (placeBlock(&level, &player, mousePosition, selected))
+                switch (placeBlock(&level, &player, mouseLevelPosition, selected))
                 {
                 case PlayerPlaced:
                     PlaySound(playerPlacedEffect);
@@ -938,7 +976,7 @@ void startLevelEditor(void)
         ClearBackground(BLACK);
 
         drawEditorLevel(&level);
-        drawEditorHUD(&level, selected);
+        drawEditorHUD(&level, selected, hovered);
 
         EndDrawing();
     }

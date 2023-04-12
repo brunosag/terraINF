@@ -32,7 +32,7 @@ void drawCustomLevelHUD(level_t *level, player_t *player);
 void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, int customLevelsAmount,
                           int selectedOption);
 void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSize, bool blinkUnderscore);
-void drawEditorHUD(level_t *level, editor_option_t selected);
+void drawEditorHUD(level_t *level, editor_option_t selected, editor_option_t hovered);
 void drawEditorLevel(level_t *level);
 void drawGameOverScreen(level_t *level, player_t *player, endgame_option_t selectedOption);
 void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore);

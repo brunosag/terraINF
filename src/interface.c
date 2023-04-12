@@ -130,17 +130,20 @@ void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSiz
     }
 }
 
-void drawEditorHUD(level_t *level, editor_option_t selected)
+void drawEditorHUD(level_t *level, editor_option_t selected, editor_option_t hovered)
 {
     DrawTexture(level->textures[EditorHUD], 0, 0, WHITE);
     DrawText("Editor de Nível", 22, 11, EDITOR_FONT_SIZE, RAYWHITE);
     DrawText("SALVAR", 1082, 11, EDITOR_FONT_SIZE, RAYWHITE);
 
     // Desenhar slot selecionado
-    if (selected == Save)
+    if (selected == Save || hovered == Save)
         DrawText("- SALVAR -", 1064, 10, EDITOR_FONT_SIZE, RAYWHITE);
-    else
+    if (hovered != Save)
+        DrawTexture(level->textures[SlotHovered], 453 + (37 * hovered), 2, WHITE);
+    if (selected != Save)
         DrawTexture(level->textures[SlotSelected], 453 + (37 * selected), 2, WHITE);
+
 }
 
 void drawEditorLevel(level_t *level)
