@@ -16,7 +16,7 @@ Image createLevelMiniature(level_t *level, player_t *player)
     
     // Salvar miniatura no tamanho adequado
     miniature = LoadImageFromScreen();
-    ImageResize(&miniature, 120, 80);
+    ImageResizeNN(&miniature, 120, 80);
 
     // Limpar tela depois de tirar screenshot
     BeginDrawing();
