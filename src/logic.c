@@ -38,6 +38,33 @@ int getFallSize(level_t *level, int x, int y)
     return fallSize;
 }
 
+void getFileName(const char *filePath, char *fileName)
+{
+    // Descobrir final dos nomes dos diretórios e extensão do arquivo
+    int filePathLength = strlen(filePath);
+    int lastSlash = filePathLength;
+    int lastDot = filePathLength;
+    char fileNameTemp[MAX_FILE_NAME + 1] = {0};
+    for (int i = 0; i < filePathLength; i++)
+    {
+        fileNameTemp[i] = filePath[i];
+        if (fileNameTemp[i] == '/')
+            lastSlash = i;
+        else if (fileNameTemp[i] == '.')
+            lastDot = i;
+    }
+
+    // Limpar partes que não fazem parte do nome do arquivo
+    for (int i = 0; i <= lastSlash; i++)
+        fileNameTemp[i] = '\0';
+    for (int i = lastDot; i < filePathLength; i++)
+        fileNameTemp[i] = '\0';
+    
+    // Deslocar caracteres para o início e atribuí-los para o nome do arquivo
+    for (int i = lastSlash + 1; i <= lastDot; i++)
+        fileName[i - lastSlash - 1] = fileNameTemp[i];
+}
+
 bool isPlayerPlaced(level_t *level)
 {
     bool playerPlaced = false;

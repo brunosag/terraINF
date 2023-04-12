@@ -18,8 +18,10 @@
 gameover_option_t gameOver(level_t *level, player_t *player);
 void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected, Sound menuSelectionEffect);
 bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sound menuSelectionEffect);
+void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLevelsAmount, custom_levels_menu_t *menuData);
 bool saveCustomLevel(char *levelPath, level_t *level, player_t *player);
-void startCustomLevelsMenu(void);
+void startCustomGame(custom_level_metadata_t *metadata, int selectedLevel);
+int startCustomLevelsMenu(custom_level_metadata_t *metadata, int *customLevelsAmount);
 void startGame(void);
 void startLevelEditor(void);
 menu_option_t startMenu(void);

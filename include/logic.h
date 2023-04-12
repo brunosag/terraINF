@@ -15,6 +15,7 @@
 
 void createLevelFilePath(const char *folder, const char *fileName, int nameSize, char *filePath);
 int getFallSize(level_t *level, int x, int y);
+void getFileName(const char *filePath, char *fileName);
 bool isPlayerPlaced(level_t *level);
 action_effects_t mine(level_t *level, player_t *player, int direction);
 action_effects_t moveHorizontal(level_t *level, player_t *player, int offset);

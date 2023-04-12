@@ -26,7 +26,11 @@ int main()
             startLevelEditor();
             break;
         case CustomLevels:
-            startCustomLevelsMenu();
+            int selectedLevel = 0;
+            int customLevelsStored = 0;
+            custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
+            selectedLevel = startCustomLevelsMenu(metadata, &customLevelsStored);
+            startCustomGame(metadata, selectedLevel);
             break;
         case Ranking:
             startRanking();
@@ -263,19 +267,31 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
     return nameConfirmed;
 }
 
-void startCustomLevelsMenu(void)
+void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLevelsAmount, custom_levels_menu_t *menuData)
 {
-    // Carregar fundo
-    Texture2D customLevelsBackground = LoadTexture("resources/backgrounds/custom_levels.png");
+    // Ler metadados dos níveis customizados
+    int maxCustomLevelsAmount = 0;
+    readCustomLevelsMetadataFile("custom_levels/metadata.bin", metadata, customLevelsAmount, &maxCustomLevelsAmount);
 
-    while (!WindowShouldClose())
+    // Converter metadados em dados exibíveis no menu de níveis customizados
+    struct tm *metadataDates[MAX_CUSTOM_LEVELS_AMOUNT];
+    for (int i = 0; i < *customLevelsAmount; i++)
     {
-        BeginDrawing();
-        ClearBackground(BLACK);
+        // Carregar as respectivas miniaturas dos níveis
+        menuData[i].miniature = LoadTexture(metadata[i].miniatureFile);
 
-        drawCustomLevelsMenu(customLevelsBackground);
+        // Carregar e formatar as informações de datas de criação dos níveis
+        metadataDates[i] = localtime(&metadata[i].dateCreated);
+        snprintf(menuData[i].dateCreated, sizeof(menuData[i].dateCreated), "Criado em %.2d/%.2d/%d %.2d:%.2d:%.2d",
+                (metadataDates[i])->tm_mday, (metadataDates[i])->tm_mon, (metadataDates[i])->tm_year + 1900,
+                (metadataDates[i])->tm_hour, (metadataDates[i])->tm_min, (metadataDates[i])->tm_sec);
+        
+        // Adquirir os nomes dos arquivos dos níveis
+        getFileName(metadata[i].name, menuData[i].name);
 
-        EndDrawing();
+        // Converter nome do nível para totalmente maiúsculo
+        for (int j = 0; menuData[i].name[j] != '\0'; j++)
+            menuData[i].name[j] = (char) toupper((char) menuData[i].name[j]);
     }
 }
 
@@ -351,6 +367,35 @@ bool saveCustomLevel(char *levelPath, level_t *level, player_t *player)
         levelSaved = true;
 
     return levelSaved;
+}
+
+void startCustomGame(custom_level_metadata_t *metadata, int selectedLevel)
+{
+
+}
+
+int startCustomLevelsMenu(custom_level_metadata_t *metadata, int *customLevelsAmount)
+{
+    int selectedLevel = 0;
+
+    // Carregar fundo
+    Texture2D customLevelsBackground = LoadTexture("resources/backgrounds/custom_levels.png");
+
+    // Carregar informações a exibir no menu
+    custom_levels_menu_t menuData[MAX_CUSTOM_LEVELS_AMOUNT];
+    readCustomLevelsMenuData(metadata, customLevelsAmount, menuData);
+
+    while (!WindowShouldClose())
+    {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawCustomLevelsMenu(customLevelsBackground);
+
+        EndDrawing();
+    }
+
+    return selectedLevel;
 }
 
 void startGame(void)
@@ -560,21 +605,19 @@ void startLevelEditor(void)
             levelSaved = saveCustomLevel(levelPath, &level, &player);
 
             // METADADOS 100 % VALIDADOS. UTILIZAR TRECHO COMENTADO PARA CRIAR FUNÇÕES GRÁFICAS DE MENU DE NÍVEIS CUSTOMIZADOS
-/*
-            int customLevelsAmount = 0;
+
+            /*int customLevelsAmount = 0;
             int maxCustomLevelsAmount = 0;
             custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
 
             readCustomLevelsMetadataFile("custom_levels/metadata.bin", metadata, &customLevelsAmount, &maxCustomLevelsAmount);
 
-            Image miniatures[MAX_CUSTOM_LEVELS_AMOUNT];
             Texture2D miniaturesTextures[MAX_CUSTOM_LEVELS_AMOUNT];
             struct tm *metadataDates[MAX_CUSTOM_LEVELS_AMOUNT];
             char metadataDatesStrings[MAX_CUSTOM_LEVELS_AMOUNT][200] = {0};
             for (int i = 0; i < customLevelsAmount; i++)
             {
-                miniatures[i] = LoadImage(metadata[i].miniatureFile);
-                miniaturesTextures[i] = LoadTextureFromImage(miniatures[i]);
+                miniaturesTextures[i] = LoadTexture(metadata[i].miniatureFile);
 
                 metadataDates[i] = localtime(&metadata[i].dateCreated);
                 snprintf(metadataDatesStrings[i], sizeof(metadataDatesStrings[i]), "Data Criado: %d-%d-%d %d:%d:%d",

@@ -18,7 +18,6 @@
     #include <sys/types.h>
 #endif
 
-
 int createCustomLevelsMetadataFile(const char *metadataFile, int maxCustomLevelsAmount);
 int createRankingFile(const char *rankingFile, int rankingSize);
 void loadEditorLevel(level_t *level);

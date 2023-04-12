@@ -66,9 +66,10 @@
 
 #define MAX_RANKING_SIZE 5
 
-#define MAX_PNG_MINIATURE 80000
 #define MAX_CUSTOM_LEVELS_AMOUNT 3
 #define MAX_CUSTOM_LEVEL_NAME 20
+#define MAX_CUSTOM_LEVEL_DATE 40
+
 typedef enum fade
 {
     FadeReset,
@@ -191,6 +192,13 @@ typedef struct custom_level_metadata
     char name[MAX_FILE_NAME + 1];
     time_t dateCreated;
 } custom_level_metadata_t;
+
+typedef struct custom_levels_menu
+{
+    char dateCreated[MAX_CUSTOM_LEVEL_DATE + 1];
+    char name[MAX_CUSTOM_LEVEL_NAME + 1];
+    Texture2D miniature;
+} custom_levels_menu_t;
 
 typedef struct ranking
 {

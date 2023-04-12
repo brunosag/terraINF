@@ -166,7 +166,7 @@ void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t sele
     }
     else
     {
-        drawLevel(level, player, 0.5 * alpha);
+        drawLevel(level, player, 0.5f * alpha);
     }
 
     // Desenhar o título da tela
