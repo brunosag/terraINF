@@ -842,6 +842,7 @@ void startLevelEditor(void)
     Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
     Sound orePlacedEffect = LoadSound("resources/sound_effects/ore_placed.ogg");
     Sound oreRemovedEffect = LoadSound("resources/sound_effects/ore_mined.ogg");
+    Sound mouseHoverEffect = LoadSound("resources/sound_effects/mouse_hover.wav");
     Sound playerPlacedEffect = LoadSound("resources/sound_effects/player_placed.ogg");
     PlayMusicStream(levelEditorMusic);
 
@@ -849,7 +850,9 @@ void startLevelEditor(void)
     level_t level;
     player_t player;
     editor_option_t selected = PlayerSlot;
+    editor_option_t lastSelected = selected;
     editor_option_t hovered = selected;
+    editor_option_t lastHovered = selected;
     bool levelSaved = false;
     bool confirmed = false;
     player.miningMode = false;
@@ -885,11 +888,13 @@ void startLevelEditor(void)
             if (selected < Save - 1)
             {
                 selected++;
+                lastSelected = selected;
                 PlaySound(levelEditorSelectionEffect);
             }
             else if (selected == Save - 1)
             {
                 selected++;
+                lastSelected = selected;
                 PlaySound(menuSelectionEffect);
             }
         }
@@ -898,6 +903,7 @@ void startLevelEditor(void)
             if (selected > PlayerSlot)
             {
                 selected--;
+                lastSelected = selected;
                 PlaySound(levelEditorSelectionEffect);
             }
         }
@@ -910,33 +916,51 @@ void startLevelEditor(void)
             if (mousePosition.x < (453 + (UraniumSlot + 1) * 37))
             {
                 hovered = (mousePosition.x - 453) / 37;
+                if (hovered != lastHovered)
+                    PlaySound(mouseHoverEffect);
+                lastHovered = hovered;
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             }
-
             // Verificar hover na opção de salvar
             else if (mousePosition.x > 1060 && mousePosition.x < 1182)
             {
                 hovered = Save;
+                if (hovered != lastHovered)
+                    PlaySound(menuSelectionEffect);
+                lastHovered = hovered;
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             }
             else
             {
                 hovered = selected;
+                lastHovered = hovered;
                 SetMouseCursor(MOUSE_CURSOR_DEFAULT);
             }
         }
         else
         {
             hovered = selected;
+            lastHovered = hovered;
             SetMouseCursor(MOUSE_CURSOR_DEFAULT);
         }
 
         // Verificar posicionamento de bloco
         if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
         {
-            if (hovered == Save && isOrePlaced(&level))
-                confirmed = true;
-            selected = hovered;
+            if (hovered == Save)
+            {
+                if (isOrePlaced(&level))
+                    confirmed = true;
+                if (selected != lastSelected)
+                    PlaySound(menuSelectionEffect);
+            }
+            else
+            {
+                selected = hovered;
+                if (selected != lastSelected)
+                    PlaySound(levelEditorSelectionEffect);
+            }
+            lastSelected = selected;
 
             // Obter posição do mouse
             position_t mouseLevelPosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
@@ -987,6 +1011,7 @@ void startLevelEditor(void)
     UnloadSound(menuSelectionEffect);
     UnloadSound(orePlacedEffect);
     UnloadSound(oreRemovedEffect);
+    UnloadSound(mouseHoverEffect);
     UnloadSound(playerPlacedEffect);
     UnloadMusicStream(levelEditorMusic);
 }
