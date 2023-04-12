@@ -85,10 +85,10 @@ void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, 
     if (selectedOption != EXIT_CUSTOM_LEVELS_MENU)
         DrawRectangleLinesEx(levelBox[selectedOption], 3.0f, RAYWHITE);
 
-    // Desenhar seleção de opção sair
-    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE, RAYWHITE);
+    // Desenhar opção de sair
+    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE, RAYWHITE);
     if (selectedOption == EXIT_CUSTOM_LEVELS_MENU)
-        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE,
+        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE,
                  RAYWHITE);
 }
 
@@ -413,44 +413,36 @@ void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption)
     }
 }
 
-void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t selectedOption)
+void drawRankingScreen(Texture2D background, ranking_t *players, int rankingSize, ranking_option_t selectedOption)
 {
-    // Desenhar título
-    DrawText("RANKING", (SCREEN_WIDTH / 2 - MeasureText("RANKING", MENU_FONT_SIZE) / 2), MENU_FONT_SIZE + 20,
-             MENU_FONT_SIZE, LIGHTGRAY);
+    // Desenhar fundo e título
+    DrawTexture(background, 0, 0, WHITE);
+    DrawText("RANKING", (SCREEN_WIDTH / 2 - MeasureText("RANKING", 32) / 2), 26, 32, RAYWHITE);
 
     // Desenhar subtítulos
-    DrawText("POSIÇÃO", (SCREEN_WIDTH / 7), MENU_FONT_SIZE + 62, MENU_FONT_SIZE, GOLD_COLOR);
-    DrawText("PONTUAÇÃO", (SCREEN_WIDTH / 2 - MeasureText("PONTUAÇÃO", MENU_FONT_SIZE) / 2), MENU_FONT_SIZE + 62,
+    DrawText("POSIÇÃO", (SCREEN_WIDTH / 7), MENU_FONT_SIZE + 242, MENU_FONT_SIZE, GOLD_COLOR);
+    DrawText("PONTUAÇÃO", (SCREEN_WIDTH / 2 - MeasureText("PONTUAÇÃO", MENU_FONT_SIZE) / 2), MENU_FONT_SIZE + 242,
              MENU_FONT_SIZE, GOLD_COLOR);
-    DrawText("NOME", (6 * SCREEN_WIDTH / 7 - MeasureText("NOME", MENU_FONT_SIZE)), MENU_FONT_SIZE + 62, MENU_FONT_SIZE,
+    DrawText("NOME", (6 * SCREEN_WIDTH / 7 - MeasureText("NOME", MENU_FONT_SIZE)), MENU_FONT_SIZE + 242, MENU_FONT_SIZE,
              GOLD_COLOR);
 
     // Desenhar jogadores do ranking
     for (int i = 0; i < rankingSize; i++)
     {
-        DrawText(TextFormat("%d °", players[i].position), (SCREEN_WIDTH / 7), (124 + (MENU_FONT_SIZE + 20) * i),
+        DrawText(TextFormat("%d °", players[i].position), (SCREEN_WIDTH / 7), (304 + (MENU_FONT_SIZE + 20) * i),
                  MENU_FONT_SIZE, RAYWHITE);
         DrawText(TextFormat("%d", players[i].score),
                  (SCREEN_WIDTH / 2 - MeasureText(TextFormat("%d", players[i].score), MENU_FONT_SIZE) / 2),
-                 (124 + (MENU_FONT_SIZE + 20) * i), MENU_FONT_SIZE, RAYWHITE);
+                 (304 + (MENU_FONT_SIZE + 20) * i), MENU_FONT_SIZE, RAYWHITE);
         DrawText(TextFormat("%s", players[i].name),
                  (6 * SCREEN_WIDTH / 7 - MeasureText(TextFormat("%s", players->name), MENU_FONT_SIZE)),
-                 (124 + (MENU_FONT_SIZE + 20) * i), MENU_FONT_SIZE, RAYWHITE);
+                 (304 + (MENU_FONT_SIZE + 20) * i), MENU_FONT_SIZE, RAYWHITE);
     }
 
-    // Desenhar opções
-    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2),
-             (124 + (MENU_FONT_SIZE + 20) * rankingSize), MENU_FONT_SIZE, RAYWHITE);
-
-    // Desenhar opção selecionada
-    switch (selectedOption)
-    {
-    case ExitRanking:
-        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2),
-                 (124 + (MENU_FONT_SIZE + 20) * rankingSize), MENU_FONT_SIZE, RAYWHITE);
-        break;
-    }
+    // Desenhar opção de sair
+    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE, RAYWHITE);
+    DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE,
+             RAYWHITE);
 }
 
 void drawSplashScreen(player_t *player, Music *music)

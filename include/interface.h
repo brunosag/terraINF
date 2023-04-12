@@ -39,7 +39,7 @@ void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool 
 void drawHUD(level_t *level, player_t *player);
 void drawLevel(level_t *level, player_t *player);
 void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption);
-void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t selectedOption);
+void drawRankingScreen(Texture2D background, ranking_t *players, int rankingSize, ranking_option_t selectedOption);
 void drawSplashScreen(player_t *player, Music *music);
 void drawWinScreen(endgame_option_t selectedOption);
 

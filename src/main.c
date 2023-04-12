@@ -964,6 +964,9 @@ ranking_option_t startRanking(void)
 {
     ranking_option_t selected = ExitRanking;
 
+    // Carregar fundo
+    Texture2D customLevelsBackground = LoadTexture("resources/backgrounds/custom_levels.png");
+
     Music rankingMusic = LoadMusicStream("resources/music/ranking.mp3");
     PlayMusicStream(rankingMusic);
 
@@ -995,7 +998,7 @@ ranking_option_t startRanking(void)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawRankingScreen(players, MAX_RANKING_SIZE, selected);
+        drawRankingScreen(customLevelsBackground, players, MAX_RANKING_SIZE, selected);
 
         EndDrawing();
     }
