@@ -26,11 +26,9 @@ int main()
             startLevelEditor();
             break;
         case CustomLevels:
-            int selectedLevel = 0;
-            int customLevelsStored = 0;
-            custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
-            selectedLevel = startCustomLevelsMenu(metadata, &customLevelsStored);
-            startCustomGame(metadata, selectedLevel);
+            int selectedLevel = -1;
+            selectedLevel = startCustomLevelsMenu();
+            startCustomGame(selectedLevel);
             break;
         case Ranking:
             startRanking();
@@ -283,7 +281,7 @@ void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLeve
         // Carregar e formatar as informações de datas de criação dos níveis
         metadataDates[i] = localtime(&metadata[i].dateCreated);
         snprintf(menuData[i].dateCreated, sizeof(menuData[i].dateCreated), "Criado em %.2d/%.2d/%d %.2d:%.2d:%.2d",
-                (metadataDates[i])->tm_mday, (metadataDates[i])->tm_mon, (metadataDates[i])->tm_year + 1900,
+                (metadataDates[i])->tm_mday, (metadataDates[i])->tm_mon + 1, (metadataDates[i])->tm_year + 1900,
                 (metadataDates[i])->tm_hour, (metadataDates[i])->tm_min, (metadataDates[i])->tm_sec);
         
         // Adquirir os nomes dos arquivos dos níveis
@@ -369,33 +367,64 @@ bool saveCustomLevel(char *levelPath, level_t *level, player_t *player)
     return levelSaved;
 }
 
-void startCustomGame(custom_level_metadata_t *metadata, int selectedLevel)
+void startCustomGame(int selectedLevel)
 {
 
 }
 
-int startCustomLevelsMenu(custom_level_metadata_t *metadata, int *customLevelsAmount)
+int startCustomLevelsMenu(void)
 {
-    int selectedLevel = 0;
+    int selected = EXIT_CUSTOM_LEVELS_MENU;
 
     // Carregar fundo
     Texture2D customLevelsBackground = LoadTexture("resources/backgrounds/custom_levels.png");
 
     // Carregar informações a exibir no menu
+    int customLevelsAmount = 0;
+    custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
     custom_levels_menu_t menuData[MAX_CUSTOM_LEVELS_AMOUNT];
-    readCustomLevelsMenuData(metadata, customLevelsAmount, menuData);
+    readCustomLevelsMenuData(metadata, &customLevelsAmount, menuData);
 
-    while (!WindowShouldClose())
+    // Obter opção selecionada pelo jogador
+    bool confirmed = false;
+    selected = customLevelsAmount - 1;
+    while (!(WindowShouldClose() || confirmed))
     {
+        // Verificar navegação de seleção
+        if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+        {
+            if (selected > EXIT_CUSTOM_LEVELS_MENU)
+            {
+                selected--;
+                //PlaySound(menuSelectionEffect);
+            }
+        }
+        if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+        {
+            if (selected < customLevelsAmount - 1)
+            {
+                selected++;
+                //PlaySound(menuSelectionEffect);
+            }
+        }
+
+        // Verificar confirmação de seleção
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
+        {
+            // Confirmar seleção
+            confirmed = true;
+            //PlaySound(menuSelectionEffect);
+        }
+
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawCustomLevelsMenu(customLevelsBackground);
+        drawCustomLevelsMenu(customLevelsBackground, menuData, customLevelsAmount, selected);
 
         EndDrawing();
     }
 
-    return selectedLevel;
+    return confirmed ? selected : EXIT_CUSTOM_LEVELS_MENU;
 }
 
 void startGame(void)
@@ -691,7 +720,7 @@ menu_option_t startMenu(void)
     Texture2D menuTexture = LoadTexture("resources/backgrounds/menu.png");
 
     // Selecionar primeira opção do menu
-    static menu_option_t selected = StartGame;
+    menu_option_t selected = StartGame;
 
     // Carregar e tocar música de menu
     Music menuMusic = LoadMusicStream("resources/music/menu.xm");

@@ -28,7 +28,7 @@
 #define ELEMENT_SIZE 40
 
 Image createLevelMiniature(level_t *level, player_t *player);
-void drawCustomLevelsMenu(Texture2D background);
+void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, int customLevelsAmount, int selectedOption);
 void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSize, bool blinkUnderscore);
 void drawEditorHUD(level_t *level, editor_option_t selected, float alpha);
 void drawEditorLevel(level_t *level, float alpha);

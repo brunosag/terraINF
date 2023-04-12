@@ -70,6 +70,8 @@
 #define MAX_CUSTOM_LEVEL_NAME 20
 #define MAX_CUSTOM_LEVEL_DATE 40
 
+#define EXIT_CUSTOM_LEVELS_MENU -1
+
 typedef enum fade
 {
     FadeReset,

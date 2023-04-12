@@ -26,12 +26,43 @@ Image createLevelMiniature(level_t *level, player_t *player)
     return miniature;
 }
 
-void drawCustomLevelsMenu(Texture2D background)
+void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, int customLevelsAmount, int selectedOption)
 {
+    // Criar caixas de seleção de nível
+    Rectangle levelBox[customLevelsAmount];
+
+    // Desenhar fundo e título
     DrawTexture(background, 0, 0, WHITE);
     DrawText("NIVEIS CUSTOMIZADOS", (SCREEN_WIDTH / 2 - MeasureText("NIVEIS CUSTOMIZADOS", 32) / 2), 26, 32,
              RAYWHITE);
-    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE, RAYWHITE);
+
+    // Determinar a posição da informação de cada nível na tela
+    for (int i = 0; i < customLevelsAmount; i++)
+    {
+        levelBox[customLevelsAmount - i - 1].width = 3.0f * SCREEN_WIDTH / 5.0f;
+        levelBox[customLevelsAmount - i - 1].x = SCREEN_WIDTH / 5.0f;
+        levelBox[customLevelsAmount - i - 1].height = 110;
+        levelBox[customLevelsAmount - i - 1].y = (SCREEN_HEIGHT / 2.0f) - (levelBox[customLevelsAmount - i - 1].height / 2.0f)
+                                                 - (levelBox[customLevelsAmount - i - 1].height / 2.0f + 10) * (customLevelsAmount - 1)
+                                                 + (levelBox[customLevelsAmount - i - 1].height + 20) * i;
+
+        // Desenhar as informações de cada nível na tela
+        DrawTexture(menuData[customLevelsAmount - i - 1].miniature, levelBox[customLevelsAmount - i - 1].x + 15,
+                    levelBox[customLevelsAmount - i - 1].y + 15, WHITE);
+        DrawText(menuData[customLevelsAmount - i - 1].name, levelBox[customLevelsAmount - i - 1].x + 155,
+                levelBox[customLevelsAmount - i - 1].y + levelBox[customLevelsAmount - i - 1].height / 4.0f + 4, MENU_FONT_SIZE, RAYWHITE);
+        DrawText(menuData[customLevelsAmount - i - 1].dateCreated, levelBox[customLevelsAmount - i - 1].x + 155,
+                levelBox[customLevelsAmount - i - 1].y + levelBox[customLevelsAmount - i - 1].height / 2.0f + 12, MENU_FONT_SIZE - 4, GRAY);
+    }
+
+    // Desenhar borda de seleção do respectivo nível
+    if (selectedOption != EXIT_CUSTOM_LEVELS_MENU)
+        DrawRectangleLinesEx(levelBox[selectedOption], 3.0f, RAYWHITE);
+
+    // Desenhar seleção de opção sair
+    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE, DARKGRAY);
+    if (selectedOption == EXIT_CUSTOM_LEVELS_MENU)
+        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE, RAYWHITE);
 }
 
 void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSize, bool blinkUnderscore)
