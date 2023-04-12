@@ -15,7 +15,7 @@
 
 action_effects_t mine(level_t *level, player_t *player, int direction);
 action_effects_t moveHorizontal(level_t *level, player_t *player, int offset);
-bool isPlayerPlaced(level_t *level);
+bool isOrePlaced(level_t *level);
 bool moveVertical(level_t *level, player_t *player, int offset);
 bool placeLadder(level_t *level, player_t *player);
 bool updateEnergy(player_t *player, int offset);

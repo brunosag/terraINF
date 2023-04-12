@@ -64,17 +64,16 @@ void getFileName(const char *filePath, char *fileName)
         fileName[i - lastSlash - 1] = fileNameTemp[i];
 }
 
-bool isPlayerPlaced(level_t *level)
+bool isOrePlaced(level_t *level)
 {
-    bool playerPlaced = false;
-
-    // Ler toda a matriz do nível para ver se há um jogador
+    // Verificar matriz para minérios positivos
     for (int i = 0; i < LVL_HEIGHT; i++)
         for (int j = 0; j < LVL_WIDTH; j++)
-            if (level->elements[i][j] == CHAR_PLAYER)
-                playerPlaced = true;
+            if (level->elements[i][j] == CHAR_SILVER || level->elements[i][j] == CHAR_GOLD ||
+                level->elements[i][j] == CHAR_TITANIUM)
+                return true;
 
-    return playerPlaced;
+    return false;
 }
 
 action_effects_t mine(level_t *level, player_t *player, int direction)

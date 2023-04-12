@@ -836,7 +836,7 @@ void startLevelEditor(void)
     while (!(WindowShouldClose() || levelSaved))
     {
         // Verificar salvamento do nível
-        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && selected == Save && isPlayerPlaced(&level))
+        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && (selected == Save) && isOrePlaced(&level))
         {
             // Pedir nome do nível criado para usuário
             char levelName[MAX_CUSTOM_LEVEL_NAME + 1] = {0};
@@ -849,84 +849,44 @@ void startLevelEditor(void)
 
             // Salvar nível
             levelSaved = saveCustomLevel(levelPath, &level, &player);
-
-            // METADADOS 100 % VALIDADOS. UTILIZAR TRECHO COMENTADO PARA CRIAR FUNÇÕES GRÁFICAS DE MENU DE NÍVEIS
-            // CUSTOMIZADOS
-
-            /*int customLevelsAmount = 0;
-            int maxCustomLevelsAmount = 0;
-            custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
-
-            readCustomLevelsMetadataFile("custom_levels/metadata.bin", metadata, &customLevelsAmount,
-            &maxCustomLevelsAmount);
-
-            Texture2D miniaturesTextures[MAX_CUSTOM_LEVELS_AMOUNT];
-            struct tm *metadataDates[MAX_CUSTOM_LEVELS_AMOUNT];
-            char metadataDatesStrings[MAX_CUSTOM_LEVELS_AMOUNT][200] = {0};
-            for (int i = 0; i < customLevelsAmount; i++)
-            {
-                miniaturesTextures[i] = LoadTexture(metadata[i].miniatureFile);
-
-                metadataDates[i] = localtime(&metadata[i].dateCreated);
-                snprintf(metadataDatesStrings[i], sizeof(metadataDatesStrings[i]), "Data Criado: %d-%d-%d %d:%d:%d",
-                        (metadataDates[i])->tm_year + 1900, (metadataDates[i])->tm_mon, (metadataDates[i])->tm_mday,
-                        (metadataDates[i])->tm_hour, (metadataDates[i])->tm_min, (metadataDates[i])->tm_sec);
-            }
-
-            while(!WindowShouldClose())
-            {
-                BeginDrawing();
-                ClearBackground(BLACK);
-
-                for (int i = 0; i < customLevelsAmount; i++)
-                {
-                    DrawTexture(miniaturesTextures[i], 0, 85 * i, WHITE);
-                    DrawText(metadata[i].name, 125, 85 * i, MENU_FONT_SIZE, RAYWHITE);
-                    DrawText(metadataDatesStrings[i], 125, 85 * i + 40, MENU_FONT_SIZE, RAYWHITE);
-                }
-
-                EndDrawing();
-            }*/
         }
-        else
+
+        // Verificar navegação de seleção
+        if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
         {
-            // Verificar navegação de seleção
-            if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
-            {
-                if (selected < Save)
-                    selected++;
-            }
-            if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
-            {
-                if (selected > PlayerSlot)
-                    selected--;
-            }
-
-            // Verificar posicionamento de bloco
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
-            {
-                // Obter posição do mouse
-                position_t mousePosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
-
-                // Verificar borda
-                if (mousePosition.x > 0 && mousePosition.x < LVL_WIDTH - 1 && mousePosition.y > 0 &&
-                    mousePosition.y < LVL_HEIGHT - 1)
-                {
-                    // Posicionar bloco
-                    placeBlock(&level, &player, mousePosition, selected);
-                }
-            }
-
-            UpdateMusicStream(levelEditorMusic);
-
-            BeginDrawing();
-            ClearBackground(BLACK);
-
-            drawEditorLevel(&level);
-            drawEditorHUD(&level, selected);
-
-            EndDrawing();
+            if (selected < Save)
+                selected++;
         }
+        if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
+        {
+            if (selected > PlayerSlot)
+                selected--;
+        }
+
+        // Verificar posicionamento de bloco
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            // Obter posição do mouse
+            position_t mousePosition = {(GetMouseX() / ELEMENT_SIZE), (GetMouseY() / ELEMENT_SIZE)};
+
+            // Verificar borda e player
+            if ((mousePosition.x > 0) && (mousePosition.x < LVL_WIDTH - 1) && (mousePosition.y > 0) &&
+                (mousePosition.y < LVL_HEIGHT - 1) && (level.elements[mousePosition.y][mousePosition.x] != CHAR_PLAYER))
+            {
+                // Posicionar bloco
+                placeBlock(&level, &player, mousePosition, selected);
+            }
+        }
+
+        UpdateMusicStream(levelEditorMusic);
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawEditorLevel(&level);
+        drawEditorHUD(&level, selected);
+
+        EndDrawing();
     }
 
     UnloadSound(menuSelectionEffect);
