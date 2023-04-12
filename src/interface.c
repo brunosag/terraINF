@@ -94,55 +94,39 @@ void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, 
 
 void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSize, bool blinkUnderscore)
 {
-    Rectangle backgroundBox = {(SCREEN_WIDTH / 6), (SCREEN_HEIGHT / 6), (2 * SCREEN_WIDTH / 3),
-                               (2 * SCREEN_HEIGHT / 3)};
-    Rectangle textBox = {(backgroundBox.x + backgroundBox.width / 2 - ((MENU_FONT_SIZE - 6) * maxNameSize) / 2),
-                         (backgroundBox.y + backgroundBox.height / 2 - (MENU_FONT_SIZE + 10) / 2),
-                         ((MENU_FONT_SIZE - 6) * maxNameSize), (MENU_FONT_SIZE + 10)};
+    Rectangle outerBox = {170, 220, 860, 360};
+    Rectangle innerBox = {315, 380, 570, 76};
 
-    // Desenhar fundos
-    DrawRectangleRec(backgroundBox, Fade(BLACK, 0.75f));
-    DrawRectangleLines((int)backgroundBox.x, (int)backgroundBox.y, (int)backgroundBox.width, (int)backgroundBox.height,
-                       DARKGRAY);
+    // Desenhar fundo
+    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.75f));
 
-    // Desenhar textos
-    DrawText("SALVAR NOVO NÍVEL",
-             (backgroundBox.x + backgroundBox.width / 2 - MeasureText("SALVAR NOVO NÍVEL", 30) / 2), 220, 30, RAYWHITE);
-    DrawText("Digite o nome do nível:",
-             (backgroundBox.x + backgroundBox.width / 2 - MeasureText("Digite o nome do nível:", MENU_FONT_SIZE) / 2),
-             290, MENU_FONT_SIZE, RAYWHITE);
+    // Desenhar caixas
+    DrawRectangleRec(outerBox, DARKGRAY);
+    DrawRectangleLinesEx(outerBox, 2, LIGHTGRAY);
+    DrawRectangleRec(innerBox, BLACK);
+    DrawRectangleLinesEx(innerBox, 2, RAYWHITE);
 
-    // Desenhar caixa de texto
-    DrawRectangleRec(textBox, DARKGRAY);
-    DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RAYWHITE);
+    // Desenhar texto
+    DrawText("SALVAR NOVO NÍVEL", (SCREEN_WIDTH / 2 - MeasureText("SALVAR NOVO NÍVEL", 32) / 2), 250, 32, GOLD_COLOR);
+    DrawText("Digite o nome do nível:", (SCREEN_WIDTH / 2 - MeasureText("Digite o nome do nível", 24) / 2), 340, 24,
+             LIGHTGRAY);
 
-    // Desenhar cada caractere digitado para o nome do nível
-    DrawText(levelName, (int)textBox.x + 5, (int)textBox.y + 8, MENU_FONT_SIZE, RAYWHITE);
+    // Desenhar cada caractere digitado para o nome do jogador
+    DrawText(levelName, (innerBox.x + 28), (innerBox.y + 19), 38, RAYWHITE);
 
-    if (!nameSize)
+    // Desenhar undescore piscante
+    if (blinkUnderscore && (nameSize != maxNameSize))
+        DrawText("_", (innerBox.x + 31 + MeasureText(levelName, 38)), (innerBox.y + 19), 38, RAYWHITE);
+
+    if (nameSize)
     {
-        // Desenhar undescore piscante
-        if (blinkUnderscore)
-            DrawText("_", (int)textBox.x + 8 + MeasureText(levelName, MENU_FONT_SIZE), (int)textBox.y + 12,
-                     MENU_FONT_SIZE, RAYWHITE);
-        // Desenhar opção de confirmar bloqueada
-        DrawText("CONFIRMAR",
-                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("CONFIRMAR", MENU_FONT_SIZE) / 2), 500,
-                 MENU_FONT_SIZE, DARKGRAY);
+        // Desenhar opção de confirmar desbloqueada
+        DrawText("- CONFIRMAR -", (SCREEN_WIDTH / 2 - MeasureText("- CONFIRMAR -", 26) / 2), 515, 26, RAYWHITE);
     }
     else
     {
-        // Desenhar undescore piscante
-        if (blinkUnderscore)
-            DrawText("_", (int)textBox.x + 8 + MeasureText(levelName, MENU_FONT_SIZE), (int)textBox.y + 12,
-                     MENU_FONT_SIZE, RAYWHITE);
-        // Desenhar opção de confirmar desbloqueada
-        DrawText("- CONFIRMAR -",
-                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- CONFIRMAR -", MENU_FONT_SIZE) / 2), 500,
-                 MENU_FONT_SIZE, DARKGRAY);
-        DrawText("- CONFIRMAR -",
-                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- CONFIRMAR -", MENU_FONT_SIZE) / 2), 501,
-                 MENU_FONT_SIZE, RAYWHITE);
+        // Desenhar opção de confirmar bloqueada
+        DrawText("CONFIRMAR", (SCREEN_WIDTH / 2 - MeasureText("CONFIRMAR", 26) / 2), 515, 26, GRAY);
     }
 }
 
@@ -247,51 +231,43 @@ void drawGameOverScreen(level_t *level, player_t *player, endgame_option_t selec
 
 void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore)
 {
-    Rectangle backgroundBox = {(SCREEN_WIDTH / 6), (SCREEN_HEIGHT / 6), (2 * SCREEN_WIDTH / 3),
-                               (2 * SCREEN_HEIGHT / 3)};
-    Rectangle textBox = {(backgroundBox.x + backgroundBox.width / 2 - ((MENU_FONT_SIZE - 3) * maxNameSize) / 2),
-                         (backgroundBox.y + backgroundBox.height / 2 - (MENU_FONT_SIZE + 10) / 2),
-                         ((MENU_FONT_SIZE - 3) * maxNameSize), (MENU_FONT_SIZE + 10)};
+    Rectangle outerBox = {256, 205, 690, 390};
+    Rectangle innerBox = {466, 361, 270, 101};
 
-    // Desenhar fundos
-    DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_WIDTH, Fade(BLACK, 0.75f));
-    DrawRectangleRec(backgroundBox, Fade(BLACK, 0.75f));
-    DrawRectangleLines((int)backgroundBox.x, (int)backgroundBox.y, (int)backgroundBox.width, (int)backgroundBox.height,
-                       DARKGRAY);
+    // Desenhar caixas
+    DrawRectangleRec(outerBox, DARKGRAY);
+    DrawRectangleLinesEx(outerBox, 2, LIGHTGRAY);
+    DrawRectangleRec(innerBox, BLACK);
+    DrawRectangleLinesEx(innerBox, 2, RAYWHITE);
 
     // Desenhar texto
-    DrawText("NOVO RECORDE ATINGIDO!",
-             (backgroundBox.x + backgroundBox.width / 2 - MeasureText("NOVO RECORDE ATINGIDO!", MENU_FONT_SIZE) / 2),
-             220, MENU_FONT_SIZE, GREEN);
-    DrawText("Digite seu nome:",
-             (backgroundBox.x + backgroundBox.width / 2 - MeasureText("Digite seu nome:", MENU_FONT_SIZE) / 2), 270,
-             MENU_FONT_SIZE, RAYWHITE);
-
-    // Desenhar caixa de texto
-    DrawRectangleRec(textBox, DARKGRAY);
-    DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, RAYWHITE);
+    DrawText("NOVO RECORDE ATINGIDO!", (SCREEN_WIDTH / 2 - MeasureText("NOVO RECORDE ATINGIDO!", 32) / 2), 238, 32,
+             GOLD_COLOR);
+    DrawText("Digite seu nome:", (SCREEN_WIDTH / 2 - MeasureText("Digite seu nome:", 24) / 2), 325, 24, LIGHTGRAY);
 
     // Desenhar cada caractere digitado para o nome do jogador
-    DrawText(player->name, (int)textBox.x + 5, (int)textBox.y + 8, MENU_FONT_SIZE, RAYWHITE);
+    if (nameSize == 3)
+        DrawText(player->name, (SCREEN_WIDTH / 2 - MeasureText(player->name, 72) / 2), 379, 72, RAYWHITE);
+    else
+        DrawText(player->name, (SCREEN_WIDTH / 2 - MeasureText(TextFormat("%s_", player->name), 72) / 2), 379, 72,
+                 RAYWHITE);
 
     if (nameSize < maxNameSize)
     {
         // Desenhar undescore piscante
         if (blinkUnderscore)
-            DrawText("_", (int)textBox.x + 8 + MeasureText(player->name, MENU_FONT_SIZE), (int)textBox.y + 12,
-                     MENU_FONT_SIZE, RAYWHITE);
+            DrawText("_",
+                     ((SCREEN_WIDTH / 2) - (MeasureText("_", 72) / 2) + (MeasureText(player->name, 72) / 2) +
+                      (nameSize ? 4 : 0)),
+                     379, 72, RAYWHITE);
 
         // Desenhar opção de confirmar bloqueada
-        DrawText("CONFIRMAR",
-                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("CONFIRMAR", MENU_FONT_SIZE) / 2), 500,
-                 MENU_FONT_SIZE, DARKGRAY);
+        DrawText("CONFIRMAR", (SCREEN_WIDTH / 2 - MeasureText("CONFIRMAR", 26) / 2), 527, 26, GRAY);
     }
     else
     {
         // Desenhar opção de confirmar desbloqueada
-        DrawText("- CONFIRMAR -",
-                 (backgroundBox.x + backgroundBox.width / 2 - MeasureText("- CONFIRMAR -", MENU_FONT_SIZE) / 2), 500,
-                 MENU_FONT_SIZE, RAYWHITE);
+        DrawText("- CONFIRMAR -", (SCREEN_WIDTH / 2 - MeasureText("- CONFIRMAR -", 26) / 2), 527, 26, RAYWHITE);
     }
 }
 
