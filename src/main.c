@@ -153,8 +153,8 @@ endgame_option_t win(level_t *level, player_t *player)
 
     // Carregar efeitos de vitória
     Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
-    Sound gameOverEffect = LoadSound("resources/sound_effects/gameover.wav");
-    PlaySound(gameOverEffect);
+    Sound victoryEffect = LoadSound("resources/sound_effects/victory.wav");
+    PlaySound(victoryEffect);
 
     bool confirmed = false;
     while (!(WindowShouldClose() || confirmed))
@@ -196,7 +196,7 @@ endgame_option_t win(level_t *level, player_t *player)
     }
 
     UnloadSound(menuSelectionEffect);
-    UnloadSound(gameOverEffect);
+    UnloadSound(victoryEffect);
 
     // Retornar opção selecionada se confirmado
     return confirmed ? selected : ExitGame;
@@ -589,6 +589,10 @@ void startCustomLevelsMenu(void)
 {
     int selected = EXIT_CUSTOM_LEVELS_MENU;
 
+    // Carregar áudios
+    Music customLevelsMenuMusic = LoadMusicStream("resources/music/custom_levels_menu.mp3");
+    PlayMusicStream(customLevelsMenuMusic);
+
     // Carregar fundo
     Texture2D customLevelsBackground = LoadTexture("resources/backgrounds/custom_levels.png");
 
@@ -603,6 +607,8 @@ void startCustomLevelsMenu(void)
     selected = customLevelsAmount - 1;
     while (!(WindowShouldClose() || confirmed))
     {
+        UpdateMusicStream(customLevelsMenuMusic);
+        
         // Verificar navegação de seleção
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
@@ -638,6 +644,9 @@ void startCustomLevelsMenu(void)
 
         EndDrawing();
     }
+
+    // Descarregar áudios
+    UnloadMusicStream(customLevelsMenuMusic);
 }
 
 void startGame(void)
