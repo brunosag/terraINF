@@ -23,12 +23,12 @@ int createCustomLevelsMetadataFile(const char *metadataFile, int maxCustomLevels
     {
         for (int i = lastSlash; i < metadataFilePathLength; i++)
             metadataDirectory[i] = '\0';
-        // Tentar criar diretório para o arquivo (adaptado para a devida plataforma)
-        #ifdef _WIN32
-            _mkdir(metadataDirectory);
-        #else
-            mkdir(metadataDirectory, 0777);
-        #endif
+// Tentar criar diretório para o arquivo (adaptado para a devida plataforma)
+#ifdef _WIN32
+        _mkdir(metadataDirectory);
+#else
+        mkdir(metadataDirectory, 0777);
+#endif
     }
 
     // Verificar a abertura do arquivo
@@ -68,12 +68,12 @@ int createRankingFile(const char *rankingFile, int rankingSize)
     {
         for (int i = lastSlash; i < rankingFilePathLength; i++)
             rankingDirectory[i] = '\0';
-        // Tentar criar diretório para o arquivo (adaptado para a devida plataforma)
-        #ifdef _WIN32
-            _mkdir(rankingDirectory);
-        #else
-            mkdir(rankingDirectory, 0777);
-        #endif
+// Tentar criar diretório para o arquivo (adaptado para a devida plataforma)
+#ifdef _WIN32
+        _mkdir(rankingDirectory);
+#else
+        mkdir(rankingDirectory, 0777);
+#endif
     }
 
     // Verificar a abertura do arquivo
@@ -119,8 +119,8 @@ void loadEditorLevel(level_t *level)
     level->textures[UraniumOre] = LoadTexture("resources/sprites/uranium_ore.png");
 
     // Ajustar nome do arquivo
-    char filename[MAX_LVL_NAME + 1] = {'\0'};
-    snprintf(filename, sizeof(filename) - 1, "levels/editor.txt");
+    char filename[MAX_FILE_NAME + 1] = {'\0'};
+    snprintf(filename, sizeof(filename), "levels/editor.txt");
 
     // Abrir arquivo texto do nível
     FILE *levelFile = fopen((const char *)filename, "r");
@@ -143,7 +143,7 @@ void loadEditorLevel(level_t *level)
         printf("Erro ao ler o arquivo da matriz do nivel.");
 }
 
-void loadLevel(level_t *level, player_t *player)
+void loadLevel(level_t *level, player_t *player, char filename[])
 {
     // Reiniciar status do jogador e nivel
     player->lastMined = (ore_t){0};
@@ -183,10 +183,6 @@ void loadLevel(level_t *level, player_t *player)
     level->ores[Titanium].texture = LoadTexture("resources/sprites/titanium.png");
     level->ores[Uranium].texture = LoadTexture("resources/sprites/uranium.png");
 
-    // Ajustar nome do arquivo
-    char filename[MAX_LVL_NAME + 1] = {'\0'};
-    snprintf(filename, sizeof(filename) - 1, "levels/nivel%d.txt", player->currentLevel);
-
     // Abrir arquivo texto do nível
     FILE *levelFile = fopen((const char *)filename, "r");
     if (levelFile != NULL)
@@ -224,7 +220,8 @@ void loadLevel(level_t *level, player_t *player)
         printf("Erro ao ler o arquivo da matriz do nivel.");
 }
 
-int readCustomLevelsMetadataFile(const char *metadataFile, custom_level_metadata_t *metadata, int *customLevelsAmount, int *maxCustomLevelsAmount)
+int readCustomLevelsMetadataFile(const char *metadataFile, custom_level_metadata_t *metadata, int *customLevelsAmount,
+                                 int *maxCustomLevelsAmount)
 {
     int entriesRead = 0;
 
@@ -269,7 +266,7 @@ int saveCustomLevelFile(char *levelFile, level_t *level)
 
     // Verificar se arquivo foi criado
     FILE *file = fopen(levelFile, "w");
-    if(file != NULL)
+    if (file != NULL)
     {
         // Ler caracteres da matriz e transferir para arquivo
         for (int i = 0; i < LVL_HEIGHT; i++)

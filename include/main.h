@@ -15,16 +15,19 @@
 #include "interface.h"
 #include "logic.h"
 
-gameover_option_t gameOver(level_t *level, player_t *player);
-void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected, Sound menuSelectionEffect);
-bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sound menuSelectionEffect);
-void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLevelsAmount, custom_levels_menu_t *menuData);
+bool highScore(level_t *level, player_t *player, endgame_option_t selected, Sound menuSelectionEffect);
 bool saveCustomLevel(char *levelPath, level_t *level, player_t *player);
-void startCustomGame(int selectedLevel);
-int startCustomLevelsMenu(void);
-void startGame(void);
-void startLevelEditor(void);
+void startCustomLevelsMenu(void);
+endgame_option_t gameOver(level_t *level, player_t *player, bool rankingOn);
+endgame_option_t win(level_t *level, player_t *player);
 menu_option_t startMenu(void);
 ranking_option_t startRanking(void);
+void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected,
+                        Sound menuSelectionEffect);
+void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLevelsAmount,
+                              custom_levels_menu_t *menuData);
+void startCustomGame(char *filename);
+void startGame(void);
+void startLevelEditor(void);
 
 #endif

@@ -26,9 +26,7 @@ int main()
             startLevelEditor();
             break;
         case CustomLevels:
-            int selectedLevel = -1;
-            selectedLevel = startCustomLevelsMenu();
-            startCustomGame(selectedLevel);
+            startCustomLevelsMenu();
             break;
         case Ranking:
             startRanking();
@@ -43,9 +41,9 @@ int main()
     return 0;
 }
 
-gameover_option_t gameOver(level_t *level, player_t *player)
+endgame_option_t gameOver(level_t *level, player_t *player, bool rankingOn)
 {
-    gameover_option_t selected = ResetGame;
+    endgame_option_t selected = ResetGame;
 
     // Carregar efeitos de Game Over
     Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
@@ -53,24 +51,28 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     PlaySound(gameOverEffect);
 
     // Tentar abrir o arquivo de ranking existente
+    int firstAlteredPosition = 0; // Nula para indicar nenhuma alteração
     ranking_t players[MAX_RANKING_SIZE];
-    if (!readRankingFile("ranking/ranking.bin", players))
+    if (rankingOn)
     {
-        // Verificar criação do arquivo com sucesso
-        if (!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
-            readRankingFile("ranking/ranking.bin", players);
+        if (!readRankingFile("ranking/ranking.bin", players))
+        {
+            // Verificar criação do arquivo com sucesso
+            if (!createRankingFile("ranking/ranking.bin", MAX_RANKING_SIZE))
+                readRankingFile("ranking/ranking.bin", players);
+        }
+
+        // Verificar se a pontuação do jogador é maior que alguma já existente
+        for (int i = MAX_RANKING_SIZE - 1; i >= 0; i--)
+            if (player->score > players[i].score)
+                firstAlteredPosition = players[i].position;
     }
 
-    // Verificar se a pontuação do jogador é maior que alguma já existente
-    int firstAlteredPosition = 0; // Nula para indicar nenhuma alteração
-    for (int i = MAX_RANKING_SIZE - 1; i >= 0; i--)
-        if (player->score > players[i].score)
-            firstAlteredPosition = players[i].position;
+    // Reiniciar temporização
+    uninterruptTimer(true, 0.0f);
 
     bool confirmed = false;
     bool nameConfirmed = false;
-    // Reiniciar temporização
-    uninterruptTimer(true, 0.0f);
     while (!(WindowShouldClose() || confirmed))
     {
         // Se passaram GAMEOVER_NAME_DELAY segundos e houve alguma posição alterada no ranking
@@ -110,7 +112,9 @@ gameover_option_t gameOver(level_t *level, player_t *player)
             BeginDrawing();
             ClearBackground(BLACK);
 
-            drawGameOverScreen(level, player, selected, ALPHA_DISABLE);
+            drawLevel(level, player);
+            drawHUD(level, player);
+            drawGameOverScreen(level, player, selected);
 
             EndDrawing();
         }
@@ -138,7 +142,63 @@ gameover_option_t gameOver(level_t *level, player_t *player)
     return confirmed ? selected : ExitGame;
 }
 
-void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected, Sound menuSelectionEffect)
+endgame_option_t win(level_t *level, player_t *player)
+{
+    endgame_option_t selected = ResetGame;
+
+    // Carregar efeitos de vitória
+    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
+    Sound gameOverEffect = LoadSound("resources/sound_effects/gameover.wav");
+    PlaySound(gameOverEffect);
+
+    bool confirmed = false;
+    while (!(WindowShouldClose() || confirmed))
+    {
+        // Verificar navegação de seleção
+        if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+        {
+            if (selected < ExitGame)
+            {
+                selected++;
+                PlaySound(menuSelectionEffect);
+            }
+        }
+        if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+        {
+            if (selected > ResetGame)
+            {
+                selected--;
+                PlaySound(menuSelectionEffect);
+            }
+        }
+
+        // Verificar confirmação de seleção
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
+        {
+            // Confirmar seleção
+            confirmed = true;
+            PlaySound(menuSelectionEffect);
+        }
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawLevel(level, player);
+        drawCustomLevelHUD(level, player);
+        drawWinScreen(selected);
+
+        EndDrawing();
+    }
+
+    UnloadSound(menuSelectionEffect);
+    UnloadSound(gameOverEffect);
+
+    // Retornar opção selecionada se confirmado
+    return confirmed ? selected : ExitGame;
+}
+
+void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected,
+                        Sound menuSelectionEffect)
 {
     float frameCounter = 0;
     bool blinkUnderscore = false;
@@ -154,8 +214,8 @@ void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t
         {
             // Ler apenas caracteres válidos
             if (((key >= 65 && key <= 90) || (key >= 97 && key <= 122) || (key >= 48 && key <= 57) || key == '_' ||
-                key == ';' || key == '(' || key == ')' || key == '[' ||
-                key == ']') && (*nameSize < MAX_CUSTOM_LEVEL_NAME))
+                 key == ';' || key == '(' || key == ')' || key == '[' || key == ']') &&
+                (*nameSize < MAX_CUSTOM_LEVEL_NAME))
             {
                 // Converte as letras para maiúsculas
                 levelName[*nameSize] = (char)toupper(key);
@@ -192,15 +252,15 @@ void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawEditorLevel(level, 0.15f);
-        drawEditorHUD(level, selected, 0.15f);
+        drawEditorLevel(level);
+        drawEditorHUD(level, selected);
         drawCustomLevelsTextBox(levelName, *nameSize, MAX_CUSTOM_LEVEL_NAME, blinkUnderscore);
 
         EndDrawing();
     }
 }
 
-bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sound menuSelectionEffect)
+bool highScore(level_t *level, player_t *player, endgame_option_t selected, Sound menuSelectionEffect)
 {
     int letterCount = 0;
     float frameCounter = 0;
@@ -255,7 +315,9 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
         BeginDrawing();
         ClearBackground(BLACK);
 
-        drawGameOverScreen(level, player, selected, 0.15f);
+        drawLevel(level, player);
+        drawHUD(level, player);
+        drawGameOverScreen(level, player, selected);
         drawHighScoreTextBox(player, letterCount, MAX_PLAYER_NAME, blinkUnderscore);
 
         EndDrawing();
@@ -265,7 +327,8 @@ bool highScore(level_t *level, player_t *player, gameover_option_t selected, Sou
     return nameConfirmed;
 }
 
-void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLevelsAmount, custom_levels_menu_t *menuData)
+void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLevelsAmount,
+                              custom_levels_menu_t *menuData)
 {
     // Ler metadados dos níveis customizados
     int maxCustomLevelsAmount = 0;
@@ -281,15 +344,15 @@ void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLeve
         // Carregar e formatar as informações de datas de criação dos níveis
         metadataDates[i] = localtime(&metadata[i].dateCreated);
         snprintf(menuData[i].dateCreated, sizeof(menuData[i].dateCreated), "Criado em %.2d/%.2d/%d %.2d:%.2d:%.2d",
-                (metadataDates[i])->tm_mday, (metadataDates[i])->tm_mon + 1, (metadataDates[i])->tm_year + 1900,
-                (metadataDates[i])->tm_hour, (metadataDates[i])->tm_min, (metadataDates[i])->tm_sec);
-        
+                 (metadataDates[i])->tm_mday, (metadataDates[i])->tm_mon + 1, (metadataDates[i])->tm_year + 1900,
+                 (metadataDates[i])->tm_hour, (metadataDates[i])->tm_min, (metadataDates[i])->tm_sec);
+
         // Adquirir os nomes dos arquivos dos níveis
         getFileName(metadata[i].name, menuData[i].name);
 
         // Converter nome do nível para totalmente maiúsculo
         for (int j = 0; menuData[i].name[j] != '\0'; j++)
-            menuData[i].name[j] = (char) toupper((char) menuData[i].name[j]);
+            menuData[i].name[j] = (char)toupper((char)menuData[i].name[j]);
     }
 }
 
@@ -361,18 +424,164 @@ bool saveCustomLevel(char *levelPath, level_t *level, player_t *player)
     }
 
     // Se o nível customizado e metadados foram salvos com sucesso, retornar sucesso
-    if (!(saveCustomLevelFile(metadata.name, level) || writeCustomLevelsMetadata(metadataFile, metadataStored, customLevelsStored)))
+    if (!(saveCustomLevelFile(metadata.name, level) ||
+          writeCustomLevelsMetadata(metadataFile, metadataStored, customLevelsStored)))
         levelSaved = true;
 
     return levelSaved;
 }
 
-void startCustomGame(int selectedLevel)
+void startCustomGame(char *filename)
 {
+    // Inicializar jogador e a tecla pressionada por esse
+    player_t player = {{0}, {1, 2}, {'\0'}, 0, 3, 100, 20, 1, false};
+    KeyboardKey direction = KEY_S;
 
+    // Carregar todos os áudios do jogo
+    Music firstLevelsMusic = LoadMusicStream("resources/music/first_levels.mp3");
+    Sound blockSteppedEffect = LoadSound("resources/sound_effects/block_stepped.ogg");
+    Sound dirtMinedEffect = LoadSound("resources/sound_effects/dirt_mined.ogg");
+    Sound fallEffect = LoadSound("resources/sound_effects/fall.ogg");
+    Sound healthLostEffect = LoadSound("resources/sound_effects/health_lost.ogg");
+    Sound ladderClimbedEffect = LoadSound("resources/sound_effects/ladder_climbed.ogg");
+    Sound ladderPlacedEffect = LoadSound("resources/sound_effects/ladder_placed.ogg");
+    Sound oreMinedEffect = LoadSound("resources/sound_effects/ore_mined.ogg");
+    Sound pickaxeEquippedEffect = LoadSound("resources/sound_effects/pickaxe_equipped.ogg");
+
+    // Carregar nível
+    level_t level;
+    Music *currentMusic = &firstLevelsMusic;
+    PlayMusicStream(*currentMusic);
+    loadLevel(&level, &player, filename);
+    level.maxScore = customLevelMaxScore(&level);
+    endgame_option_t endgameOption = ResetGame;
+    while (!(WindowShouldClose() || endgameOption == ExitGame))
+    {
+        UpdateMusicStream(*currentMusic);
+
+        // Verificar condições de fim de jogo
+        if ((player.score >= level.maxScore) || !player.health)
+        {
+            StopMusicStream(*currentMusic);
+            endgameOption = player.health ? win(&level, &player) : gameOver(&level, &player, false);
+            if (endgameOption == ResetGame)
+            {
+                player.health = 3;
+                PlayMusicStream(*currentMusic);
+                loadLevel(&level, &player, filename);
+            }
+        }
+
+        // Verificar movimentação
+        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT))
+        {
+            switch (moveHorizontal(&level, &player, 1))
+            {
+            case PlayerMoved:
+                PlaySound(blockSteppedEffect);
+                break;
+            case PlayerFell:
+                PlaySound(fallEffect);
+                break;
+            case PlayerDamaged:
+                PlaySound(healthLostEffect);
+                break;
+            default:
+                break;
+            }
+            direction = KEY_D;
+        }
+        if (IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT))
+        {
+            switch (moveHorizontal(&level, &player, -1))
+            {
+            case PlayerMoved:
+                PlaySound(blockSteppedEffect);
+                break;
+            case PlayerFell:
+                PlaySound(fallEffect);
+                break;
+            case PlayerDamaged:
+                PlaySound(healthLostEffect);
+                break;
+            default:
+                break;
+            }
+            direction = KEY_A;
+        }
+        if (IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP))
+        {
+            if (moveVertical(&level, &player, -1))
+                PlaySound(ladderClimbedEffect);
+            direction = KEY_W;
+        }
+        if (IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN))
+        {
+            if (moveVertical(&level, &player, 1))
+                PlaySound(ladderClimbedEffect);
+            direction = KEY_S;
+        }
+
+        // Verificar modo mineração
+        if (IsKeyPressed(KEY_ONE))
+        {
+            player.miningMode = !player.miningMode;
+            PlaySound(pickaxeEquippedEffect);
+        }
+
+        // Verificar mineração
+        if (IsKeyPressed(KEY_SPACE) && player.miningMode)
+        {
+            // Se houver bloco minerado
+            switch (mine(&level, &player, direction))
+            {
+            case DirtMined:
+                PlaySound(dirtMinedEffect);
+                break;
+            case OreMined:
+                PlaySound(oreMinedEffect);
+                break;
+            case PlayerFell:
+                PlaySound(fallEffect);
+                break;
+            case PlayerDamaged:
+                PlaySound(healthLostEffect);
+                break;
+            default:
+                break;
+            }
+        }
+
+        // Verificar posicionamento de escada
+        if (IsKeyPressed(KEY_LEFT_SHIFT))
+            if (placeLadder(&level, &player))
+                PlaySound(ladderPlacedEffect);
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        // Desenhar texturas do nível
+        drawLevel(&level, &player);
+
+        // Desenhar HUD
+        drawCustomLevelHUD(&level, &player);
+
+        EndDrawing();
+    }
+
+    // Descarregar todos os áudios do jogo
+    UnloadSound(blockSteppedEffect);
+    UnloadSound(dirtMinedEffect);
+    UnloadSound(fallEffect);
+    UnloadSound(healthLostEffect);
+    UnloadSound(ladderClimbedEffect);
+    UnloadSound(ladderPlacedEffect);
+    UnloadSound(oreMinedEffect);
+    UnloadSound(pickaxeEquippedEffect);
+    UnloadMusicStream(firstLevelsMusic);
 }
 
-int startCustomLevelsMenu(void)
+void startCustomLevelsMenu(void)
 {
     int selected = EXIT_CUSTOM_LEVELS_MENU;
 
@@ -396,15 +605,15 @@ int startCustomLevelsMenu(void)
             if (selected > EXIT_CUSTOM_LEVELS_MENU)
             {
                 selected--;
-                //PlaySound(menuSelectionEffect);
+                // PlaySound(menuSelectionEffect);
             }
         }
         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
         {
-            if (selected < customLevelsAmount - 1)
+            if (selected < (customLevelsAmount - 1))
             {
                 selected++;
-                //PlaySound(menuSelectionEffect);
+                // PlaySound(menuSelectionEffect);
             }
         }
 
@@ -413,7 +622,9 @@ int startCustomLevelsMenu(void)
         {
             // Confirmar seleção
             confirmed = true;
-            //PlaySound(menuSelectionEffect);
+            // PlaySound(menuSelectionEffect);
+            if (selected >= 0)
+                startCustomGame(metadata[selected].name);
         }
 
         BeginDrawing();
@@ -423,8 +634,6 @@ int startCustomLevelsMenu(void)
 
         EndDrawing();
     }
-
-    return confirmed ? selected : EXIT_CUSTOM_LEVELS_MENU;
 }
 
 void startGame(void)
@@ -446,14 +655,19 @@ void startGame(void)
     Sound oreMinedEffect = LoadSound("resources/sound_effects/ore_mined.ogg");
     Sound pickaxeEquippedEffect = LoadSound("resources/sound_effects/pickaxe_equipped.ogg");
 
+    // Ajustar nome do arquivo
+    char filename[MAX_FILE_NAME + 1] = {'\0'};
+    snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player.currentLevel);
+
     // Carregar nível inicial
     level_t level;
     Music *currentMusic = &firstLevelsMusic;
     PlayMusicStream(*currentMusic);
     int currentLevel = player.currentLevel;
-    loadLevel(&level, &player);
+    level.maxScore = (int)(1000 * pow(2, player.currentLevel - 1));
+    loadLevel(&level, &player, filename);
     drawSplashScreen(&player, currentMusic);
-    gameover_option_t gameOverOption = ResetGame;
+    endgame_option_t gameOverOption = ResetGame;
     while (!(WindowShouldClose() || gameOverOption == ExitGame))
     {
         UpdateMusicStream(*currentMusic);
@@ -462,14 +676,16 @@ void startGame(void)
         if (!player.health || !level.oreCount)
         {
             StopMusicStream(*currentMusic);
-            gameOverOption = gameOver(&level, &player);
+            gameOverOption = gameOver(&level, &player, true);
             if (gameOverOption == ResetGame)
             {
                 player.health = 3;
                 player.currentLevel = 1;
                 PlayMusicStream(*currentMusic);
                 currentLevel = player.currentLevel;
-                loadLevel(&level, &player);
+                level.maxScore = (int)(1000 * pow(2, player.currentLevel - 1));
+                snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player.currentLevel);
+                loadLevel(&level, &player, filename);
                 drawSplashScreen(&player, currentMusic);
             }
         }
@@ -484,7 +700,9 @@ void startGame(void)
                 currentMusic = &lastLevelMusic;
                 PlayMusicStream(*currentMusic);
             }
-            loadLevel(&level, &player);
+            level.maxScore = (int)(1000 * pow(2, player.currentLevel - 1));
+            snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player.currentLevel);
+            loadLevel(&level, &player, filename);
             PlaySound(levelUpEffect);
             drawSplashScreen(&player, currentMusic);
         }
@@ -576,10 +794,10 @@ void startGame(void)
         ClearBackground(BLACK);
 
         // Desenhar texturas do nível
-        drawLevel(&level, &player, ALPHA_DISABLE);
+        drawLevel(&level, &player);
 
         // Desenhar HUD
-        drawHUD(&level, &player, ALPHA_DISABLE);
+        drawHUD(&level, &player);
 
         EndDrawing();
     }
@@ -618,8 +836,7 @@ void startLevelEditor(void)
     while (!(WindowShouldClose() || levelSaved))
     {
         // Verificar salvamento do nível
-        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER))
-            && selected == Save && isPlayerPlaced(&level))
+        if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && selected == Save && isPlayerPlaced(&level))
         {
             // Pedir nome do nível criado para usuário
             char levelName[MAX_CUSTOM_LEVEL_NAME + 1] = {0};
@@ -633,13 +850,15 @@ void startLevelEditor(void)
             // Salvar nível
             levelSaved = saveCustomLevel(levelPath, &level, &player);
 
-            // METADADOS 100 % VALIDADOS. UTILIZAR TRECHO COMENTADO PARA CRIAR FUNÇÕES GRÁFICAS DE MENU DE NÍVEIS CUSTOMIZADOS
+            // METADADOS 100 % VALIDADOS. UTILIZAR TRECHO COMENTADO PARA CRIAR FUNÇÕES GRÁFICAS DE MENU DE NÍVEIS
+            // CUSTOMIZADOS
 
             /*int customLevelsAmount = 0;
             int maxCustomLevelsAmount = 0;
             custom_level_metadata_t metadata[MAX_CUSTOM_LEVELS_AMOUNT];
 
-            readCustomLevelsMetadataFile("custom_levels/metadata.bin", metadata, &customLevelsAmount, &maxCustomLevelsAmount);
+            readCustomLevelsMetadataFile("custom_levels/metadata.bin", metadata, &customLevelsAmount,
+            &maxCustomLevelsAmount);
 
             Texture2D miniaturesTextures[MAX_CUSTOM_LEVELS_AMOUNT];
             struct tm *metadataDates[MAX_CUSTOM_LEVELS_AMOUNT];
@@ -658,7 +877,7 @@ void startLevelEditor(void)
             {
                 BeginDrawing();
                 ClearBackground(BLACK);
-                
+
                 for (int i = 0; i < customLevelsAmount; i++)
                 {
                     DrawTexture(miniaturesTextures[i], 0, 85 * i, WHITE);
@@ -703,8 +922,8 @@ void startLevelEditor(void)
             BeginDrawing();
             ClearBackground(BLACK);
 
-            drawEditorLevel(&level, ALPHA_DISABLE);
-            drawEditorHUD(&level, selected, ALPHA_DISABLE);
+            drawEditorLevel(&level);
+            drawEditorHUD(&level, selected);
 
             EndDrawing();
         }

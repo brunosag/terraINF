@@ -10,9 +10,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "raylib.h"
 #include <ctype.h>
 #include <math.h>
-#include "raylib.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,14 +54,34 @@
 
 #define MAX_ORE_NAME 20
 #define ORE_COUNT 5
-#define CAESIUM_COLOR (Color){226, 156, 100, 255}
-#define GOLD_COLOR (Color){226, 209, 126, 255}
-#define SILVER_COLOR (Color){190, 190, 190, 255}
-#define TITANIUM_COLOR (Color){192, 219, 196, 255}
-#define URANIUM_COLOR (Color){119, 193, 111, 255}
+#define CAESIUM_COLOR                                                                                                  \
+    (Color)                                                                                                            \
+    {                                                                                                                  \
+        226, 156, 100, 255                                                                                             \
+    }
+#define GOLD_COLOR                                                                                                     \
+    (Color)                                                                                                            \
+    {                                                                                                                  \
+        226, 209, 126, 255                                                                                             \
+    }
+#define SILVER_COLOR                                                                                                   \
+    (Color)                                                                                                            \
+    {                                                                                                                  \
+        190, 190, 190, 255                                                                                             \
+    }
+#define TITANIUM_COLOR                                                                                                 \
+    (Color)                                                                                                            \
+    {                                                                                                                  \
+        192, 219, 196, 255                                                                                             \
+    }
+#define URANIUM_COLOR                                                                                                  \
+    (Color)                                                                                                            \
+    {                                                                                                                  \
+        119, 193, 111, 255                                                                                             \
+    }
 
 #define MENU_FONT_SIZE 22
-#define GAMEOVER_TITLE_FONT_SIZE 100
+#define ENDGAME_TITLE_FONT_SIZE 100
 #define GAMEOVER_NAME_DELAY 1.0f // em segundos
 
 #define MAX_RANKING_SIZE 5
@@ -139,7 +159,7 @@ typedef enum gameover_option
 {
     ResetGame = 1,
     ExitGame
-} gameover_option_t;
+} endgame_option_t;
 
 typedef enum editor_option
 {
@@ -186,6 +206,7 @@ typedef struct level
     Texture2D textures[ELEMENT_COUNT];
     ore_t ores[ORE_COUNT];
     int oreCount;
+    int maxScore;
 } level_t;
 
 typedef struct custom_level_metadata
@@ -209,12 +230,12 @@ typedef struct ranking
     int score;
 } ranking_t;
 
-int compareFileNames(const char* fileName1, const char* fileName2);
+bool uninterruptTimer(bool reset, float time);
 float fadeTimer(bool reset, float fadeInTime, float fadeOffTime, float fadeOutTime);
+int compareFileNames(const char *fileName1, const char *fileName2);
 int findLowestIntervalValue(int *values, int valuesAmount, int firstValue, int lastValue);
 void generateRandomName(char *name, int nameLength);
 void removeFileExtension(char *fileName);
-bool uninterruptTimer(bool reset, float time);
 void updateDuplicateFileName(char *duplicateFileName, int lastDuplicateNumber);
 
 #endif

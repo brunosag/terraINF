@@ -28,16 +28,19 @@
 #define ELEMENT_SIZE 40
 
 Image createLevelMiniature(level_t *level, player_t *player);
-void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, int customLevelsAmount, int selectedOption);
+void drawCustomLevelHUD(level_t *level, player_t *player);
+void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, int customLevelsAmount,
+                          int selectedOption);
 void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSize, bool blinkUnderscore);
-void drawEditorHUD(level_t *level, editor_option_t selected, float alpha);
-void drawEditorLevel(level_t *level, float alpha);
-void drawGameOverScreen(level_t *level, player_t *player, gameover_option_t selectedOption, float alpha);
+void drawEditorHUD(level_t *level, editor_option_t selected);
+void drawEditorLevel(level_t *level);
+void drawGameOverScreen(level_t *level, player_t *player, endgame_option_t selectedOption);
 void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool blinkUnderscore);
-void drawHUD(level_t *level, player_t *player, float alpha);
-void drawLevel(level_t *level, player_t *player, float alpha);
+void drawHUD(level_t *level, player_t *player);
+void drawLevel(level_t *level, player_t *player);
 void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption);
 void drawRankingScreen(ranking_t *players, int rankingSize, ranking_option_t selectedOption);
 void drawSplashScreen(player_t *player, Music *music);
+void drawWinScreen(endgame_option_t selectedOption);
 
 #endif

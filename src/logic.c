@@ -4,7 +4,7 @@
 #include "../include/logic.h"
 
 void createLevelFilePath(const char *folder, const char *fileName, int nameSize, char *filePath)
-{   
+{
     // Garantir que o nome do arquivo terá apenas caracteres minúsculos
     char correctedFileName[MAX_FILE_NAME + 1] = {0};
     for (int i = 0; i < nameSize; i++)
@@ -22,7 +22,6 @@ void createLevelFilePath(const char *folder, const char *fileName, int nameSize,
     }
     else
         snprintf(filePath, MAX_FILE_NAME, "%s.txt", correctedFileName);
-
 }
 
 int getFallSize(level_t *level, int x, int y)
@@ -59,7 +58,7 @@ void getFileName(const char *filePath, char *fileName)
         fileNameTemp[i] = '\0';
     for (int i = lastDot; i < filePathLength; i++)
         fileNameTemp[i] = '\0';
-    
+
     // Deslocar caracteres para o início e atribuí-los para o nome do arquivo
     for (int i = lastSlash + 1; i <= lastDot; i++)
         fileName[i - lastSlash - 1] = fileNameTemp[i];
@@ -72,7 +71,7 @@ bool isPlayerPlaced(level_t *level)
     // Ler toda a matriz do nível para ver se há um jogador
     for (int i = 0; i < LVL_HEIGHT; i++)
         for (int j = 0; j < LVL_WIDTH; j++)
-            if(level->elements[i][j] == CHAR_PLAYER)
+            if (level->elements[i][j] == CHAR_PLAYER)
                 playerPlaced = true;
 
     return playerPlaced;
@@ -120,7 +119,7 @@ action_effects_t mine(level_t *level, player_t *player, int direction)
             actionEffect = OreMined;
             if (updateEnergy(player, 30))
                 actionEffect = PlayerDamaged;
-            updateScore(player, 150);
+            updateScore(level, player, 150);
             player->lastMined = level->ores[Titanium];
             level->oreCount--;
             break;
@@ -128,7 +127,7 @@ action_effects_t mine(level_t *level, player_t *player, int direction)
             actionEffect = OreMined;
             if (updateEnergy(player, 20))
                 actionEffect = PlayerDamaged;
-            updateScore(player, 100);
+            updateScore(level, player, 100);
             player->lastMined = level->ores[Gold];
             level->oreCount--;
             break;
@@ -136,7 +135,7 @@ action_effects_t mine(level_t *level, player_t *player, int direction)
             actionEffect = OreMined;
             if (updateEnergy(player, 10))
                 actionEffect = PlayerDamaged;
-            updateScore(player, 50);
+            updateScore(level, player, 50);
             player->lastMined = level->ores[Silver];
             level->oreCount--;
             break;
@@ -205,7 +204,7 @@ action_effects_t moveHorizontal(level_t *level, player_t *player, int offset)
         player->position.y += fallSize;
 
         // Se não houver queda
-        if(fallSize <= 1)
+        if (fallSize <= 1)
             actionEffect = PlayerMoved;
         else
             actionEffect = PlayerFell;
@@ -318,7 +317,9 @@ bool placeLadder(level_t *level, player_t *player)
     return ladderPlaced;
 }
 
-int updateCustomLevelsMetadata(custom_level_metadata_t *oldMetadata, custom_level_metadata_t *metadata, custom_level_metadata_t *metadataStored, int *customLevelsStored, int maxCustomLevelsAmount)
+int updateCustomLevelsMetadata(custom_level_metadata_t *oldMetadata, custom_level_metadata_t *metadata,
+                               custom_level_metadata_t *metadataStored, int *customLevelsStored,
+                               int maxCustomLevelsAmount)
 {
     int duplicateNumber = 0;
 
@@ -409,6 +410,31 @@ bool updateEnergy(player_t *player, int offset)
     return energyDrained;
 }
 
+int customLevelMaxScore(level_t *level)
+{
+    int score = 0;
+    for (int i = 0; i < LVL_HEIGHT; i++)
+    {
+        for (int j = 0; j < LVL_WIDTH; j++)
+        {
+            // Verificar elemento atual na matriz
+            switch (level->elements[i][j])
+            {
+            case CHAR_SILVER:
+                score += 50;
+                break;
+            case CHAR_GOLD:
+                score += 100;
+                break;
+            case CHAR_TITANIUM:
+                score += 150;
+                break;
+            }
+        }
+    }
+    return score;
+}
+
 void updateRankingPositions(player_t *player, ranking_t *players, int rankingSize, int firstAlteredPosition)
 {
     // Se o argumento de primeira posição alterada for uma posição válida (não nula)
@@ -428,12 +454,12 @@ void updateRankingPositions(player_t *player, ranking_t *players, int rankingSiz
     }
 }
 
-void updateScore(player_t *player, int offset)
+void updateScore(level_t *level, player_t *player, int offset)
 {
     player->score += offset;
 
     // Verificar se jogador passou de fase
-    if (player->score >= (int)(1000 * pow(2, player->currentLevel - 1)))
+    if (player->score >= level->maxScore)
         player->currentLevel++;
 }
 
