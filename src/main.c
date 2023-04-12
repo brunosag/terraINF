@@ -443,7 +443,7 @@ void startCustomGame(char *filename)
     KeyboardKey direction = KEY_S;
 
     // Carregar todos os áudios do jogo
-    Music firstLevelsMusic = LoadMusicStream("resources/music/first_levels.mp3");
+    Music customLevelMusic = LoadMusicStream("resources/music/custom_level.mp3");
     Sound blockSteppedEffect = LoadSound("resources/sound_effects/block_stepped.ogg");
     Sound dirtMinedEffect = LoadSound("resources/sound_effects/dirt_mined.ogg");
     Sound fallEffect = LoadSound("resources/sound_effects/fall.ogg");
@@ -455,24 +455,23 @@ void startCustomGame(char *filename)
 
     // Carregar nível
     level_t level;
-    Music *currentMusic = &firstLevelsMusic;
-    PlayMusicStream(*currentMusic);
+    PlayMusicStream(customLevelMusic);
     loadLevel(&level, &player, filename);
     level.maxScore = customLevelMaxScore(&level);
     endgame_option_t endgameOption = ResetGame;
     while (!(WindowShouldClose() || endgameOption == ExitGame))
     {
-        UpdateMusicStream(*currentMusic);
+        UpdateMusicStream(customLevelMusic);
 
         // Verificar condições de fim de jogo
         if ((player.score >= level.maxScore) || !player.health)
         {
-            StopMusicStream(*currentMusic);
+            StopMusicStream(customLevelMusic);
             endgameOption = player.health ? win(&level, &player) : gameOver(&level, &player, false);
             if (endgameOption == ResetGame)
             {
                 player.health = 3;
-                PlayMusicStream(*currentMusic);
+                PlayMusicStream(customLevelMusic);
                 loadLevel(&level, &player, filename);
             }
         }
@@ -583,7 +582,7 @@ void startCustomGame(char *filename)
     UnloadSound(ladderPlacedEffect);
     UnloadSound(oreMinedEffect);
     UnloadSound(pickaxeEquippedEffect);
-    UnloadMusicStream(firstLevelsMusic);
+    UnloadMusicStream(customLevelMusic);
 }
 
 void startCustomLevelsMenu(void)
