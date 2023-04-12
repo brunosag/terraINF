@@ -121,6 +121,16 @@ typedef enum action_effects
     PlayerDamaged
 } action_effects_t;
 
+typedef enum editor_effects
+{
+    NothingDone,
+    PlayerPlaced,
+    DirtPlaced,
+    OrePlaced,
+    DirtRemoved,
+    OreRemoved
+} editor_effects_t;
+
 typedef enum menu_option
 {
     StartGame = 1,

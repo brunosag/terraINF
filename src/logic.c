@@ -241,8 +241,10 @@ bool moveVertical(level_t *level, player_t *player, int offset)
     return movedVertical;
 }
 
-void placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected)
+editor_effects_t placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected)
 {
+    editor_effects_t blockEffect = NothingDone;
+
     switch (selected)
     {
     case PlayerSlot:
@@ -252,32 +254,58 @@ void placeBlock(level_t *level, player_t *player, position_t mousePosition, edit
             level->elements[mousePosition.y][mousePosition.x] = CHAR_PLAYER;
             player->position.x = mousePosition.x;
             player->position.y = mousePosition.y;
+            blockEffect = PlayerPlaced;
         }
         break;
     case BackgroundSlot:
+        if (level->elements[mousePosition.y][mousePosition.x] == CHAR_SILVER   || 
+            level->elements[mousePosition.y][mousePosition.x] == CHAR_GOLD     ||
+            level->elements[mousePosition.y][mousePosition.x] == CHAR_TITANIUM ||
+            level->elements[mousePosition.y][mousePosition.x] == CHAR_CAESIUM  ||
+            level->elements[mousePosition.y][mousePosition.x] == CHAR_URANIUM)
+        {
+            blockEffect = OreRemoved;
+        }
+        else if (level->elements[mousePosition.y][mousePosition.x] == CHAR_DIRT)
+            blockEffect = DirtRemoved;
+
         level->elements[mousePosition.y][mousePosition.x] = CHAR_EMPTY;
         break;
     case DirtSlot:
+        if (level->elements[mousePosition.y][mousePosition.x] != CHAR_DIRT)
+            blockEffect = DirtPlaced;
         level->elements[mousePosition.y][mousePosition.x] = CHAR_DIRT;
         break;
     case SilverSlot:
+        if (level->elements[mousePosition.y][mousePosition.x] != CHAR_SILVER)
+            blockEffect = OrePlaced;
         level->elements[mousePosition.y][mousePosition.x] = CHAR_SILVER;
         break;
     case GoldSlot:
+        if (level->elements[mousePosition.y][mousePosition.x] != CHAR_GOLD)
+            blockEffect = OrePlaced;
         level->elements[mousePosition.y][mousePosition.x] = CHAR_GOLD;
         break;
     case TitaniumSlot:
+        if (level->elements[mousePosition.y][mousePosition.x] != CHAR_TITANIUM)
+            blockEffect = OrePlaced;
         level->elements[mousePosition.y][mousePosition.x] = CHAR_TITANIUM;
         break;
     case CaesiumSlot:
+        if (level->elements[mousePosition.y][mousePosition.x] != CHAR_CAESIUM)
+            blockEffect = OrePlaced;
         level->elements[mousePosition.y][mousePosition.x] = CHAR_CAESIUM;
         break;
     case UraniumSlot:
+        if (level->elements[mousePosition.y][mousePosition.x] != CHAR_URANIUM)
+            blockEffect = OrePlaced;
         level->elements[mousePosition.y][mousePosition.x] = CHAR_URANIUM;
         break;
     case Save:
         break;
     }
+
+    return blockEffect;
 }
 
 bool placeLadder(level_t *level, player_t *player)

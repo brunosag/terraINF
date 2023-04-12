@@ -26,7 +26,7 @@ int updateCustomLevelsMetadata(custom_level_metadata_t *oldMetadata, custom_leve
                                int maxCustomLevelsAmount);
 void createLevelFilePath(const char *folder, const char *fileName, int nameSize, char *filePath);
 void getFileName(const char *filePath, char *fileName);
-void placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected);
+editor_effects_t placeBlock(level_t *level, player_t *player, position_t mousePosition, editor_option_t selected);
 void updateRankingPositions(int totalScore, player_t *player, ranking_t *players, int rankingSize,
                             int firstAlteredPosition);
 void updateScore(level_t *level, player_t *player, int offset);

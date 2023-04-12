@@ -591,6 +591,7 @@ void startCustomLevelsMenu(void)
 
     // Carregar áudios
     Music customLevelsMenuMusic = LoadMusicStream("resources/music/custom_levels_menu.mp3");
+    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
     PlayMusicStream(customLevelsMenuMusic);
 
     // Carregar fundo
@@ -615,7 +616,7 @@ void startCustomLevelsMenu(void)
             if (selected > EXIT_CUSTOM_LEVELS_MENU)
             {
                 selected--;
-                // PlaySound(menuSelectionEffect);
+                PlaySound(menuSelectionEffect);
             }
         }
         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
@@ -623,7 +624,7 @@ void startCustomLevelsMenu(void)
             if (selected < (customLevelsAmount - 1))
             {
                 selected++;
-                // PlaySound(menuSelectionEffect);
+                PlaySound(menuSelectionEffect);
             }
         }
 
@@ -632,7 +633,8 @@ void startCustomLevelsMenu(void)
         {
             // Confirmar seleção
             confirmed = true;
-            // PlaySound(menuSelectionEffect);
+            PlaySound(menuSelectionEffect);
+            // Iniciar respectivo nível customizado
             if (selected >= 0)
                 startCustomGame(metadata[selected].name);
         }
@@ -646,6 +648,7 @@ void startCustomLevelsMenu(void)
     }
 
     // Descarregar áudios
+    UnloadSound(menuSelectionEffect);
     UnloadMusicStream(customLevelsMenuMusic);
 }
 
@@ -832,8 +835,14 @@ void startGame(void)
 void startLevelEditor(void)
 {
     // Carregar áudios
-    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
     Music levelEditorMusic = LoadMusicStream("resources/music/level_editor.mp3");
+    Sound dirtPlacedEffect = LoadSound("resources/sound_effects/dirt_placed.ogg");
+    Sound dirtRemovedEffect = LoadSound("resources/sound_effects/dirt_mined.ogg");
+    Sound levelEditorSelectionEffect = LoadSound("resources/sound_effects/level_editor_selection.ogg");
+    Sound menuSelectionEffect = LoadSound("resources/sound_effects/menu_selection.wav");
+    Sound orePlacedEffect = LoadSound("resources/sound_effects/ore_placed.ogg");
+    Sound oreRemovedEffect = LoadSound("resources/sound_effects/ore_mined.ogg");
+    Sound playerPlacedEffect = LoadSound("resources/sound_effects/player_placed.ogg");
     PlayMusicStream(levelEditorMusic);
 
     // Carregar template de nível
@@ -851,6 +860,8 @@ void startLevelEditor(void)
         // Verificar salvamento do nível
         if ((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && (selected == Save) && isOrePlaced(&level))
         {
+            PlaySound(menuSelectionEffect);
+
             // Pedir nome do nível criado para usuário
             char levelName[MAX_CUSTOM_LEVEL_NAME + 1] = {0};
             int nameSize = 0;
@@ -867,13 +878,24 @@ void startLevelEditor(void)
         // Verificar navegação de seleção
         if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
         {
-            if (selected < Save)
+            if (selected < Save - 1)
+            {
                 selected++;
+                PlaySound(levelEditorSelectionEffect);
+            }
+            else if (selected == Save - 1)
+            {
+                selected++;
+                PlaySound(menuSelectionEffect);
+            }
         }
         if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
         {
             if (selected > PlayerSlot)
+            {
                 selected--;
+                PlaySound(levelEditorSelectionEffect);
+            }
         }
 
         // Verificar posicionamento de bloco
@@ -886,8 +908,27 @@ void startLevelEditor(void)
             if ((mousePosition.x > 0) && (mousePosition.x < LVL_WIDTH - 1) && (mousePosition.y > 0) &&
                 (mousePosition.y < LVL_HEIGHT - 1) && (level.elements[mousePosition.y][mousePosition.x] != CHAR_PLAYER))
             {
-                // Posicionar bloco
-                placeBlock(&level, &player, mousePosition, selected);
+                // Posicionar bloco e emitir respectivo efeito sonoro
+                switch (placeBlock(&level, &player, mousePosition, selected))
+                {
+                case PlayerPlaced:
+                    PlaySound(playerPlacedEffect);
+                    break;
+                case DirtRemoved:
+                    PlaySound(dirtRemovedEffect);
+                    break;
+                case OreRemoved:
+                    PlaySound(oreRemovedEffect);
+                    break;
+                case DirtPlaced:
+                    PlaySound(dirtPlacedEffect);
+                    break;
+                case OrePlaced:
+                    PlaySound(orePlacedEffect);
+                    break;
+                default:
+                    break;
+                }
             }
         }
 
@@ -902,7 +943,13 @@ void startLevelEditor(void)
         EndDrawing();
     }
 
+    UnloadSound(dirtPlacedEffect);
+    UnloadSound(dirtRemovedEffect);
+    UnloadSound(levelEditorSelectionEffect);
     UnloadSound(menuSelectionEffect);
+    UnloadSound(orePlacedEffect);
+    UnloadSound(oreRemovedEffect);
+    UnloadSound(playerPlacedEffect);
     UnloadMusicStream(levelEditorMusic);
 }
 
