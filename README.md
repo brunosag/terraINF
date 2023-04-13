@@ -13,90 +13,90 @@
     <a href="#contact">Contact</a>
 </p>
 
-## Avisos Iniciais
+## Initial Warnings
 
-O jogo foi desenvolvido no sistema operacional Windows através do VS Code. Foram adicionadas condições para facilitar a compilação desse em qualquer sistema operacional. No entanto, não há garantia que o código compile em qualquer plataforma. Além disso, conforme as implementações se deram no VS Code, não é garantido o bom funcionamento dos arquivos em outras IDEs. 
+The game was developed on the Windows operating system using VS Code. Conditions have been added to make it easier to compile it on any operating system. However, there is no guarantee that the code will compile on any platform. Also, as the implementations were made in VS Code, the proper functioning of the files in other IDEs is not guaranteed.
 
-Para o bom funcionamento do jogo, são necessários minimamente o arquivo executável do jogo (exe), a pasta levels que contém os níveis 1, 2 e 3 e o nível do editor em formato txt e a pasta resources que contém todos efeitos sonoros, músicas, texturas e fundos utilizados e carregados pelo jogo. Essas pastas devem estar localizadas no mesmo diretório do arquivo executável. As pastas “ranking” e custom_levels são criadas a partir da execução do jogo, portanto não são necessárias para rodar pela primeira vez. No entanto, ao serem deletadas depois da primeira vez, os dados de ranking e níveis customizados são reiniciados. 
-
-
-## Descrição do Jogo
-
-TerraINF consiste em um jogo de mineração de um jogador cujo objetivo é adquirir a maior pontuação possível ao obter certos tipos de minérios. Com uma pontuação específica (que aumenta em 100 % a cada nível), o jogador evolui de fase, aumentando o seu desafio. Minerar ou quebrar blocos de terra aumentam ou diminuem a energia do jogador. O jogo conta com cinco minérios: três desses (prata, ouro e titânio) aumentam a pontuação e a energia do jogador e os demais (césio e urânio) diminuem a energia desse. A locomoção do jogador horizontalmente é livre, já verticalmente depende de escadas, que são disponibilizadas em vinte unidades no início de cada nível. Para fins de aumentar o desafio, o jogador tem 3 vidas no início do jogo. Caso haja alguma queda maior que 3 blocos, o jogador perde 1 vida e caso a sua energia baixe de 20 unidades, também perde 1 vida (e sua energia é regenerada para a quantidade inicial). Essas vidas são mantidas para os próximos níveis. Quando as vidas chegam a zero, o jogador perde o jogo e pode reiniciá-lo a partir do primeiro nível ou sair para o menu inicial. 
-
-O menu do jogo apresenta as opções de: iniciar o jogo; criar fases customizadas; jogar fases customizadas; acessar ranking de melhores pontuações; e fechar o jogo. 
-
-O ranking de pontos mostra os nomes dos 5 melhores jogadores ordenados pela maior pontuação. Caso seja a primeira vez que se abre o jogo, o ranking mostra 5 jogadores com nomes aleatórios e pontuação zerada. 
-
-O editor de níveis é uma tela interativa onde, através do mouse, pode-se desenhar um novo nível e salvá-lo com um nome personalizado. Esse nível poderá ser acessado na tela de “níveis customizados” através do menu inicial. O sistema armazena até 3 níveis customizados, excluindo automaticamente o mais antigo ao criar-se níveis excedendo a capacidade máxima. Ao selecionar algum nível, o jogador é redirecionado para um jogo customizado, onde a pontuação necessária para finalizar o game depende do número de minérios que aumentam a pontuação que foram colocados. Caso atinja-se essa pontuação, uma tela de vitória aparecerá, permitindo reiniciar ou sair da fase personalizada. Porém, ao perder todas as vidas, uma tela de game over, com as mesmas opções da tela de vitória, é exibida. As pontuações das fases customizadas não são contabilizadas no ranking. 
+For the proper functioning of the game, it is necessary to have the game's executable file (exe), the "levels" folder containing levels 1, 2 and 3, and the editor level in txt format and the "resources" folder containing all sound effects, music, sprites and backgrounds used by the game. These folders must be located in the same directory as the executable file. The "ranking" and "custom_levels" folders are created as the game runs, so they are not needed when it runs for the first time. However, when deleted after the first time, the "ranking" and "custom_levels" data is reset.
 
 
-## Como Usar o Programa
+## Game Description
 
-Ao iniciar o arquivo executável, o menu inicial do jogo aparecerá com as cinco opções citadas anteriormente na descrição do jogo e ilustrada na captura abaixo. 
+TerraINF is a single-player mining game where the goal is to acquire the highest possible score by obtaining certain types of ores. With a specific score (which increases by 100% with each level), the player progresses through stages, increasing their challenge. Mining or breaking down blocks of earth increases or decreases the player's energy. The game has five ores: three of those (silver, gold, and titanium) increase the player's score and energy, and the others (cesium and uranium) decrease the player's energy. The player's horizontal movement is free, while vertical movement depends on ladders, which are available in twenty units at the beginning of each level. For the purposes of increasing challenge, the player has 3 lives at the beginning of the game. If there is a fall higher than 3 blocks, the player loses 1 life, and if his energy drops below 20 units, he also loses 1 life (and his energy is reset to the initial amount). Those lives are kept for the next level. When the health reaches zero, the player loses the game and can restart it from the first level or exit to the main menu.
 
+The game menu presents the options to: start the game; create custom levels; play custom levels; access high score rankings; and exit the game. 
 
-### Menu Inicial 
+The score ranking displays the name of the top 5 players sorted by highest score. If it is the first time opening the game, the leaderboard has 5 players with random names and zero score.
 
-Pode-se navegar pelas opções do menu através do teclado: ou com as teclas W (para cima) e S (para baixo), ou com as setas para cima e para baixo; e com as teclas ENTER para confirmar a opção desejada. Todos os menus do jogo podem ser navegados dessa forma. 
-
-Ao clicar na opção “Iniciar Jogo”, o jogador visualizará uma tela com o número da fase a ser jogada: 
-
-
-### Splash Screen do Nível 1 
-
-Após essa tela, será exibido o jogo em si. Nele, é possível acompanhar, através da barra superior localizada na tela, as vidas do jogador (marcadas em verde claro), a sua energia (em vermelho), as suas escadas (em azul), a sua pontuação e a pontuação necessária para passar de fase (em rosa) e fase atual (em roxo). As marcações estão demonstradas na figura abaixo. 
+The level editor is an interactive screen where, using the mouse, the user can draw new levels and save them with a custom name. These levels can be accessed from the "custom levels" option on the main menu. The system stores up to 3 custom levels, automatically deleting the oldest one when creating a level that exceeds the maximum capacity. When selecting a level, the player is redirected to a custom game, where the score required to finish the game depends on the number of score-increasing ores that have been placed. If this score is reached, a victory screen is displayed, allowing the player to restart or exit the custom level. However, if there are no lives left, a game over screen shows up, with the same options as the victory screen. Scores from custom levels are not considered in the ranking.
 
 
-### Nível 1 
+## How to Use
 
-Abaixo da HUD está o espaço jogável. As demais bordas são intrespassáveis ao jogador, enquanto os espaços mais claros indicam a área acessível sem necessidade de mineração. A movimentação é feita através ou das teclas W, A, S, D (para cima, esquerda, baixo e esquerda respectivamente), ou das setas do teclado. Para avançar verticamente, utiliza-se escadas, posicionadas através da tecla SHIFT. O modo mineração, ativado com a tecla “1”, possibilita avançar aos espaços previamente bloqueados; para realizar a ação de minerar é necessário indicar, através das teclas, a direção desejada e, então, apertar ESPAÇO. Todos os minérios iniciam ocultos e, após minerá-los, o jogo indica o último item adquirido no centro da HUD (marcado em vermelho) e a nova pontuação após a obtenção do mesmo (em laranja), como observar na imagem a seguir: 
-
-
-### Mineração no Nível 1 
-
-Também observa-se na imagem acima as escadas colocadas no nível (em azul). Como já explicado na descrição do jogo, ao perder todas as vidas, o jogo acaba, gerando uma tela de game over: 
+When you start the executable file, the initial menu of the game will appear with the five options mentioned earlier in the game description and illustrated in the screenshot below. 
 
 
-### Tela de Game Over 
+### Initial Menu
 
-Pode-se selecionar as opções, essas sendo: reiniciar o jogo a partir do nível 1 ou sair para o menu inicial dessa tela, com as teclas descritas anteriormente. Abaixo da mensagem de “Fim de Jogo” é disponibilizado o motivo para o encerramento da fase, podendo ser relacionada às vidas esgotadas ou à impossibilidade da fase ser concluída (caso não haja minérios suficientes). Se o jogador obtiver pontuação melhor que algum membro do ranking, pede-se o nome desse para colocar na tela de ranking de melhores pontuações, como exemplificado abaixo. 
+The user can navigate through the menu options using the keyboard: either with the W (up) and S (down) keys, or the up and down arrow keys, and the ENTER key to confirm the desired option. All game menus can be navigated this way.
 
-
-### Tela de High Score 
-
-Inspirado nos antigos jogos do Pacman, o nome armazenado é de exatamente 3 caracteres (se digitados minúsculos, serão convertidos para maiúsculos). Ao digitar os 3 caracteres a opção confirmar é destacada, permitindo retornar à tela de game over: 
+By selecting the "Start Game" option, the player will see a screen with the number of the level to be played: 
 
 
-### Confirmação na Tela de High Score 
+### Level 1 Splash Screen
 
-O jogo principal não apresenta tela de vitória, visto que ele tem 3 níveis e a última fase não contém minérios suficientes para atingir a meta estabelecida, mantendo um sistema de ranking saudável. 
-
-Retornando ao menu principal, ao selecionar a opção de editor de nível, o usuário é recebido com uma tela interativa onde pode-se navegar com o mouse ou com o teclado. Com o teclado, utiliza-se A e D ou as flechas laterais para selecionar um minério ou salvar a fase. O mouse também funciona e possibilitando clicar nos itens selecionáveis da HUD. Caso queira sair sem salvar, basta pressionar a tecla ESC para voltar ao menu. Os ítens selecionáveis estão marcados em laranja e a opção de salvar só é selecionada ao passar o mouse por cima e clicar com o botão esquerdo ou através das teclas já mencionadas e pressionando ENTER. 
+After this screen, the game itself will be displayed. In it, it is possible to follow, through the top bar located on the screen, the player's lives (marked in light green), his energy (in red), his stairs (in blue), his score and the score required to pass the level (in pink) and the current level (in purple). The markings are demonstrated in the figure below. 
 
 
-### Editor de Nível
+### Level 1
 
-A tela de salvamento de fase é mostrada a seguir solicita ao usuário um nome para a fase. Esse nome aceita diversos tipos de caracteres, mas as letras salvas serão apenas maiúsculas. O tamanho aceitável é de 1 até 20 caracteres. Após digitar um nome válido, a opção de confirmação é destacada e, caso selecionada com a tecla ENTER, redireciona o jogador ao menu inicial. São armazenadas até 3 fases customizadas, descartando-se as mais antigas. 
-
-### Salvamento de Nível Customizado
-
-Com a nova fase salva, pode-se acessá-la através da opção “Níveis Customizados” do menu inicial. Essa tela apresenta cada fase customizada criada com o seu respectivo nome, sua miniatura e a sua data de criação. Quando não há fases criadas, essa tela é vazia, permitinfo o usuário retornar ao menu inicial ou selecionando a opção “Sair” (mesma teclas de seleção do menu inicial) ou através da tecla ESC. Abaixo mostra-se a tela com a fase recém criada de exemplo para este manual: 
+Below the HUD is the playable space. The remaining borders are unplayable to the player, while the lighter spaces indicate the area accessible without mining. Movement is done using either the W, A, S, D keys (up, left, down, and left respectively), or the arrow keys on the keyboard. To advance vertically, you use ladders, positioned with the SHIFT key. The mining mode, activated with the "1" key, allows you to advance to previously blocked spaces; to perform the mining action you must indicate, using the keys, the desired direction and then press SPACE. All ores start hidden, and after mining them, the game indicates the last item acquired in the center of the HUD (marked in red) and the new score after obtaining it (in orange), as shown in the following image: 
 
 
-### Menu de Níveis Customizados
+### Mining at Level 1
 
-Selecionando a fase customizada e pressionando a tecla ENTER, o jogador é redirecionado para a fase desejada. O jogo customizado é muito semelhante ao jogo normal, porém não apresenta tela de Splash Screen, o nome do nível na HUD e a pontuação é calculada a partir dos minérios de pontuação positiva colocados na fase. A figura abaixo elucida bem essas diferenças: 
-
-
-### Jogo Customizado
-
-Esse jogo apresenta game over e todas as outras mecânicas semelhantes às do jogo original. As únicas diferenças são que existem uma tela de vitória, caso o jogador consiga coletar todos os minérios de pontuação positiva da fase, e o sistema de ranking não é aplicável. Para voltar ao menu inicial, basta pressionar a tecla ESC em qualquer momento do jogo customizado. 
+Also observed in the image above are the stairs placed on the level (in blue). As already explained in the description of the game, when you lose all lives, the game ends, generating a game over screen: 
 
 
-### Tela de Vitória
+### Game Over Screen
 
-A última opção do menu inicial mostra o ranking de melhores jogadores do jogo principal. Ela só apresenta a opção “Sair” para retornar ao menu principal. Na figura abaixo, aparece a pontuação que foi obtida na demonstração de high score do jogo principal: 
+You can select the options, these being: restart the game from level 1 or exit to the initial menu of this screen, with the keys described above. Below the message "End Game" is available the reason for the closure of the phase, which can be related to the exhausted lives or the inability of the phase to be completed (if there are not enough ores). If the player has a better score than any ranking member, the player's name is requested to be placed in the high score ranking screen, as exemplified below. 
+
+
+### High Score Screen
+
+Inspired by the old Pacman games, the name stored is exactly 3 characters long (if typed in lowercase, it will be converted to uppercase). By entering the 3 characters, the confirm option is highlighted, allowing you to return to the game over screen: 
+
+
+### Confirmation on High Score Screen
+
+The main game does not present a victory screen, since it has 3 levels and the last level does not contain enough ores to reach the established goal, maintaining a healthy ranking system. 
+
+Returning to the main menu, when you select the level editor option, you are greeted with an interactive screen where you can navigate with the mouse or keyboard. With the keyboard, you use A and D or the side arrows to select an ore or save the phase. The mouse also works and makes it possible to click on selectable items on the HUD. If you want to exit without saving, just press the ESC key to return to the menu. Selectable items are marked in orange, and the save option is only selected by hovering over them and left clicking, or by using the aforementioned keys and pressing ENTER. 
+
+
+### Level Editor
+
+The phase save screen shown below prompts the user for a name for the phase. This name accepts several types of characters, but the letters saved will be uppercase only. The acceptable length is from 1 to 20 characters. After entering a valid name, the confirmation option is highlighted and, if selected with the ENTER key, redirects the player to the start menu. Up to 3 custom stages are stored, discarding the oldest. 
+
+### Custom Level Saving
+
+With the new phase saved, it can be accessed through the "Custom Levels" option on the start menu. This screen displays each custom phase created with its name, its thumbnail, and its creation date. When there are no phases created, this screen is empty, allowing the user to return to the initial menu either by selecting the "Exit" option (same selection keys as in the initial menu) or by pressing the ESC key. Below is shown the screen with the newly created example phase for this manual: 
+
+
+### Custom Levels Menu
+
+By selecting the custom phase and pressing the ENTER key, the player is redirected to the desired phase. The custom game is very similar to the normal game, however it does not feature a Splash Screen, the level name on the HUD and the score is calculated from the positive scoring ores placed in the stage. The picture below elucidates these differences well: 
+
+
+### Custom Game
+
+This game features game over and all other mechanics similar to the original game. The only differences are that there is a victory screen if the player manages to collect all the positive score ores in the stage, and the ranking system does not apply. To return to the start menu, simply press the ESC key at any point in the custom game. 
+
+
+### Victory Screen
+
+The last option of the start menu shows the top player ranking of the main game. It only displays the "Exit" option to return to the main menu. The picture below shows the score that was obtained in the high score demo of the main game: 
 
 
 ## License
