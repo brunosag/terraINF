@@ -12,6 +12,9 @@ int main()
     // Inicializar dispositivo de áudio
     InitAudioDevice();
 
+    // Inicializar ícone da janela
+    SetWindowIcon(LoadImage("resources/sprites/logo.png"));
+
     menu_option_t selected;
     while (!WindowShouldClose())
     {
