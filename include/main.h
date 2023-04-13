@@ -23,7 +23,7 @@ endgame_option_t win(level_t *level, player_t *player);
 menu_option_t startMenu(void);
 ranking_option_t startRanking(void);
 void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected,
-                        editor_option_t hovered, Sound menuSelectionEffect);
+                        editor_option_t hovered, Sound menuSelectionEffect, Music currentMusic);
 void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLevelsAmount,
                               custom_levels_menu_t *menuData);
 void startCustomGame(char *filename);

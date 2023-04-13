@@ -203,7 +203,7 @@ endgame_option_t win(level_t *level, player_t *player)
 }
 
 void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t *level, editor_option_t selected,
-                        editor_option_t hovered, Sound menuSelectionEffect)
+                        editor_option_t hovered, Sound menuSelectionEffect, Music currentMusic)
 {
     float frameCounter = 0;
     bool blinkUnderscore = false;
@@ -211,6 +211,8 @@ void getCustomLevelName(char *levelName, int *nameSize, int maxNameSize, level_t
     bool levelNameConfirmed = false;
     while (!levelNameConfirmed)
     {
+        UpdateMusicStream(currentMusic);
+
         // Ler caractere do teclado (Unicode)
         int key = GetCharPressed();
 
@@ -873,7 +875,7 @@ void startLevelEditor(void)
             char levelName[MAX_CUSTOM_LEVEL_NAME + 1] = {0};
             int nameSize = 0;
             getCustomLevelName(levelName, &nameSize, MAX_CUSTOM_LEVEL_NAME, &level, selected, hovered,
-                               menuSelectionEffect);
+                               menuSelectionEffect, levelEditorMusic);
 
             // Adaptar e gerar caminho do arquivo
             char levelPath[MAX_FILE_NAME + 1] = {0};
