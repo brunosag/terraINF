@@ -6,7 +6,7 @@
     <br>
 </h1>
 
-<h4 align="center">Simplified version of Terraria built with <a href="https://en.wikipedia.org/wiki/C_(programming_language)" target="_blank">C</a> & <a href="https://www.raylib.com/" target="_blank">Raylib</a>.</h4>
+<h4 align="center">A simplified version of Terraria built with <a href="https://en.wikipedia.org/wiki/C_(programming_language)" target="_blank">C</a> & <a href="https://www.raylib.com/" target="_blank">Raylib</a>.</h4>
 
 <p align="center">
     <a href="#license">License</a> •
@@ -33,7 +33,7 @@ The level editor is an interactive screen where, using the mouse, the user can d
 
 ## How to Use
 
-When you start the executable file, the initial menu of the game will appear with the five options mentioned earlier in the game description and illustrated in the screenshot below. 
+When the executable file is started, the initial menu of the game is displayed with the five options mentioned earlier in the game description and illustrated in the screenshot below. 
 
 
 ### Initial Menu
