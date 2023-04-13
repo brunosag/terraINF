@@ -22,5 +22,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Contact
 
 Bruno Samuel - [LinkedIn](https://www.linkedin.com/in/brunosag/) - brunosag@outlook.com.br
+<br>
 Pedro Lima - [LinkedIn](https://www.linkedin.com/in/pedro-lubaszewski/) - pedro.llima@inf.ufrgs.br
+<br>
 Ana Cláudia Rodrigues - * - rodrigues.ac2001@gmail.com
