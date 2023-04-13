@@ -86,6 +86,7 @@ int createRankingFile(const char *rankingFile, int rankingSize)
         if (fwrite(&rankingSize, sizeof(rankingSize), 1, file) != 1)
             errorNumber = 2;
 
+        srand(time(NULL));
         for (int i = 0; i < rankingSize; i++)
         {
             rankingPlaceholder.position = i + 1;

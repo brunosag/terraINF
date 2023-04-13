@@ -157,7 +157,6 @@ int findLowestIntervalValue(int *values, int valuesAmount, int firstValue, int l
 
 void generateRandomName(char *name, int nameLength)
 {
-    srand(time(NULL));
     for (int i = 0; i < nameLength; i++)
         name[i] = ASCII_MIN + (rand() % (ASCII_MAX - ASCII_MIN + 1));
 }
