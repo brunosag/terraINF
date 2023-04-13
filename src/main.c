@@ -866,6 +866,7 @@ void startLevelEditor(void)
         if ((((IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) && (selected == Save)) && isOrePlaced(&level)) ||
             confirmed)
         {
+            SetMouseCursor(MOUSE_CURSOR_DEFAULT);
             PlaySound(menuSelectionEffect);
 
             // Pedir nome do nível criado para usuário
