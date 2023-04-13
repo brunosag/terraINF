@@ -25,4 +25,4 @@ Bruno Samuel - [LinkedIn](https://www.linkedin.com/in/brunosag/) - brunosag@outl
 <br>
 Pedro Lima - [LinkedIn](https://www.linkedin.com/in/pedro-lubaszewski/) - pedro.llima@inf.ufrgs.br
 <br>
-Ana Cláudia Rodrigues - * - rodrigues.ac2001@gmail.com
+Ana Cláudia Rodrigues - [LinkedIn](https://www.linkedin.com/in/ana-cl%C3%A1udia-rodrigues-1b3524221/) - rodrigues.ac2001@gmail.com
