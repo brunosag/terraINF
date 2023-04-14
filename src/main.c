@@ -353,7 +353,7 @@ void readCustomLevelsMenuData(custom_level_metadata_t *metadata, int *customLeve
 
         // Carregar e formatar as informações de datas de criação dos níveis
         metadataDates[i] = localtime(&metadata[i].dateCreated);
-        snprintf(menuData[i].dateCreated, sizeof(menuData[i].dateCreated), "Criado em %.2d/%.2d/%d %.2d:%.2d:%.2d",
+        snprintf(menuData[i].dateCreated, sizeof(menuData[i].dateCreated), "Created on %.2d/%.2d/%d %.2d:%.2d:%.2d",
                  (metadataDates[i])->tm_mday, (metadataDates[i])->tm_mon + 1, (metadataDates[i])->tm_year + 1900,
                  (metadataDates[i])->tm_hour, (metadataDates[i])->tm_min, (metadataDates[i])->tm_sec);
 
@@ -678,7 +678,7 @@ void startGame(void)
 
     // Ajustar nome do arquivo
     char filename[MAX_FILE_NAME + 1] = {'\0'};
-    snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player.currentLevel);
+    snprintf(filename, sizeof(filename), "levels/level%d.txt", player.currentLevel);
 
     // Carregar nível inicial
     level_t level;
@@ -705,7 +705,7 @@ void startGame(void)
                 PlayMusicStream(*currentMusic);
                 currentLevel = player.currentLevel;
                 level.maxScore = (int)(1000 * pow(2, player.currentLevel - 1));
-                snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player.currentLevel);
+                snprintf(filename, sizeof(filename), "levels/level%d.txt", player.currentLevel);
                 loadLevel(&level, &player, filename);
                 drawSplashScreen(&player, currentMusic);
             }
@@ -722,7 +722,7 @@ void startGame(void)
                 PlayMusicStream(*currentMusic);
             }
             level.maxScore = (int)(1000 * pow(2, player.currentLevel - 1));
-            snprintf(filename, sizeof(filename), "levels/nivel%d.txt", player.currentLevel);
+            snprintf(filename, sizeof(filename), "levels/level%d.txt", player.currentLevel);
             loadLevel(&level, &player, filename);
             PlaySound(levelUpEffect);
             drawSplashScreen(&player, currentMusic);
@@ -928,7 +928,7 @@ void startLevelEditor(void)
                 SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
             }
             // Verificar hover na opção de salvar
-            else if (mousePosition.x > 1060 && mousePosition.x < 1182)
+            else if (mousePosition.x > 1084 && mousePosition.x < 1182)
             {
                 hovered = Save;
                 if (hovered != lastHovered)
