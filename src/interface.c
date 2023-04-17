@@ -57,7 +57,7 @@ void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, 
 
     // Desenhar fundo e título
     DrawTexture(background, 0, 0, WHITE);
-    DrawText("NIVEIS CUSTOMIZADOS", (SCREEN_WIDTH / 2 - MeasureText("NIVEIS CUSTOMIZADOS", 32) / 2), 26, 32, RAYWHITE);
+    DrawText("CUSTOM LEVELS", (SCREEN_WIDTH / 2 - MeasureText("CUSTOM LEVELS", 32) / 2), 26, 32, RAYWHITE);
 
     // Determinar a posição da informação de cada nível na tela
     for (int i = 0; i < customLevelsAmount; i++)
@@ -86,9 +86,9 @@ void drawCustomLevelsMenu(Texture2D background, custom_levels_menu_t *menuData, 
         DrawRectangleLinesEx(levelBox[selectedOption], 3.0f, RAYWHITE);
 
     // Desenhar opção de sair
-    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE, RAYWHITE);
+    DrawText("EXIT", (SCREEN_WIDTH / 2 - MeasureText("EXIT", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE, RAYWHITE);
     if (selectedOption == EXIT_CUSTOM_LEVELS_MENU)
-        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE,
+        DrawText("- EXIT -", (SCREEN_WIDTH / 2 - MeasureText("- EXIT -", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE,
                  RAYWHITE);
 }
 
@@ -107,8 +107,8 @@ void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSiz
     DrawRectangleLinesEx(innerBox, 2, RAYWHITE);
 
     // Desenhar texto
-    DrawText("SALVAR NOVO NÍVEL", (SCREEN_WIDTH / 2 - MeasureText("SALVAR NOVO NÍVEL", 32) / 2), 250, 32, GOLD_COLOR);
-    DrawText("Digite o nome do nível:", (SCREEN_WIDTH / 2 - MeasureText("Digite o nome do nível", 24) / 2), 340, 24,
+    DrawText("SAVE NEW LEVEL", (SCREEN_WIDTH / 2 - MeasureText("SAVE NEW LEVEL", 32) / 2), 250, 32, GOLD_COLOR);
+    DrawText("Insert level name: ", (SCREEN_WIDTH / 2 - MeasureText("Insert level name: ", 24) / 2), 340, 24,
              LIGHTGRAY);
 
     // Desenhar cada caractere digitado para o nome do jogador
@@ -121,29 +121,28 @@ void drawCustomLevelsTextBox(const char *levelName, int nameSize, int maxNameSiz
     if (nameSize)
     {
         // Desenhar opção de confirmar desbloqueada
-        DrawText("- CONFIRMAR -", (SCREEN_WIDTH / 2 - MeasureText("- CONFIRMAR -", 26) / 2), 515, 26, RAYWHITE);
+        DrawText("- CONFIRM -", (SCREEN_WIDTH / 2 - MeasureText("- CONFIRM -", 26) / 2), 515, 26, RAYWHITE);
     }
     else
     {
         // Desenhar opção de confirmar bloqueada
-        DrawText("CONFIRMAR", (SCREEN_WIDTH / 2 - MeasureText("CONFIRMAR", 26) / 2), 515, 26, GRAY);
+        DrawText("CONFIRM", (SCREEN_WIDTH / 2 - MeasureText("CONFIRM", 26) / 2), 515, 26, GRAY);
     }
 }
 
 void drawEditorHUD(level_t *level, editor_option_t selected, editor_option_t hovered)
 {
     DrawTexture(level->textures[EditorHUD], 0, 0, WHITE);
-    DrawText("Editor de Nível", 22, 11, EDITOR_FONT_SIZE, RAYWHITE);
-    DrawText("SALVAR", 1082, 11, EDITOR_FONT_SIZE, RAYWHITE);
+    DrawText("Level Editor", 22, 11, EDITOR_FONT_SIZE, RAYWHITE);
+    DrawText("SAVE", 1106, 11, EDITOR_FONT_SIZE, RAYWHITE);
 
     // Desenhar slot selecionado
     if (selected == Save || hovered == Save)
-        DrawText("- SALVAR -", 1064, 10, EDITOR_FONT_SIZE, RAYWHITE);
+        DrawText("- SAVE -", 1088, 10, EDITOR_FONT_SIZE, RAYWHITE);
     if (hovered != Save)
         DrawTexture(level->textures[SlotHovered], 453 + (37 * hovered), 2, WHITE);
     if (selected != Save)
         DrawTexture(level->textures[SlotSelected], 453 + (37 * selected), 2, WHITE);
-
 }
 
 void drawEditorLevel(level_t *level)
@@ -200,33 +199,32 @@ void drawGameOverScreen(level_t *level, player_t *player, endgame_option_t selec
     // Desenhar o título da tela
     if (!player->health)
     {
-        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", ENDGAME_TITLE_FONT_SIZE) / 2), 233,
+        DrawText("GAME OVER", (SCREEN_WIDTH / 2 - MeasureText("GAME OVER", ENDGAME_TITLE_FONT_SIZE) / 2), 233,
                  ENDGAME_TITLE_FONT_SIZE, RED);
-        DrawText("VIDAS ESGOTADAS", (SCREEN_WIDTH / 2 - MeasureText("VIDAS ESGOTADAS", 26) / 2), 360, 26, GRAY);
+        DrawText("NO LIVES LEFT", (SCREEN_WIDTH / 2 - MeasureText("NO LIVES LEFT", 26) / 2), 360, 26, GRAY);
     }
     else
     {
-        DrawText("FIM DE JOGO", (SCREEN_WIDTH / 2 - MeasureText("FIM DE JOGO", ENDGAME_TITLE_FONT_SIZE) / 2), 233,
+        DrawText("GAME OVER", (SCREEN_WIDTH / 2 - MeasureText("GAME OVER", ENDGAME_TITLE_FONT_SIZE) / 2), 233,
                  ENDGAME_TITLE_FONT_SIZE, DARKBLUE);
-        DrawText("IMPOSSÍVEL CONTINUAR", (SCREEN_WIDTH / 2 - MeasureText("IMPOSSÍVEL CONTINUAR", 26) / 2), 360, 26,
-                 GRAY);
+        DrawText("NO ORES LEFT", (SCREEN_WIDTH / 2 - MeasureText("NO ORES LEFT", 26) / 2), 360, 26, GRAY);
     }
 
     // Desenhar opções
-    DrawText("REINICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 475,
-             MENU_FONT_SIZE, RAYWHITE);
-    DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2), 541, MENU_FONT_SIZE,
+    DrawText("RESTART GAME", (SCREEN_WIDTH / 2 - MeasureText("RESTART GAME", MENU_FONT_SIZE) / 2), 475, MENU_FONT_SIZE,
+             RAYWHITE);
+    DrawText("EXIT GAME", (SCREEN_WIDTH / 2 - MeasureText("EXIT GAME", MENU_FONT_SIZE) / 2), 541, MENU_FONT_SIZE,
              RAYWHITE);
 
     // Desenhar opção selecionada
     switch (selectedOption)
     {
     case ResetGame:
-        DrawText("- REINICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 474,
+        DrawText("- RESTART GAME -", (SCREEN_WIDTH / 2 - MeasureText("- RESTART GAME -", MENU_FONT_SIZE) / 2), 474,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     case ExitGame:
-        DrawText("- SAIR DO JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 540,
+        DrawText("- EXIT GAME -", (SCREEN_WIDTH / 2 - MeasureText("- EXIT GAME -", MENU_FONT_SIZE) / 2), 540,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     }
@@ -244,9 +242,8 @@ void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool 
     DrawRectangleLinesEx(innerBox, 2, RAYWHITE);
 
     // Desenhar texto
-    DrawText("NOVO RECORDE ATINGIDO!", (SCREEN_WIDTH / 2 - MeasureText("NOVO RECORDE ATINGIDO!", 32) / 2), 238, 32,
-             GOLD_COLOR);
-    DrawText("Digite seu nome:", (SCREEN_WIDTH / 2 - MeasureText("Digite seu nome:", 24) / 2), 325, 24, LIGHTGRAY);
+    DrawText("NEW RECORD!", (SCREEN_WIDTH / 2 - MeasureText("NEW RECORD!", 32) / 2), 238, 32, GOLD_COLOR);
+    DrawText("Insert your name: ", (SCREEN_WIDTH / 2 - MeasureText("Insert your name: ", 24) / 2), 325, 24, LIGHTGRAY);
 
     // Desenhar cada caractere digitado para o nome do jogador
     if (nameSize == 3)
@@ -265,12 +262,12 @@ void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool 
                      379, 72, RAYWHITE);
 
         // Desenhar opção de confirmar bloqueada
-        DrawText("CONFIRMAR", (SCREEN_WIDTH / 2 - MeasureText("CONFIRMAR", 26) / 2), 527, 26, GRAY);
+        DrawText("CONFIRM", (SCREEN_WIDTH / 2 - MeasureText("CONFIRM", 26) / 2), 527, 26, GRAY);
     }
     else
     {
         // Desenhar opção de confirmar desbloqueada
-        DrawText("- CONFIRMAR -", (SCREEN_WIDTH / 2 - MeasureText("- CONFIRMAR -", 26) / 2), 527, 26, RAYWHITE);
+        DrawText("- CONFIRM -", (SCREEN_WIDTH / 2 - MeasureText("- CONFIRM -", 26) / 2), 527, 26, RAYWHITE);
     }
 }
 
@@ -288,7 +285,7 @@ void drawHUD(level_t *level, player_t *player)
     DrawText(TextFormat("%i", player->score), (956 - MeasureText(TextFormat("%i", player->score), 28)), 8, 28,
              RAYWHITE);
     DrawText(TextFormat("/%i", level->maxScore), 962, 14, 20, DARKGRAY);
-    DrawText(TextFormat("Nível %i", player->currentLevel), 1080, 8, HUD_FONT_SIZE, RAYWHITE);
+    DrawText(TextFormat("Level %i", player->currentLevel), 1080, 8, HUD_FONT_SIZE, RAYWHITE);
 
     // Desenhar último item minerado com efeito de pulsar
     DrawTexture(player->lastMined.texture, (590 - MeasureText(TextFormat(player->lastMined.name), HUD_FONT_SIZE) / 2),
@@ -354,38 +351,36 @@ void drawMenuScreen(Texture2D menuTexture, menu_option_t selectedOption)
     DrawTexture(menuTexture, 0, 0, WHITE);
 
     // Desenhar opções
-    DrawText("INICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("INICIAR JOGO", MENU_FONT_SIZE) / 2), 354, MENU_FONT_SIZE,
+    DrawText("START GAME", (SCREEN_WIDTH / 2 - MeasureText("START GAME", MENU_FONT_SIZE) / 2), 354, MENU_FONT_SIZE,
              RAYWHITE);
-    DrawText("EDITOR DE NIVEL", (SCREEN_WIDTH / 2 - MeasureText("EDITOR DE NIVEL", MENU_FONT_SIZE) / 2), 416,
+    DrawText("LEVEL EDITOR", (SCREEN_WIDTH / 2 - MeasureText("LEVEL EDITOR", MENU_FONT_SIZE) / 2), 416, MENU_FONT_SIZE,
+             RAYWHITE);
+    DrawText("CUSTOM LEVELS", (SCREEN_WIDTH / 2 - MeasureText("CUSTOM LEVELS", MENU_FONT_SIZE) / 2), 478,
              MENU_FONT_SIZE, RAYWHITE);
-    DrawText("NIVEIS CUSTOMIZADOS", (SCREEN_WIDTH / 2 - MeasureText("NIVEIS CUSTOMIZADOS", MENU_FONT_SIZE) / 2), 478,
-             MENU_FONT_SIZE, RAYWHITE);
-    DrawText("RANKING DE PONTOS", (SCREEN_WIDTH / 2 - MeasureText("RANKING DE PONTOS", MENU_FONT_SIZE) / 2), 540,
-             MENU_FONT_SIZE, RAYWHITE);
-    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 602, MENU_FONT_SIZE, RAYWHITE);
+    DrawText("RANKING", (SCREEN_WIDTH / 2 - MeasureText("RANKING", MENU_FONT_SIZE) / 2), 540, MENU_FONT_SIZE, RAYWHITE);
+    DrawText("EXIT", (SCREEN_WIDTH / 2 - MeasureText("EXIT", MENU_FONT_SIZE) / 2), 602, MENU_FONT_SIZE, RAYWHITE);
 
     // Desenhar opção selecionada
     switch (selectedOption)
     {
     case StartGame:
-        DrawText("- INICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- INICIAR JOGO -", MENU_FONT_SIZE) / 2), 353,
+        DrawText("- START GAME -", (SCREEN_WIDTH / 2 - MeasureText("- START GAME -", MENU_FONT_SIZE) / 2), 353,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     case LevelEditor:
-        DrawText("- EDITOR DE NIVEL -", (SCREEN_WIDTH / 2 - MeasureText("- EDITOR DE NIVEL -", MENU_FONT_SIZE) / 2),
-                 415, MENU_FONT_SIZE, RAYWHITE);
+        DrawText("- LEVEL EDITOR -", (SCREEN_WIDTH / 2 - MeasureText("- LEVEL EDITOR -", MENU_FONT_SIZE) / 2), 415,
+                 MENU_FONT_SIZE, RAYWHITE);
         break;
     case CustomLevels:
-        DrawText("- NIVEIS CUSTOMIZADOS -",
-                 (SCREEN_WIDTH / 2 - MeasureText("- NIVEIS CUSTOMIZADOS -", MENU_FONT_SIZE) / 2), 477, MENU_FONT_SIZE,
-                 RAYWHITE);
+        DrawText("- CUSTOM LEVELS -", (SCREEN_WIDTH / 2 - MeasureText("- CUSTOM LEVELS -", MENU_FONT_SIZE) / 2), 477,
+                 MENU_FONT_SIZE, RAYWHITE);
         break;
     case Ranking:
-        DrawText("- RANKING DE PONTOS -", (SCREEN_WIDTH / 2 - MeasureText("- RANKING DE PONTOS -", MENU_FONT_SIZE) / 2),
-                 539, MENU_FONT_SIZE, RAYWHITE);
+        DrawText("- RANKING -", (SCREEN_WIDTH / 2 - MeasureText("- RANKING -", MENU_FONT_SIZE) / 2), 539,
+                 MENU_FONT_SIZE, RAYWHITE);
         break;
     case Exit:
-        DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 601, MENU_FONT_SIZE,
+        DrawText("- EXIT -", (SCREEN_WIDTH / 2 - MeasureText("- EXIT -", MENU_FONT_SIZE) / 2), 601, MENU_FONT_SIZE,
                  RAYWHITE);
         break;
     }
@@ -398,10 +393,10 @@ void drawRankingScreen(Texture2D background, ranking_t *players, int rankingSize
     DrawText("RANKING", (SCREEN_WIDTH / 2 - MeasureText("RANKING", 32) / 2), 26, 32, RAYWHITE);
 
     // Desenhar subtítulos
-    DrawText("POSIÇÃO", (SCREEN_WIDTH / 7), MENU_FONT_SIZE + 242, MENU_FONT_SIZE, GOLD_COLOR);
-    DrawText("PONTUAÇÃO", (SCREEN_WIDTH / 2 - MeasureText("PONTUAÇÃO", MENU_FONT_SIZE) / 2), MENU_FONT_SIZE + 242,
+    DrawText("PLACEMENT", (SCREEN_WIDTH / 7), MENU_FONT_SIZE + 242, MENU_FONT_SIZE, GOLD_COLOR);
+    DrawText("SCORE", (SCREEN_WIDTH / 2 - MeasureText("SCORE", MENU_FONT_SIZE) / 2), MENU_FONT_SIZE + 242,
              MENU_FONT_SIZE, GOLD_COLOR);
-    DrawText("NOME", (6 * SCREEN_WIDTH / 7 - MeasureText("NOME", MENU_FONT_SIZE)), MENU_FONT_SIZE + 242, MENU_FONT_SIZE,
+    DrawText("NAME", (6 * SCREEN_WIDTH / 7 - MeasureText("NAME", MENU_FONT_SIZE)), MENU_FONT_SIZE + 242, MENU_FONT_SIZE,
              GOLD_COLOR);
 
     // Desenhar jogadores do ranking
@@ -418,8 +413,8 @@ void drawRankingScreen(Texture2D background, ranking_t *players, int rankingSize
     }
 
     // Desenhar opção de sair
-    DrawText("SAIR", (SCREEN_WIDTH / 2 - MeasureText("SAIR", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE, RAYWHITE);
-    DrawText("- SAIR -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR -", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE,
+    DrawText("EXIT", (SCREEN_WIDTH / 2 - MeasureText("EXIT", MENU_FONT_SIZE) / 2), 750, MENU_FONT_SIZE, RAYWHITE);
+    DrawText("- EXIT -", (SCREEN_WIDTH / 2 - MeasureText("- EXIT -", MENU_FONT_SIZE) / 2), 749, MENU_FONT_SIZE,
              RAYWHITE);
 }
 
@@ -436,8 +431,8 @@ void drawSplashScreen(player_t *player, Music *music)
         ClearBackground(BLACK);
 
         DrawTexture(splashTexture, 0, 0, Fade(WHITE, alphaIntensity));
-        DrawText(TextFormat("Nível %i", player->currentLevel),
-                 (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Nível %i", player->currentLevel), SPLASH_FONT_SIZE) / 2),
+        DrawText(TextFormat("Level %i", player->currentLevel),
+                 (SCREEN_WIDTH / 2 - MeasureText(TextFormat("Level %i", player->currentLevel), SPLASH_FONT_SIZE) / 2),
                  (SCREEN_HEIGHT - SPLASH_FONT_SIZE) / 2, SPLASH_FONT_SIZE, Fade(RAYWHITE, alphaIntensity));
 
         alphaIntensity = fadeTimer(false, SPLASH_FADEIN_TIME, SPLASH_FADEOFF_TIME, SPLASH_FADEOUT_TIME);
@@ -452,24 +447,24 @@ void drawWinScreen(endgame_option_t selectedOption)
     DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, Fade(BLACK, 0.75f));
 
     // Desenhar título da tela
-    DrawText("VOCÊ VENCEU!", (SCREEN_WIDTH / 2 - MeasureText("VOCÊ VENCEU!", ENDGAME_TITLE_FONT_SIZE) / 2), 273,
+    DrawText("YOU WIN!", (SCREEN_WIDTH / 2 - MeasureText("YOU WIN!", ENDGAME_TITLE_FONT_SIZE) / 2), 273,
              ENDGAME_TITLE_FONT_SIZE, GREEN);
 
     // Desenhar opções
-    DrawText("REINICIAR JOGO", (SCREEN_WIDTH / 2 - MeasureText("REINICIAR JOGO", MENU_FONT_SIZE) / 2), 436,
-             MENU_FONT_SIZE, RAYWHITE);
-    DrawText("SAIR DO JOGO", (SCREEN_WIDTH / 2 - MeasureText("SAIR DO JOGO", MENU_FONT_SIZE) / 2), 502, MENU_FONT_SIZE,
+    DrawText("RESTART GAME", (SCREEN_WIDTH / 2 - MeasureText("RESTART GAME", MENU_FONT_SIZE) / 2), 436, MENU_FONT_SIZE,
+             RAYWHITE);
+    DrawText("EXIT GAME", (SCREEN_WIDTH / 2 - MeasureText("EXIT GAME", MENU_FONT_SIZE) / 2), 502, MENU_FONT_SIZE,
              RAYWHITE);
 
     // Desenhar opção selecionada
     switch (selectedOption)
     {
     case ResetGame:
-        DrawText("- REINICIAR JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- REINICIAR JOGO -", MENU_FONT_SIZE) / 2), 435,
+        DrawText("- RESTART GAME -", (SCREEN_WIDTH / 2 - MeasureText("- RESTART GAME -", MENU_FONT_SIZE) / 2), 435,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     case ExitGame:
-        DrawText("- SAIR DO JOGO -", (SCREEN_WIDTH / 2 - MeasureText("- SAIR DO JOGO -", MENU_FONT_SIZE) / 2), 501,
+        DrawText("- EXIT GAME -", (SCREEN_WIDTH / 2 - MeasureText("- EXIT GAME -", MENU_FONT_SIZE) / 2), 501,
                  MENU_FONT_SIZE, RAYWHITE);
         break;
     }

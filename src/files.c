@@ -141,7 +141,7 @@ void loadEditorLevel(level_t *level)
         fclose(levelFile);
     }
     else
-        printf("Erro ao ler o arquivo da matriz do nivel.");
+        printf("Could not read the level matrix file.");
 }
 
 void loadLevel(level_t *level, player_t *player, char filename[])
@@ -161,11 +161,11 @@ void loadLevel(level_t *level, player_t *player, char filename[])
     level->ores[Titanium].nameColor = TITANIUM_COLOR;
     level->ores[Uranium].nameColor = URANIUM_COLOR;
 
-    snprintf(level->ores[Caesium].name, MAX_ORE_NAME, "Césio");
-    snprintf(level->ores[Gold].name, MAX_ORE_NAME, "Ouro");
-    snprintf(level->ores[Silver].name, MAX_ORE_NAME, "Prata");
-    snprintf(level->ores[Titanium].name, MAX_ORE_NAME, "Titânio");
-    snprintf(level->ores[Uranium].name, MAX_ORE_NAME, "Urânio");
+    snprintf(level->ores[Caesium].name, MAX_ORE_NAME, "Caesium");
+    snprintf(level->ores[Gold].name, MAX_ORE_NAME, "Gold");
+    snprintf(level->ores[Silver].name, MAX_ORE_NAME, "Silver");
+    snprintf(level->ores[Titanium].name, MAX_ORE_NAME, "Titanium");
+    snprintf(level->ores[Uranium].name, MAX_ORE_NAME, "Uranium");
 
     // Carregar sprites
     level->textures[Background] = LoadTexture("resources/sprites/background.png");
@@ -218,7 +218,7 @@ void loadLevel(level_t *level, player_t *player, char filename[])
         fclose(levelFile);
     }
     else
-        printf("Erro ao ler o arquivo da matriz do nivel.");
+        printf("Could not read the level matrix file.");
 }
 
 int readCustomLevelsMetadataFile(const char *metadataFile, custom_level_metadata_t *metadata, int *customLevelsAmount,
