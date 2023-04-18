@@ -20,12 +20,6 @@
 
 TerraINF is a single-player mining game where the goal is to acquire the highest possible score by obtaining certain types of ores. With a specific score (which increases by 100% with each level), the player progresses through stages, increasing their challenge. Mining or breaking down blocks of earth increases or decreases the player's energy. The game has five ores: three of those (silver, gold, and titanium) increase the player's score and energy, and the others (cesium and uranium) decrease the player's energy. The player's horizontal movement is free, while vertical movement depends on ladders, which are available in twenty units at the beginning of each level. For the purposes of increasing challenge, the player has 3 lives at the beginning of the game. If there is a fall higher than 3 blocks, the player loses 1 life, and if his energy drops below 20 units, he also loses 1 life (and his energy is reset to the initial amount). Those lives are kept for the next level. When the health reaches zero, the player loses the game and can restart it from the first level or exit to the main menu.
 
-The game menu presents the options to: start the game; create custom levels; play custom levels; access high score rankings; and exit the game.
-
-The score ranking displays the name of the top 5 players sorted by highest score. If it is the first time opening the game, the leaderboard has 5 players with random names and zero score.
-
-The level editor is an interactive screen where, using the mouse, the user can draw new levels and save them with a custom name. These levels can be accessed from the "custom levels" option on the main menu. The system stores up to 3 custom levels, automatically deleting the oldest one when creating a level that exceeds the maximum capacity. When selecting a level, the player is redirected to a custom game, where the score required to finish the game depends on the number of score-increasing ores that have been placed. If this score is reached, a victory screen is displayed, allowing the player to restart or exit the custom level. However, if there are no lives left, a game over screen shows up, with the same options as the victory screen. Scores from custom levels are not considered in the ranking.
-
 ## Instructions
 
 ### Main Menu
