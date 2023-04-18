@@ -46,17 +46,17 @@ By selecting the "Start Game" option, a splash screen is shown with the number o
 
 ### HUD & Movement
 
-<img src="https://user-images.githubusercontent.com/97703272/232647735-cb42eba1-8eab-4451-910f-0bcaf9ad7270.png" align="left" width="450">
+<img src="https://user-images.githubusercontent.com/97703272/232666859-ae91cb16-fdc5-429e-a470-75e46bfe0fa3.png" align="left" width="450">
 
-Here, the game itself starts. It is possible to keep track, through the top bar, of the health (marked in light green), energy (in red), stairs (in blue), score and the score required to advance to the next level (in pink), and the current level (in purple). Below the HUD is the playable space. The edges are unreachable to the player, while the lighter spaces indicate the areas accessible without mining. Movement is executed through the W, A, S, D keys (up, left, down, and left respectively), or the arrow keys. To advance vertically, ladders must be positioned with the SHIFT key.
+Here, the game itself starts. It is possible to keep track, through the top bar, of the health (marked in green), energy (in yellow), stairs (in red), score and the score required to advance to the next level (in purple), and the current level (in blue). Below the HUD is the playable space. The edges are unreachable to the player, while the lighter spaces indicate the areas accessible without mining. Movement is executed through the W, A, S, D keys (up, left, down, and left respectively), or the arrow keys. To advance vertically, ladders must be positioned with the SHIFT key.
 
 <br clear="left">
 
 ### Mining
 
-<img src="https://user-images.githubusercontent.com/97703272/232647761-10462892-cc43-4c82-b07f-cd6daaa55863.png" align="left" width="450">
+<img src="https://user-images.githubusercontent.com/97703272/232666939-5c8bbeb1-36d8-40e1-8055-46570ffa2731.png" align="left" width="450">
 
-The mining mode, activated with the "1" key, allows movement to previously blocked spaces; to perform the mining action, the user must indicate, using the keys, the target direction and then press SPACE. All ores start hidden, and after mining them, the game indicates the last item acquired in the center of the HUD (marked in red) and the new score after obtaining it (in orange), as shown in the image. Also observed in the image above are the stairs placed on the level (in blue). As already explained in the description of the game, when there are no lives remaining, the game ends, generating a game over screen.
+The mining mode, activated with the "1" key, allows movement to previously blocked spaces; to perform the mining action, the user must indicate, using the keys, the target direction and then press SPACE. All ores start hidden, and after mining them, the game indicates the last item acquired in the center of the HUD (marked in red) and the new score after obtaining it (in blue), as shown in the image. Also observed in the image above are the stairs placed on the level (in yellow). As already explained in the description of the game, when there are no lives remaining, the game ends, generating a game over screen.
 
 <br clear="left">
 
@@ -86,9 +86,9 @@ Inspired by the old Pac-Man games, the name stored is exactly 3 characters long 
 
 ### Level Editor
 
-<img src="https://user-images.githubusercontent.com/97703272/232647827-414abce8-8876-4c89-a2d7-52087d1ec04b.png" align="left" width="450">
+<img src="https://user-images.githubusercontent.com/97703272/232666987-42b92b99-b188-417d-9877-da3e2d7473a6.png" align="left" width="450">
 
-Selecting the level editor option from the main menu, the player is greeted with an interactive screen which can be navigated with the mouse or keyboard. With the keyboard, A and D or the side arrows can be used to select an ore or save the level. The mouse also works and makes it possible to click on selectable items on the HUD. If the ESC key is pressed, the game will exit without saving and return to the initial menu. Selectable items are marked in orange, and the save option is only selected by hovering over them and left clicking, or by using the aforementioned keys and pressing ENTER.
+Selecting the level editor option from the main menu, the player is greeted with an interactive screen which can be navigated with the mouse or keyboard. With the keyboard, A and D or the side arrows can be used to select an ore or save the level. The mouse also works and makes it possible to click on selectable items on the HUD. If the ESC key is pressed, the game will exit without saving and return to the initial menu. Selectable items are marked in yellow, and the save option is only selected by hovering over them and left clicking, or by using the aforementioned keys and pressing ENTER.
 
 <br clear="left">
 
