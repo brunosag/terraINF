@@ -242,7 +242,7 @@ void drawHighScoreTextBox(player_t *player, int nameSize, int maxNameSize, bool 
     DrawRectangleLinesEx(innerBox, 2, RAYWHITE);
 
     // Desenhar texto
-    DrawText("NEW RECORD!", (SCREEN_WIDTH / 2 - MeasureText("NEW RECORD!", 32) / 2), 238, 32, GOLD_COLOR);
+    DrawText("NEW HIGH SCORE!", (SCREEN_WIDTH / 2 - MeasureText("NEW HIGH SCORE!", 32) / 2), 238, 32, GOLD_COLOR);
     DrawText("Insert your name: ", (SCREEN_WIDTH / 2 - MeasureText("Insert your name: ", 24) / 2), 325, 24, LIGHTGRAY);
 
     // Desenhar cada caractere digitado para o nome do jogador
