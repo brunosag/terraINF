@@ -6,7 +6,7 @@
     <br>
 </h1>
 
-<h4 align="center">A simplified version of Terraria built with <a href="https://en.wikipedia.org/wiki/C_(programming_language)" target="_blank">C</a> & <a href="https://www.raylib.com/" target="_blank">Raylib</a>.</h4>
+<h4 align="center">A plataform mining game built with <a href="https://en.wikipedia.org/wiki/C_(programming_language)" target="_blank">C</a> & <a href="https://www.raylib.com/" target="_blank">Raylib</a>.</h4>
 
 <p align="center">
     <a href="#about">About</a> •
@@ -18,7 +18,7 @@
 
 ## About
 
-TerraINF is a single-player mining game that challenges you to obtain the highest possible score by collecting specific types of ores. With each level, the required score increases by 100%, making the game progressively more challenging. To achieve your goal, you must break down blocks of earth or mine ores, which can increase or decrease your energy.
+TerraINF is a single-player plataform mining game that challenges you to obtain the highest possible score by collecting specific types of ores. With each level, the required score increases by 100%, making the game progressively more challenging. To achieve your goal, you must break down blocks of earth or mine ores, which can increase or decrease your energy.
 
 There are five types of ores in the game, including silver, gold, and titanium, which increase both your score and energy. In contrast, cesium and uranium decrease your energy. You have free horizontal movement in the game, but vertical movement is limited to ladders, which are available in sets of twenty at the start of each level.
 
